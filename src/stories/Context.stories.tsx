@@ -1,19 +1,19 @@
 import React from "react";
-import A from "../components/Ai";
+import C from "../components/Context";
 import "../components/reset/style.css";
 
 export default {
-  title: "Lad Zappala/Ai",
+  title: "Lad Zappala/Context",
 };
 
 const Template = () => {
   return (
     <main>
       <div className="container">
-        <A />
+        <C />
       </div>
     </main>
   );
 };
 
-export const Ai = Template.bind({});
+export const Context = Template.bind({});
