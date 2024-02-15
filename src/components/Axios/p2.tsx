@@ -167,9 +167,7 @@ const Product = ({
           </h3>
           <button onClick={editProduct}>edit</button>
           <button disabled={loaders.deleting} onClick={deleteProduct}>
-            {
-              loaders.deleting ? "deleting..." : "delete"
-            }
+            {loaders.deleting ? "deleting..." : "delete"}
           </button>
         </>
       )}

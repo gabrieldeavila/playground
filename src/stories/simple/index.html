@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Los Angeles Mountains</title>
+    <meta charset="utf-8" />
+    <!-- import css -->
+    <link rel="stylesheet" href="./style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Oswald:wght@200..700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- add "favicon" -->
+    <link rel="icon" href="./img/Logo.png" />
+  </head>
+  <body>
+    <nav class="flex">
+      <div class="nav-container auto-width flex">
+        <div>
+          <img src="./img/logo.png" alt="Los Angeles Mountains" />
+        </div>
+
+        <div
+          role="button"
+          onclick="document.querySelector('.accordion-mobile').classList.toggle('show')"
+          class="mobile-hamburger"
+        >
+          ☰
+        </div>
+
+        <ol class="box-options flex">
+          <li data-icon="1">
+            <a class="capitalize" href="#history">History</a>
+          </li>
+          <li data-icon="2"><a class="capitalize" href="#team">Team</a></li>
+        </ol>
+      </div>
+    </nav>
+    <div class="accordion-mobile">
+      <div class="accordion-mobile-container flex gap">
+        <div
+          class="accordion-mobile-item"
+          onclick="document.querySelector('.accordion-mobile').classList.toggle('show')"
+        >
+          <a class="capitalize" href="#history">History</a>
+        </div>
+        <div
+          class="accordion-mobile-item"
+          onclick="document.querySelector('.accordion-mobile').classList.toggle('show')"
+        >
+          <a class="capitalize" href="#team">Team</a>
+        </div>
+      </div>
+    </div>
+    <div class="container flex justify-center">
+      <main class="mountain-1 capitalize flex">
+        <h1>
+          <p class="mountain-1-text-1">LosAngeles</p>
+          <p class="mountain-1-text-2">Mountains</p>
+        </h1>
+      </main>
+
+      <div class="card full-width flex justify-center">
+        <div class="auto-width full-width flex">
+          <div class="flex gap">
+            <img src="./img/logo.png" alt="Los Angeles Mountains" />
+            <div class="mountain-1">
+              <p class="mountain-1-text-1 capitalize">LosAngeles</p>
+              <p class="mountain-1-text-2 capitalize">Mountains</p>
+            </div>
+          </div>
+          <ol class="box-options flex">
+            <li data-icon="1">
+              <a class="capitalize" href="#history">History</a>
+            </li>
+            <li data-icon="2">
+              <a class="capitalize" href="#team">Team</a>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div id="history" class="history flex">
+        <div class="full-width auto-width pd-2">
+          <div class="number flex flex-column flex-start" data-number="1">
+            <h2 class="capitalize oswald">History</h2>
+            <p class="text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin in
+              ante viverra, rutrum erat rutrum, consectetur mi. Proin at maximus
+              est. Nullam purus ex, iaculis sed erat sed, blandit tincidunt
+              quam. Cras scelerisque id quam sed dignissim Pellentesque urna
+              nunc, gravida quis hendrerit ac, tristique ut quam. Vivamus
+              suscipit dignissim tortor nec congue.
+            </p>
+          </div>
+          <div class="history-panel flex justify-center">
+            <div class="history-panel-wrapper auto-width flex">
+              <div class="panel-img">
+                <img src="./img/mountains/3.png" alt="Mountain 1" />
+              </div>
+              <div class="panel-img">
+                <img src="./img/mountains/4.png" alt="Mountain 2" />
+              </div>
+              <div class="panel-img">
+                <img src="./img/mountains/3.png" alt="Mountain 3" />
+              </div>
+              <div class="panel-img">
+                <img src="./img/mountains/4.png" alt="Mountain 4" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="team" class="climb full-width flex justify-center">
+        <div class="full-width auto-width pd-2">
+          <div class="number flex flex-column flex-start" data-number="2">
+            <h2 class="capitalize oswald">Climb</h2>
+            <p class="text">
+              Cras scelerisque id quam sed dignissim Pellentesque urna nunc,
+              gravida quis hendrerit ac, tristique ut quam. Vivamus suscipit
+              dignissim tortor nec congue.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="list flex full-width justify-center">
+        <div class="full-width auto-width">
+          <ul class="flex gap">
+            <li class="capitalize selected">Mountain 1</li>
+            <li class="capitalize">Mountain 2</li>
+          </ul>
+        </div>
+      </div>
+      <div class="schedule full-width flex">
+        <div class="schedule-container full-width auto-width">
+          <div class="popup">
+            <h3 class="capitalize oswald">Schedule</h3>
+            <div class="date">
+              <p>25 Nov 2016</p>
+              <p>Vestibulum viverra</p>
+            </div>
+            <div class="date">
+              <p>28 Nov 2016</p>
+              <p>Vestibulum viverra</p>
+            </div>
+            <br />
+            <div class="date">
+              <p>18 Dez 2016</p>
+              <p>Vestibulum viverra</p>
+            </div>
+            <br />
+            <div class="date">
+              <p>7 Jan 2017</p>
+              <p>Vestibulum viverra</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer card full-width flex justify-center">
+        <div class="auto-width full-width flex gap">
+          <div class="flex gap">
+            <img src="./img/logo.png" alt="Los Angeles Mountains" />
+            <div class="mountain-1">
+              <p class="mountain-1-text-1 capitalize">LosAngeles</p>
+              <p class="mountain-1-text-2 capitalize">Mountains</p>
+            </div>
+          </div>
+          <div class="italic text">COPYRIGHT 2016. ALL RIGHTS RESERVED.</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

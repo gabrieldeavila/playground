@@ -1,0 +1,391 @@
+:root {
+  --primary-color: #fefeff;
+  --primary-color-light: #fefeff90;
+  --secondary-color: #414f6b;
+  --secondary-color-light: #414f6b90;
+  --tertiary-color: #000000;
+  --quaternary-color: #b0b4be;
+}
+
+/* basic reset */
+* {
+  margin: 0;
+  padding: 0;
+
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+
+  color: var(--primary-color);
+}
+
+.italic {
+  font-style: italic;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-start {
+  align-items: flex-start;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.capitalize {
+  text-transform: uppercase;
+}
+
+.oswald {
+  font-family: "Oswald", sans-serif;
+  font-weight: 500;
+}
+
+.gap {
+  gap: 1rem;
+}
+
+nav.flex {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 0.5rem 2rem;
+  justify-content: center;
+  background: transparent;
+  backdrop-filter: blur(5px);
+}
+
+.pd-2 {
+  padding: 2rem;
+}
+
+.auto-width {
+  max-width: 1400px;
+}
+
+.full-width {
+  width: -webkit-fill-available;
+}
+
+.text {
+  max-width: 95%;
+  color: var(--tertiary-color);
+  line-height: 1.5;
+}
+
+.nav-container {
+  width: -webkit-fill-available;
+}
+
+.box-options {
+  gap: 5rem;
+}
+
+.box-options * {
+  font-style: italic;
+  text-decoration: none;
+}
+
+.box-options li {
+  position: relative;
+}
+
+.box-options li::marker {
+  content: "0" attr(data-icon) " - ";
+}
+
+.box-options li:before {
+  content: "";
+  position: absolute;
+  bottom: -0.25rem;
+  left: -1.8rem;
+  right: 0;
+  height: 1px;
+  background-color: var(--primary-color);
+}
+
+.container {
+  flex-direction: column;
+  align-items: center;
+  margin-top: -4rem;
+  overflow: hidden;
+}
+
+.wrapper {
+  width: 100%;
+}
+
+main.mountain-1 {
+  width: 100%;
+  min-height: 73dvh;
+  background: url("./img/mountains/1.png") no-repeat;
+  background-size: cover;
+  position: relative;
+  padding-top: 10rem;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+
+.mountain-1 * {
+  font-family: "Oswald", sans-serif;
+  font-weight: 500;
+  font-size: 7rem;
+  letter-spacing: 0.25rem;
+}
+
+.mountain-1-text-1 {
+  color: #4d4f50;
+}
+
+.mountain-1-text-2 {
+  color: var(--secondary-color);
+}
+
+.card {
+  padding: 2rem;
+}
+
+.card [class^="mountain-1-text-"] {
+  font-size: 1rem;
+  letter-spacing: 0.1rem;
+}
+
+.card .box-options * {
+  color: var(--secondary-color);
+}
+
+.card .box-options li:before {
+  background-color: var(--secondary-color);
+}
+
+.history {
+  width: 100%;
+  min-height: 100dvh;
+  background: url("./img/mountains/2.png") no-repeat;
+  background-size: cover;
+  position: relative;
+
+  padding-top: 10rem;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.number {
+  position: relative;
+  padding-left: 5rem;
+}
+
+.number h2 {
+  padding-left: 4rem;
+  padding-bottom: 2.5rem;
+  margin-top: -2rem;
+  color: var(--secondary-color);
+  font-weight: 700;
+}
+
+.number::before {
+  content: "0" attr(data-number) ". ";
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  font-size: 10rem;
+  opacity: 0.5;
+  color: var(--secondary-color);
+  position: absolute;
+  top: -10rem;
+  left: -1rem;
+}
+
+.history-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--secondary-color-light);
+  backdrop-filter: blur(5px);
+  min-height: 8rem;
+  padding: 2rem;
+}
+
+.history-panel-wrapper {
+  overflow: auto;
+  gap: 2rem;
+  justify-content: flex-start;
+}
+
+.climb {
+  padding-top: 7rem;
+}
+
+.climb .number h2 {
+  padding-left: 5rem;
+}
+
+.list {
+  background: var(--secondary-color);
+  padding: 0 2rem;
+}
+
+.list ul {
+  list-style: none;
+  justify-content: flex-start;
+}
+
+.list ul li {
+  font-family: "Oswald", sans-serif;
+  font-weight: 400;
+  padding: 1rem;
+  color: var(--quaternary-color);
+  user-select: none;
+  cursor: pointer;
+}
+
+.list ul li.selected {
+  background: var(--quaternary-color);
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.schedule {
+  width: 100%;
+  min-height: 50dvh;
+  background: url("./img/mountains/5.png") no-repeat;
+  background-size: cover;
+  background-position: right;
+  position: relative;
+
+  padding-top: 10rem;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+}
+
+.schedule .popup {
+  padding: 2rem;
+  backdrop-filter: blur(5px);
+  background-color: var(--primary-color-light);
+  position: absolute;
+  left: 2rem;
+}
+
+.schedule-container {
+  position: absolute;
+}
+
+.schedule h3 {
+  color: var(--secondary-color);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.schedule .date {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.schedule .date p:first-child {
+  width: 10rem;
+}
+
+.schedule .date * {
+  color: var(--tertiary-color);
+}
+
+.footer {
+  background: var(--secondary-color);
+}
+
+.footer * {
+  color: var(--primary-color);
+  opacity: 0.65;
+}
+
+.accordion-mobile,
+.mobile-hamburger {
+  display: none;
+}
+
+.accordion-mobile {
+  position: fixed;
+  top: 4rem;
+  right: 2rem;
+  z-index: 1000;
+  background-color: var(--primary-color-light);
+  color: var(--secondary-color) !important;
+  backdrop-filter: blur(5px);
+  padding: 1rem;
+}
+
+.accordion-mobile-container {
+  flex-direction: column;
+}
+
+.accordion-mobile-item a {
+  padding: 1rem;
+  text-decoration: none;
+  color: var(--secondary-color);
+}
+
+@media screen and (max-width: 768px) {
+  .auto-width {
+    max-width: 768px;
+  }
+
+  .mountain-1 * {
+    font-size: 15vw;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .auto-width {
+    max-width: 480px;
+  }
+
+  nav .box-options,
+  .card .box-options {
+    display: none;
+  }
+
+  .show {
+    display: block;
+  }
+
+  .card .auto-width {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mobile-hamburger {
+    display: block;
+  }
+
+  .schedule {
+    padding-top: 5rem;
+  }
+
+  .schedule .popup {
+    left: 0;
+  }
+
+  .text:not(.italic) {
+    padding: 0.5rem 2rem;
+    background-color: var(--primary-color-light);
+    backdrop-filter: blur(5px);
+  }
+
+  .history {
+    height: calc(100dvh + 8rem);
+  } 
+}
