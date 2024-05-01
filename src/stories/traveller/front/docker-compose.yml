@@ -1,0 +1,16 @@
+version: "1"
+services:
+  front:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+    env_file:
+      - ./.env
+    ports:
+      - "3004:3004"
+    volumes:
+      - .:/iam
+      # prevent node_modules from being copied to the container
+      - /iam/node_modules

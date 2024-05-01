@@ -1,0 +1,26 @@
+/* //!STARTERCONF Remove this file after copying your desired color, this is a large file you should remove it. */
+
+.slate {
+  --tw-color-primary-50: 248 250 252;
+  --tw-color-primary-100: 241 245 249;
+  --tw-color-primary-200: 226 232 240;
+  --tw-color-primary-300: 203 213 225;
+  --tw-color-primary-400: 148 163 184;
+  --tw-color-primary-500: 100 116 139;
+  --tw-color-primary-600: 71 85 105;
+  --tw-color-primary-700: 51 65 85;
+  --tw-color-primary-800: 30 41 59;
+  --tw-color-primary-900: 15 23 42;
+  --tw-color-primary-950: 2 6 23;
+  --color-primary-50: rgb(var(--tw-color-primary-50)); /* #f8fafc */
+  --color-primary-100: rgb(var(--tw-color-primary-100)); /* #f1f5f9 */
+  --color-primary-200: rgb(var(--tw-color-primary-200)); /* #e2e8f0 */
+  --color-primary-300: rgb(var(--tw-color-primary-300)); /* #cbd5e1 */
+  --color-primary-400: rgb(var(--tw-color-primary-400)); /* #94a3b8 */
+  --color-primary-500: rgb(var(--tw-color-primary-500)); /* #64748b */
+  --color-primary-600: rgb(var(--tw-color-primary-600)); /* #475569 */
+  --color-primary-700: rgb(var(--tw-color-primary-700)); /* #334155 */
+  --color-primary-800: rgb(var(--tw-color-primary-800)); /* #1e293b */
+  --color-primary-900: rgb(var(--tw-color-primary-900)); /* #0f172a */
+  --color-primary-950: rgb(var(--tw-color-primary-950)); /* #020617 */
+}
