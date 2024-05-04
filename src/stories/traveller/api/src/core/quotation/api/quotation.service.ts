@@ -1,43 +1,107 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import puppeteer from "puppeteer";
+import {
+  IQuotation,
+  TQuotationResponse,
+} from "./interfaces/quotation.interface";
+
+const BASE_URL = "https://pratagy.letsbook.com.br/reserva/selecao-de-quartos";
+const DEFAULT_HOTEL_CODE = 12;
+const DEFAULT_DEVICE = "Desktop";
+const DEFAULT_LANGUAGE = "pt-BR";
 
 @Injectable()
 export class PuppeteerService {
-  constructor(
-    @Inject(Logger) private readonly logger: Logger,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(@Inject(Logger) private readonly logger: Logger) {}
 
-  async crawl() {
-    this.logger.log("Crawling the web!");
+  async crawl(quotation: IQuotation): Promise<TQuotationResponse> {
+    this.logger.log("Start crawling..");
+
     // Launch the browser and open a new blank page
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
+    // Create a new URL
+    const url = new URL(BASE_URL);
+
+    // Set the checkin/checkout date
+    url.searchParams.set("checkin", quotation.checkin);
+    url.searchParams.set("checkout", quotation.checkout);
+
+    // If the kids parameter exists, we add it to the URL
+    if (quotation.kids) {
+      url.searchParams.set("criancas", String(quotation.kids));
+    }
+
+    // The other parameters are optional, so if they do not exist, we add a default value
+    url.searchParams.set("numeroAdultos", String(quotation.adults || 1));
+    url.searchParams.set("quartos", String(quotation.rooms || 1));
+    url.searchParams.set("promocode", quotation.promocode || "");
+
+    // Add the default values
+    url.searchParams.set("hotel", String(DEFAULT_HOTEL_CODE));
+    url.searchParams.set("device", DEFAULT_DEVICE);
+    url.searchParams.set("idioma", DEFAULT_LANGUAGE);
+
+    this.logger.log(`Accessing URL: ${url.toString()}`);
+
     // Navigate the page to a URL
-    await page.goto("https://developer.chrome.com/");
+    await page.goto(url.toString(), {
+      waitUntil: "networkidle2",
+    });
 
     // Set screen size
     await page.setViewport({ width: 1080, height: 1024 });
 
-    // Type into search box
-    await page.type(".devsite-search-field", "automate beyond recorder");
+    // Wait for the room list to be visible
+    await page.waitForSelector(".room-list", { visible: true });
 
-    // Wait and click on first result
-    const searchResultSelector = ".devsite-result-item-link";
-    await page.waitForSelector(searchResultSelector);
-    await page.click(searchResultSelector);
+    // Sometimes, the page is not fully loaded, so we need to wait a little bit more
+    await page.waitForNetworkIdle({ idleTime: 250 });
 
-    // Locate the full title with a unique string
-    const textSelector = await page.waitForSelector(
-      "text/Customize and automate",
-    );
-    const fullTitle = await textSelector?.evaluate(el => el.textContent);
+    const roomList: TQuotationResponse = await page?.evaluate(async () => {
+      // Get the list of rooms
+      const roomsArray = Array.from(
+        document?.querySelectorAll(".room-option") || [],
+      );
 
-    // Print the full title
-    console.log('The title of this blog post is "%s".', fullTitle);
+      // Map the rooms to an array of objects
+      return roomsArray.map(room => {
+        const name = room.querySelector(
+          "h3.room-option-title--title",
+        )?.textContent;
+
+        const description = room.querySelector(
+          "p.room-option-title--amenities",
+        )?.textContent;
+
+        const price = room.querySelector(
+          "p.daily-price--total span.term",
+        )?.textContent;
+
+        const image = room
+          .querySelector("div.q-carousel__slide")
+          ?.getAttribute("style")
+          ?.split("url(")[1]
+          ?.split(")")[0]
+          ?.replaceAll(/['"]+/g, "")
+          ?.replace(/\\/g, "");
+
+        return {
+          name,
+          description,
+          price,
+          image,
+        };
+      });
+    });
+
+    if (roomList == null || roomList.length === 0) {
+      throw new Error("Room list was not found");
+    }
 
     await browser.close();
+
+    return roomList;
   }
 }
