@@ -87,4 +87,4 @@ npx @puppeteer/browsers install chrome@stable
 
 [assets_1]: assets/1.gif
 [assets_2]: assets/2.png
-[assets_2]: assets/3.png
+[assets_3]: assets/3.png
