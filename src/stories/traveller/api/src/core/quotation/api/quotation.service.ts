@@ -97,8 +97,11 @@ export class PuppeteerService {
     });
 
     if (roomList == null || roomList.length === 0) {
+      this.logger.error("Room list was not found");
       throw new Error("Room list was not found");
     }
+
+    this.logger.log(`Crawling finished! Found ${roomList.length} rooms`);
 
     await browser.close();
 
