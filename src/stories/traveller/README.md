@@ -11,6 +11,7 @@
 
 Table of contents
 
+- [Clone the repository](#clone-the-repository)
 - [Getting started](#getting-started)
   - [1. Start the API](#1-start-the-api)
   - [2. Start the client](#2-start-the-client)
