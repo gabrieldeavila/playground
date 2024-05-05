@@ -20,6 +20,19 @@ Table of contents
   - [Search for a location](#search-for-a-location)
 - [Problems?](#problems)
 
+
+## Clone the repository
+
+```bash
+git clone https://github.com/gabrieldeavila/playground.git
+```
+
+Access the project folder
+
+```bash
+cd ./playground/src/stories/traveller
+```
+
 ## Getting started
 
 ![Tutorial][assets_1]
