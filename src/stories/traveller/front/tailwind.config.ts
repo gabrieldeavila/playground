@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        primary: ['Fira Code', ...defaultTheme.fontFamily.sans],
+        primary: ['Montserrat', ...defaultTheme.fontFamily.sans],
       },
       colors: {
         primary: {
