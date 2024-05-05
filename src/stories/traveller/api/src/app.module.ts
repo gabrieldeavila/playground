@@ -5,8 +5,6 @@ import { HealthModule } from "@src/core/health/health.module";
 
 import { LoggerModule } from "@shared/logger/logger.module";
 
-import { UserModule } from "@contexts/users/user.module";
-
 import { QuoatationModule } from "./core/quotation/quotation.module";
 
 @Module({
@@ -14,7 +12,6 @@ import { QuoatationModule } from "./core/quotation/quotation.module";
     ConfigModule.forRoot({ isGlobal: true, cache: true }),
     LoggerModule,
     HealthModule,
-    UserModule,
     QuoatationModule,
   ],
 })
