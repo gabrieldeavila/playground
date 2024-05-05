@@ -9,6 +9,17 @@
 
 # Traveller Way
 
+Table of contents
+
+- [Getting started](#getting-started)
+  - [1. Start the API](#1-start-the-api)
+  - [2. Start the client](#2-start-the-client)
+  - [3. Open the browser](#3-open-the-browser)
+- [Testing](#testing)
+- [Accessing the API](#accessing-the-api)
+  - [Search for a location](#search-for-a-location)
+- [Problems?](#problems)
+
 ## Getting started
 
 ![Tutorial][assets_1]
@@ -65,12 +76,14 @@ method: POST
 	"promocode": null
 }
 ```
+
 ![Tutorial][assets_2]
 ![Tutorial][assets_3]
 
 ## Problems?
 
 ### Puppeteer
+
 If you don't have puppeteer installed, the install might take a while.
 
 If you want to install it globally, you can run the following command:
