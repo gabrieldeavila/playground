@@ -1,6 +1,6 @@
 export const siteConfig = {
-  title: 'Traveller',
+  title: "Traveller Way",
   description:
-    '',
-  url: 'https://example.com',
+    "Find the way to travel with Traveller Way. We provide the best experience for your travel.",
+  url: "https://traveller_way.example.com",
 };

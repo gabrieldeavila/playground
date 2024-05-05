@@ -1,224 +1,206 @@
 "use client";
 
-import NextImage from "@/components/NextImage";
-import Decoration from "./components/decoration";
-import ArrowLink from "@/components/links/ArrowLink";
-import { IoMdArrowRoundDown } from "react-icons/io";
-import { useCallback, useRef } from "react";
-import Background1 from "@/components/svgs/background1";
-import DissolutusLogo from "@/components/svgs/dissolutus";
-import ButtonLink from "@/components/links/ButtonLink";
-import Stack from "./components/stack";
-import Background2 from "@/components/svgs/background2";
-import UnstyledLink from "@/components/links/UnstyledLink";
-import { BsNintendoSwitch } from "react-icons/bs";
+import Message from "@/components/chat/message";
+import Results, { ResultsError } from "@/components/chat/results";
+import Loader from "@/components/icons/loader";
+import Input from "@/components/inputs";
+import { IChatResponse, IChatState } from "@/interfaces/chat.interface";
+import STARTER_CHAT from "@/lib/chat/starter";
+import { cn } from "@/lib/utils";
+import { useCallback, useState } from "react";
 
-export default function HomePage() {
-  const stackRef = useRef<HTMLDivElement | null>(null);
+export default function ChatBotPage() {
+  const [state, setState] = useState<IChatState>(STARTER_CHAT);
+  const [key, setKey] = useState(0);
 
-  const addScroll = useCallback(() => {
-    stackRef.current?.scrollIntoView({ behavior: "smooth" });
+  const [results, setResults] = useState<IChatResponse["data"]>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSearch = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    setResults(null);
+
+    // TODO: improve and add axios instead
+    const rawResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_API_TRAVELLER}/search`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(state),
+      }
+    );
+
+    setIsLoading(false);
+    const content = (await rawResponse.json()) as IChatResponse;
+
+    if (content.error) {
+      setError(content.message);
+      return;
+    }
+
+    setResults(content.data);
+  }, [state]);
+
+  const clearSearch = useCallback(() => {
+    setResults(null);
+
+    setState(STARTER_CHAT);
+    setKey((prev) => prev + 1);
   }, []);
 
   return (
-    <main>
-      <Decoration />
+    <main
+      className={cn(
+        "flex flex-col justify-center items-center",
+        "sm:p-4",
+        "bg-neutral-900",
+        "w-dvw",
+        "h-dvh"
+      )}
+      key={key}
+    >
+      <div
+        className={cn(
+          "bg-zinc-800",
+          "text-white",
+          "w-screen sm:w-11/12 sm:max-w-3xl	",
+          "h-screen sm:h-2/3",
+          "p-5 pr-2",
+          "rounded-sm",
+          "shadow-lg"
+        )}
+      >
+        <div
+          className={cn(
+            "flex flex-col",
+            "gap-5",
+            "h-full max-h-full",
+            "overflow-auto",
+            "py-2 pr-3"
+          )}
+        >
+          <Message type="bot" message="Hi! 👋" />
+          <Message type="bot" message="I'm Travvy, Traveller Way's chatbot." />
+          <Message type="bot" message="When are you planning to travel?" />
+          <Input
+            state={state}
+            setState={setState}
+            type="date"
+            defaultSize="w-48"
+            name="checkin"
+          />
 
-      <section className="relative bg-dark text-white">
-        <div className="layout relative flex min-h-screen flex-col items-center justify-center text-center">
-          <h1 className="z-10 max-w-4xl bg-dark md:text-6xl">
-            i create web experiences that make people feel deeply connected.
-          </h1>
+          {state.checkin && (
+            <>
+              <Message type="bot" message="And when will you be back?" />
+              <Input
+                state={state}
+                setState={setState}
+                type="date"
+                defaultSize="w-48"
+                name="checkout"
+              />
+            </>
+          )}
 
-          <div className="mt-10 flex items-center gap-10 max-md:flex-col">
-            <div className="flex items-center justify-center">
-              <div className="overflow-hidden rounded-full border-4 border-primary-500">
-                <NextImage
-                  useSkeleton
-                  className="w-32 md:w-40"
-                  src="/images/me.jpeg"
-                  width="180"
-                  height="180"
-                  alt="Me"
-                />
-              </div>
-            </div>
+          {state.checkout && (
+            <>
+              <Message
+                type="bot"
+                message="How many people (16+) will be travelling?"
+              />
+              <Input
+                state={state}
+                setState={setState}
+                type="number"
+                min={1}
+                max={9}
+                name="adults"
+              />
+            </>
+          )}
 
-            <div className="z-10 flex flex-col items-start gap-2 bg-dark">
-              <h3> hey there folks!</h3>
-              <p className="text-left">
-                <span className="mb-2.5 block">
-                  I am Gabriel Ávila, a <strong>front-end web developer</strong>{" "}
-                  dedicated to fostering creativity on the web.{" "}
-                </span>
-                <span className="block ">
-                  I am always looking for new challenges and opportunities to
-                  learn and grow.
-                </span>
-              </p>
-            </div>
-          </div>
+          {!!state.adults && (
+            <>
+              <Message type="bot" message="How many rooms do you need?" />
+              <Input
+                state={state}
+                setState={setState}
+                type="number"
+                defaultValue={0}
+                min={0}
+                max={9}
+                name="rooms"
+              />
+            </>
+          )}
+
+          {!!state.rooms && (
+            <>
+              <Message type="bot" message="Almost there!" />
+              <Message
+                type="bot"
+                message="Do you have any kids? Tell us their age."
+              />
+              <Input
+                state={state}
+                setState={setState}
+                type="number"
+                name="kids"
+              />
+
+              <Message type="bot" message="Do you have a promo code?" />
+              <Input
+                state={state}
+                setState={setState}
+                type="text"
+                name="promocode"
+              />
+
+              {error && (
+                <ResultsError error={error} />
+              )}
+
+              <button
+                disabled={isLoading}
+                onClick={handleSearch}
+                className={cn(
+                  "flex gap-5",
+                  "justify-center items-center",
+                  "bg-primary-500 text-white",
+                  "rounded-3xl p-2",
+                  "transition-all hover:opacity-80 active:scale-95",
+
+                  isLoading && [
+                    "bg-primary-700",
+                    "cursor-not-allowed",
+                    "opacity-70",
+                  ]
+                )}
+              >
+                <p>
+                  {isLoading
+                    ? "Searching for the best deals... 🚀"
+                    : results?.length
+                    ? "Let's search again! 🚀"
+                    : "Let's search for the best deals for you! 🚀"}
+                </p>
+
+                {isLoading && <Loader />}
+              </button>
+            </>
+          )}
+
+          {results?.length && (
+            <Results onClear={clearSearch} results={results} />
+          )}
         </div>
-
-        <div className="absolute bottom-0 left-[42%] z-10 sm:bottom-10 sm:left-1/2">
-          <button
-            onClick={addScroll}
-            className="animate-bounce rounded-full bg-primary-500 bg-stone-700 p-3 text-2xl text-white shadow-lg"
-          >
-            <IoMdArrowRoundDown size={20} />
-          </button>
-        </div>
-      </section>
-
-      <Stack ref={stackRef} />
-
-      <section className="radial-purple relative z-10 flex min-h-screen flex-col justify-center p-10 py-12 text-slate-200">
-        <div className="flex max-sm:flex-col-reverse">
-          <div className="flex flex-grow flex-col justify-center">
-            <p className="relative pt-8 font-extralight italic opacity-25">
-              Reading Experience
-              <DissolutusLogo className="absolute inset-0" />
-            </p>
-            <h2 className="mt-3 text-4xl">Dissolutus</h2>
-            <p className="mt-7">
-              A web application for Enhanced Reading and Writing experiences
-            </p>
-
-            <ArrowLink
-              className="animated-yellow mt-5 w-fit text-yellow-600"
-              href="https://www.dissolutus.com/en-US/scribere"
-            >
-              Visit the project
-            </ArrowLink>
-          </div>
-
-          <div className="relative flex items-center justify-center max-sm:mb-10">
-            <Background1 className="absolute scale-100 md:scale-150 lg:scale-[2] xl:scale-[2.5] 2xl:scale-[3]" />
-
-            <NextImage
-              useSkeleton
-              className="z-10 max-md:w-96 max-sm:w-72"
-              src="/images/dissolutus.png"
-              width="904"
-              height="602"
-              alt="Icon"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="radial-green relative z-10 flex min-h-screen min-h-screen flex-col justify-center p-10 py-12 text-slate-200">
-        <div className="flex max-sm:flex-col-reverse">
-          <div className="relative flex items-center justify-center max-sm:mb-10">
-            <Background1
-              mainColor="#163326"
-              bigBubbles="#11644c"
-              smallBubbles="#618f88"
-              className="absolute scale-100 md:scale-150 lg:scale-[2] xl:scale-[2.5] 2xl:scale-[3]"
-            />
-
-            <NextImage
-              useSkeleton
-              className="z-10 max-md:w-96 max-sm:w-72"
-              src="/images/gtdesign.png"
-              width="904"
-              height="602"
-              alt="Icon"
-            />
-          </div>
-
-          <div className="flex flex-grow flex-col items-end justify-center">
-            <p className="relative pt-8 font-extralight italic opacity-25">
-              Front-end toolkit
-            </p>
-            <h2 className="mt-3 text-4xl">GT Design</h2>
-            <p className="mt-7">
-              A React component library for building forms and data entry
-            </p>
-
-            <p className="mt-2.5">
-              <strong>Built with:</strong> React, Styled Components, Storybook,
-              and Chromatic
-            </p>
-
-            <ArrowLink
-              className="animated-yellow mt-5 w-fit text-yellow-600"
-              href="https://6404fabceae243628422dfbc-aeiuqgveau.chromatic.com/?path=/story/data-entry-inputs-all-with-prev-values--all-with-prev-values"
-            >
-              Visit the project
-            </ArrowLink>
-
-            <ArrowLink
-              className="animated-yellow mt-2.5 w-fit text-yellow-600"
-              href="https://github.com/gabrieldeavila/gt-design"
-            >
-              View the code
-            </ArrowLink>
-          </div>
-        </div>
-      </section>
-
-      <section className="radial-blue relative z-10 flex min-h-screen flex-col justify-center p-10 py-12 text-slate-200">
-        <div className="flex max-sm:flex-col-reverse">
-          <div className="flex flex-grow flex-col justify-center">
-            <p className="relative pt-8 font-extralight italic opacity-25">
-              A 3D Game with Mario (can you spot the portfolio?)
-              <BsNintendoSwitch className="absolute inset-0" />
-            </p>
-            <h2 className="mt-3 text-4xl">NightmareFolio</h2>
-            <p className="mt-7">
-            </p>
-
-            <ArrowLink
-              className="animated-yellow mt-5 w-fit text-yellow-600"
-              href="https://nightmare-folio.vercel.app/mario"
-            >
-              Visit the project
-            </ArrowLink>
-            <ArrowLink
-              className="animated-yellow mt-2.5 w-fit text-yellow-600"
-              href="https://github.com/gabrieldeavila/nightmare-folio"
-            >
-              View the code
-            </ArrowLink>
-          </div>
-
-          <div className="relative flex items-center justify-center max-sm:mb-10">
-            <Background1
-              mainColor="#2d3956"
-              smallBubbles="#3a7499"
-              bigBubbles="#1c4b6d"
-              className="absolute scale-100 md:scale-150 lg:scale-[2] xl:scale-[2.5] 2xl:scale-[3]"
-            />
-
-            <NextImage
-              useSkeleton
-              className="z-10 max-md:w-96 max-sm:w-72"
-              src="/images/mario.png"
-              width="904"
-              height="602"
-              alt="Icon"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="align-center relative flex min-h-screen justify-center bg-dark text-white">
-        <div className="max-md:flex-col container relative z-10 flex items-center justify-center gap-10 md:justify-around">
-          <Background2 className="max-sm:scale-90 max-lg:scale-100  scale-[2.5]" />
-          <div className="flex flex-col gap-5 bg-dark max-sm:max-w-72">
-            <h2>What are you waiting for?</h2>
-            <p>Let's build something great together!</p>
-            <p>You can reach me at:</p>
-            <UnstyledLink
-              className="text-yellow-600"
-              href="mailto:gabrieleboneavila@gmail.com"
-            >
-              gabrieleboneavila@gmail.com
-            </UnstyledLink>
-          </div>
-        </div>
-      </section>
+      </div>
     </main>
   );
 }

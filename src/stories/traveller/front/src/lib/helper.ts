@@ -11,3 +11,7 @@ export function getFromSessionStorage(key: string): string | null {
   }
   return null;
 }
+
+export function nowInString(): string {
+  return new Date().toISOString();
+}
