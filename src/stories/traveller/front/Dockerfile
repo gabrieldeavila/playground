@@ -2,7 +2,7 @@ FROM node:21.6.1 as build
 
 ARG BUILD_ENV=prod
 
-WORKDIR /iam
+WORKDIR /front-traveller
 
 COPY ./package.json ./package.json
 
@@ -11,10 +11,6 @@ RUN npm i --force
 
 COPY . .
 
-# VOLUME [ "/app/node_modules" ]
-
-# CMD ["npm", "run", "dev"]
-
-# for production
+# For production
 RUN npm run build
 CMD ["npm", "run", "start"]

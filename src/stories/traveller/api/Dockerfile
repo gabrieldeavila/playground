@@ -4,24 +4,6 @@ ENV DIR /app
 WORKDIR $DIR
 ARG NPM_TOKEN
 
-FROM base AS dev
-
-ENV NODE_ENV=development
-
-COPY package*.json .
-
-RUN echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ".npmrc" && \
-    npm ci && \
-    rm -f .npmrc
-
-COPY tsconfig*.json .
-COPY .swcrc .
-COPY nest-cli.json .
-COPY src src
-
-EXPOSE $PORT
-CMD ["npm", "run", "dev"]
-
 FROM base AS build
 
 RUN apk update && apk add --no-cache dumb-init=1.2.5-r2

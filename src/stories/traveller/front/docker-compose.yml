@@ -1,16 +1,14 @@
 version: "1"
 services:
   front:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - PORT=${PORT:-3000}
     environment:
-      NODE_ENV: development
+      NODE_ENV: PRODUCTION
     env_file:
       - ./.env
     ports:
-      - "3004:3004"
-    volumes:
-      - .:/iam
-      # prevent node_modules from being copied to the container
-      - /iam/node_modules
+      - "${PORT:-3000}:${PORT:-3000}"
