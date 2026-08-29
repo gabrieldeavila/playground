@@ -1,5 +1,8 @@
 export const getSupportedMimeType = () => {
   const candidates = [
+    "video/webm;codecs=vp8,opus",
+    "video/webm;codecs=vp9,opus",
+    "video/webm",
     "audio/webm;codecs=opus",
     "audio/webm",
     "audio/mp4",

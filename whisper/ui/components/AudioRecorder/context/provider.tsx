@@ -30,7 +30,8 @@ export function AudioRecorderBaseProvider({
       resumeRecording: value.resumeRecording,
       stopRecording: value.stopRecording,
       retryChunk: value.retryChunk,
-      requestMicrophonePermission: value.requestMicrophonePermission,
+      requestDisplayMediaPermission: value.requestDisplayMediaPermission,
+      downloadChunk: value.downloadChunk,
     }),
     [value],
   );
@@ -45,3 +46,4 @@ export function AudioRecorderBaseProvider({
 }
 
 export const AudioRecorderProvider = AudioRecorderBaseProvider;
+export default AudioRecorderProvider;

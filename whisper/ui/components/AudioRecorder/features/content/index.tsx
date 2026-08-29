@@ -18,6 +18,7 @@ const AudioRecorderContent = memo(() => {
     resumeRecording,
     stopRecording,
     retryChunk,
+    downloadChunk,
   } = useAudioRecorderServicesContext();
 
   const isRecording = session.status === "recording";
@@ -29,8 +30,7 @@ const AudioRecorderContent = memo(() => {
         <p className="audio-recorder__eyebrow">Continuous capture</p>
         <h2 className="audio-recorder__title">Gravação contínua</h2>
         <p className="audio-recorder__description">
-          Capture áudio em blocos periódicos e envie automaticamente para o
-          backend.
+          Capture áudio em blocos periódicos e baixe cada chunk individualmente.
         </p>
       </header>
 
@@ -63,6 +63,7 @@ const AudioRecorderContent = memo(() => {
         <PendingChunkList
           chunks={pendingChunks}
           onRetry={(chunkId) => void retryChunk(chunkId)}
+          onDownload={(chunk) => void downloadChunk(chunk)}
         />
       </div>
     </section>

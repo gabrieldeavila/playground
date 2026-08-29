@@ -3,12 +3,13 @@ import type { AudioChunk } from "@/types/interface/audio-recorder.interface";
 
 export const buildChunkFormData = (chunk: AudioChunk) => {
   const formData = new FormData();
+  const isVideoChunk = chunk.blob.type.startsWith("video/");
   const extension = chunk.blob.type.includes("mp4") ? "mp4" : "webm";
   const file = new File([chunk.blob], `chunk-${chunk.index}.${extension}`, {
-    type: chunk.blob.type || "audio/webm",
+    type: chunk.blob.type || (isVideoChunk ? "video/webm" : "audio/webm"),
   });
 
-  formData.append("audio", file);
+  formData.append(isVideoChunk ? "media" : "audio", file);
   formData.append("sessionId", chunk.sessionId);
   formData.append("chunkIndex", String(chunk.index));
   formData.append("durationMs", String(chunk.durationMs));

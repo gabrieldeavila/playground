@@ -38,5 +38,6 @@ export interface AudioRecorderServicesContextValue {
   resumeRecording: () => Promise<void>;
   stopRecording: () => Promise<void>;
   retryChunk: (chunkId: string) => Promise<void>;
-  requestMicrophonePermission: () => Promise<boolean>;
+  requestDisplayMediaPermission: () => Promise<boolean>;
+  downloadChunk: (chunk: AudioChunk) => void;
 }

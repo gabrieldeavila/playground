@@ -3,7 +3,6 @@ import { AUDIO_RECORDER_CHUNK_SIZE_SECONDS } from "~types/consts/audio-recorder.
 import { AudioRecorderStatusEnum } from "~types/enum/audio-recorder-status.enum";
 import { createRecorderSession } from "@/helpers/recording/createRecorderSession";
 import { getSupportedMimeType } from "@/helpers/recording/getSupportedMimeType";
-import { uploadAudioChunk } from "@/helpers/api/uploadAudioChunk";
 import type {
   AudioChunk,
   AudioRecorderSession,
@@ -28,7 +27,6 @@ export function useAudioRecorder() {
   const uiTimerRef = useRef<number | null>(null);
   const chunkTimerRef = useRef<number | null>(null);
   const chunkIndexRef = useRef(0);
-  const uploadQueueRef = useRef(Promise.resolve());
   const mimeTypeRef = useRef("");
   const isUnmountedRef = useRef(false);
   const hasStartedRef = useRef(false);
@@ -40,47 +38,18 @@ export function useAudioRecorder() {
     chunkTimerRef.current = null;
   }, []);
 
-  const stopStream = useCallback(() => {
-    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
-    mediaStreamRef.current = null;
+  const downloadChunk = useCallback((chunk: AudioChunk) => {
+    const url = URL.createObjectURL(chunk.blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `chunk-${chunk.index}.webm`;
+    link.click();
+    URL.revokeObjectURL(url);
   }, []);
 
-  const enqueueUpload = useCallback((chunk: AudioChunk) => {
-    uploadQueueRef.current = uploadQueueRef.current
-      .then(async () => {
-        setPendingChunks((current) =>
-          current.map((item) =>
-            item.id === chunk.id ? { ...item, status: "uploading" } : item,
-          ),
-        );
-        try {
-          await uploadAudioChunk(chunk);
-          if (isUnmountedRef.current) return;
-          setPendingChunks((current) =>
-            current.map((item) =>
-              item.id === chunk.id ? { ...item, status: "sent" } : item,
-            ),
-          );
-        } catch (error) {
-          const message =
-            error instanceof Error ? error.message : "Upload failed";
-          if (isUnmountedRef.current) return;
-          setLastError(message);
-          setPendingChunks((current) =>
-            current.map((item) =>
-              item.id === chunk.id
-                ? { ...item, status: "failed", errorMessage: message }
-                : item,
-            ),
-          );
-          throw error;
-        }
-      })
-      .catch(() => undefined);
-  }, []);
+  const sendCurrentChunk = useCallback(async () => {
+    if (chunkPartsRef.current.length === 0) return;
 
-  const flushChunk = useCallback(async () => {
-    if (!mediaRecorderRef.current || chunkPartsRef.current.length === 0) return;
     const startedAt = chunkStartAtRef.current ?? getNow();
     const durationMs = Math.max(1, getNow() - startedAt);
     const blob = new Blob(chunkPartsRef.current, {
@@ -95,40 +64,61 @@ export function useAudioRecorder() {
       createdAt: getNow(),
       status: "pending",
     };
+
     chunkIndexRef.current += 1;
     chunkPartsRef.current = [];
     chunkStartAtRef.current = getNow();
     setPendingChunks((current) => [...current, chunk]);
-    await enqueueUpload(chunk);
-  }, [enqueueUpload, session.id]);
+  }, [session.id]);
 
-  const requestMicrophonePermission = useCallback(async () => {
+  const scheduleChunkFlush = useCallback(() => {
+    if (chunkTimerRef.current) window.clearInterval(chunkTimerRef.current);
+    chunkTimerRef.current = window.setInterval(async () => {
+      if (mediaRecorderRef.current?.state === "recording") {
+        mediaRecorderRef.current.requestData();
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        void sendCurrentChunk();
+      }
+    }, AUDIO_RECORDER_CHUNK_SIZE_SECONDS * 1000);
+  }, [sendCurrentChunk]);
+
+  const stopStream = useCallback(() => {
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+    mediaStreamRef.current = null;
+  }, []);
+
+  const requestDisplayMediaPermission = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true,
+      });
       setHasPermission(true);
       stream.getTracks().forEach((track) => track.stop());
       return true;
     } catch {
       setHasPermission(false);
-      setLastError("Permissão do microfone negada");
+      setLastError("Permissão para capturar tela/áudio foi negada");
       return false;
     }
   }, []);
 
   const startRecording = useCallback(async () => {
     setLastError(null);
-    if (typeof window === "undefined" || typeof navigator === "undefined")
+    if (typeof window === "undefined" || typeof navigator === "undefined") {
       return;
-    if (!navigator.mediaDevices?.getUserMedia) {
+    }
+    if (!navigator.mediaDevices?.getDisplayMedia) {
       setIsSupported(false);
-      setLastError("Navegador sem suporte a captura de áudio");
+      setLastError("Navegador sem suporte a captura de tela/áudio");
       return;
     }
     if (
       hasStartedRef.current &&
       mediaRecorderRef.current?.state === "recording"
-    )
+    ) {
       return;
+    }
 
     const mimeType = getSupportedMimeType();
     if (!mimeType) {
@@ -137,11 +127,22 @@ export function useAudioRecorder() {
       return;
     }
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true,
+      });
+    } catch {
+      setLastError("Não foi possível acessar a captura de tela/áudio");
+      return;
+    }
+
     setHasPermission(true);
     mediaStreamRef.current = stream;
     mimeTypeRef.current = mimeType;
 
+    const newSessionId = crypto.randomUUID();
     const recorder = new MediaRecorder(stream, { mimeType });
     mediaRecorderRef.current = recorder;
     hasStartedRef.current = true;
@@ -149,27 +150,29 @@ export function useAudioRecorder() {
     chunkStartAtRef.current = getNow();
     chunkIndexRef.current = 0;
     setElapsedSeconds(0);
+
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunkPartsRef.current.push(event.data);
+      }
+    };
+
+    recorder.start();
+
     setSession({
       ...createRecorderSession(),
-      id: crypto.randomUUID(),
+      id: newSessionId,
       startedAt: getNow(),
       status: AudioRecorderStatusEnum.Recording,
       chunkSizeSeconds: AUDIO_RECORDER_CHUNK_SIZE_SECONDS,
     });
 
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) chunkPartsRef.current.push(event.data);
-    };
+    scheduleChunkFlush();
 
-    recorder.start();
-    uiTimerRef.current = window.setInterval(
-      () => setElapsedSeconds((current) => current + 1),
-      1000,
-    );
-    chunkTimerRef.current = window.setInterval(() => {
-      void flushChunk();
-    }, AUDIO_RECORDER_CHUNK_SIZE_SECONDS * 1000);
-  }, [flushChunk]);
+    uiTimerRef.current = window.setInterval(() => {
+      setElapsedSeconds((current) => current + 1);
+    }, 1000);
+  }, [scheduleChunkFlush]);
 
   const pauseRecording = useCallback(async () => {
     const recorder = mediaRecorderRef.current;
@@ -179,11 +182,10 @@ export function useAudioRecorder() {
       status: AudioRecorderStatusEnum.Pausing,
     }));
     clearTimers();
-    try {
-      recorder.requestData();
-    } catch {}
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    await flushChunk();
+    recorder.requestData();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    await sendCurrentChunk();
+    recorder.stop();
     stopStream();
     mediaRecorderRef.current = null;
     hasStartedRef.current = false;
@@ -191,7 +193,7 @@ export function useAudioRecorder() {
       ...current,
       status: AudioRecorderStatusEnum.Paused,
     }));
-  }, [clearTimers, flushChunk, stopStream]);
+  }, [clearTimers, sendCurrentChunk, stopStream]);
 
   const resumeRecording = useCallback(async () => {
     await startRecording();
@@ -203,13 +205,11 @@ export function useAudioRecorder() {
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state !== "inactive"
     ) {
-      try {
-        mediaRecorderRef.current.requestData();
-      } catch {}
+      mediaRecorderRef.current.requestData();
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      await sendCurrentChunk();
       mediaRecorderRef.current.stop();
     }
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    await flushChunk();
     stopStream();
     mediaRecorderRef.current = null;
     hasStartedRef.current = false;
@@ -218,27 +218,9 @@ export function useAudioRecorder() {
       status: AudioRecorderStatusEnum.Idle,
     }));
     setElapsedSeconds(0);
-  }, [clearTimers, flushChunk, stopStream]);
+  }, [clearTimers, sendCurrentChunk, stopStream]);
 
-  const retryChunk = useCallback(
-    async (chunkId: string) => {
-      const chunk = pendingChunks.find((item) => item.id === chunkId);
-      if (!chunk) return;
-      setPendingChunks((current) =>
-        current.map((item) =>
-          item.id === chunkId
-            ? { ...item, status: "pending", errorMessage: undefined }
-            : item,
-        ),
-      );
-      await enqueueUpload({
-        ...chunk,
-        status: "pending",
-        errorMessage: undefined,
-      });
-    },
-    [enqueueUpload, pendingChunks],
-  );
+  const retryChunk = useCallback(async (_chunkId: string) => undefined, []);
 
   useEffect(
     () => () => {
@@ -262,7 +244,8 @@ export function useAudioRecorder() {
       resumeRecording,
       stopRecording,
       retryChunk,
-      requestMicrophonePermission,
+      requestDisplayMediaPermission,
+      downloadChunk,
     }),
     [
       session,
@@ -276,7 +259,8 @@ export function useAudioRecorder() {
       resumeRecording,
       stopRecording,
       retryChunk,
-      requestMicrophonePermission,
+      requestDisplayMediaPermission,
+      downloadChunk,
     ],
   );
 }
