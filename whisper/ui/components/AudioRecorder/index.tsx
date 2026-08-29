@@ -1,15 +1,12 @@
-import { AudioRecorderBaseProvider } from "./context/AudioRecorderBaseContext";
-import { AudioRecorderServicesProvider } from "./context/AudioRecorderServicesContext";
+import { AudioRecorderProvider } from "./context/provider";
 import AudioRecorderContent from "./features/content";
 import "./css/style.css";
 
 const AudioRecorder = () => {
   return (
-    <AudioRecorderBaseProvider>
-      <AudioRecorderServicesProvider>
-        <AudioRecorderContent />
-      </AudioRecorderServicesProvider>
-    </AudioRecorderBaseProvider>
+    <AudioRecorderProvider>
+      <AudioRecorderContent />
+    </AudioRecorderProvider>
   );
 };
 

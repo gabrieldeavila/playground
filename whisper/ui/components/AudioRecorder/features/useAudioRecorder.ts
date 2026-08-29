@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  AUDIO_RECORDER_CHUNK_SIZE_SECONDS,
-  AUDIO_RECORDER_UPLOAD_ENDPOINT,
-} from "~types/consts/audio-recorder.const";
+import { AUDIO_RECORDER_CHUNK_SIZE_SECONDS } from "~types/consts/audio-recorder.const";
 import { AudioRecorderStatusEnum } from "~types/enum/audio-recorder-status.enum";
 import { createRecorderSession } from "@/helpers/recording/createRecorderSession";
 import { getSupportedMimeType } from "@/helpers/recording/getSupportedMimeType";
@@ -28,17 +25,19 @@ export function useAudioRecorder() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunkPartsRef = useRef<BlobPart[]>([]);
   const chunkStartAtRef = useRef<number | null>(null);
-  const timerRef = useRef<number | null>(null);
+  const uiTimerRef = useRef<number | null>(null);
+  const chunkTimerRef = useRef<number | null>(null);
   const chunkIndexRef = useRef(0);
-  const uploadQueueRef = useRef<Promise<void>>(Promise.resolve());
-  const mimeTypeRef = useRef<string>("");
+  const uploadQueueRef = useRef(Promise.resolve());
+  const mimeTypeRef = useRef("");
   const isUnmountedRef = useRef(false);
+  const hasStartedRef = useRef(false);
 
-  const cleanupTimer = useCallback(() => {
-    if (timerRef.current) {
-      window.clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
+  const clearTimers = useCallback(() => {
+    if (uiTimerRef.current) window.clearInterval(uiTimerRef.current);
+    if (chunkTimerRef.current) window.clearInterval(chunkTimerRef.current);
+    uiTimerRef.current = null;
+    chunkTimerRef.current = null;
   }, []);
 
   const stopStream = useCallback(() => {
@@ -54,7 +53,6 @@ export function useAudioRecorder() {
             item.id === chunk.id ? { ...item, status: "uploading" } : item,
           ),
         );
-
         try {
           await uploadAudioChunk(chunk);
           if (isUnmountedRef.current) return;
@@ -82,9 +80,7 @@ export function useAudioRecorder() {
   }, []);
 
   const flushChunk = useCallback(async () => {
-    const recorder = mediaRecorderRef.current;
-    if (!recorder || chunkPartsRef.current.length === 0) return;
-
+    if (!mediaRecorderRef.current || chunkPartsRef.current.length === 0) return;
     const startedAt = chunkStartAtRef.current ?? getNow();
     const durationMs = Math.max(1, getNow() - startedAt);
     const blob = new Blob(chunkPartsRef.current, {
@@ -99,7 +95,6 @@ export function useAudioRecorder() {
       createdAt: getNow(),
       status: "pending",
     };
-
     chunkIndexRef.current += 1;
     chunkPartsRef.current = [];
     chunkStartAtRef.current = getNow();
@@ -111,7 +106,6 @@ export function useAudioRecorder() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       setHasPermission(true);
-      stopStream();
       stream.getTracks().forEach((track) => track.stop());
       return true;
     } catch {
@@ -119,11 +113,10 @@ export function useAudioRecorder() {
       setLastError("Permissão do microfone negada");
       return false;
     }
-  }, [stopStream]);
+  }, []);
 
   const startRecording = useCallback(async () => {
     setLastError(null);
-
     if (typeof window === "undefined" || typeof navigator === "undefined")
       return;
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -131,6 +124,11 @@ export function useAudioRecorder() {
       setLastError("Navegador sem suporte a captura de áudio");
       return;
     }
+    if (
+      hasStartedRef.current &&
+      mediaRecorderRef.current?.state === "recording"
+    )
+      return;
 
     const mimeType = getSupportedMimeType();
     if (!mimeType) {
@@ -139,13 +137,14 @@ export function useAudioRecorder() {
       return;
     }
 
-    mimeTypeRef.current = mimeType;
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setHasPermission(true);
     mediaStreamRef.current = stream;
+    mimeTypeRef.current = mimeType;
 
     const recorder = new MediaRecorder(stream, { mimeType });
     mediaRecorderRef.current = recorder;
+    hasStartedRef.current = true;
     chunkPartsRef.current = [];
     chunkStartAtRef.current = getNow();
     chunkIndexRef.current = 0;
@@ -159,63 +158,72 @@ export function useAudioRecorder() {
     });
 
     recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunkPartsRef.current.push(event.data);
-      }
+      if (event.data.size > 0) chunkPartsRef.current.push(event.data);
     };
 
     recorder.start();
-    timerRef.current = window.setInterval(() => {
-      setElapsedSeconds((current) => current + 1);
-    }, 1000);
-  }, []);
+    uiTimerRef.current = window.setInterval(
+      () => setElapsedSeconds((current) => current + 1),
+      1000,
+    );
+    chunkTimerRef.current = window.setInterval(() => {
+      void flushChunk();
+    }, AUDIO_RECORDER_CHUNK_SIZE_SECONDS * 1000);
+  }, [flushChunk]);
 
   const pauseRecording = useCallback(async () => {
     const recorder = mediaRecorderRef.current;
     if (!recorder) return;
-
     setSession((current) => ({
       ...current,
       status: AudioRecorderStatusEnum.Pausing,
     }));
-    recorder.stop();
-    cleanupTimer();
+    clearTimers();
+    try {
+      recorder.requestData();
+    } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 50));
     await flushChunk();
     stopStream();
     mediaRecorderRef.current = null;
+    hasStartedRef.current = false;
     setSession((current) => ({
       ...current,
       status: AudioRecorderStatusEnum.Paused,
     }));
-  }, [cleanupTimer, flushChunk, stopStream]);
+  }, [clearTimers, flushChunk, stopStream]);
 
   const resumeRecording = useCallback(async () => {
     await startRecording();
   }, [startRecording]);
 
   const stopRecording = useCallback(async () => {
-    cleanupTimer();
+    clearTimers();
     if (
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state !== "inactive"
     ) {
+      try {
+        mediaRecorderRef.current.requestData();
+      } catch {}
       mediaRecorderRef.current.stop();
     }
+    await new Promise((resolve) => setTimeout(resolve, 50));
     await flushChunk();
     stopStream();
     mediaRecorderRef.current = null;
+    hasStartedRef.current = false;
     setSession((current) => ({
       ...current,
       status: AudioRecorderStatusEnum.Idle,
     }));
     setElapsedSeconds(0);
-  }, [cleanupTimer, flushChunk, stopStream]);
+  }, [clearTimers, flushChunk, stopStream]);
 
   const retryChunk = useCallback(
     async (chunkId: string) => {
       const chunk = pendingChunks.find((item) => item.id === chunkId);
       if (!chunk) return;
-
       setPendingChunks((current) =>
         current.map((item) =>
           item.id === chunkId
@@ -223,7 +231,6 @@ export function useAudioRecorder() {
             : item,
         ),
       );
-
       await enqueueUpload({
         ...chunk,
         status: "pending",
@@ -233,15 +240,16 @@ export function useAudioRecorder() {
     [enqueueUpload, pendingChunks],
   );
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       isUnmountedRef.current = true;
-      cleanupTimer();
+      clearTimers();
       stopStream();
-    };
-  }, [cleanupTimer, stopStream]);
+    },
+    [clearTimers, stopStream],
+  );
 
-  const value = useMemo(
+  return useMemo(
     () => ({
       session,
       pendingChunks,
@@ -257,20 +265,18 @@ export function useAudioRecorder() {
       requestMicrophonePermission,
     }),
     [
-      elapsedSeconds,
-      hasPermission,
-      isSupported,
-      lastError,
-      pendingChunks,
-      pauseRecording,
-      startRecording,
-      requestMicrophonePermission,
-      retryChunk,
-      resumeRecording,
       session,
+      pendingChunks,
+      lastError,
+      elapsedSeconds,
+      isSupported,
+      hasPermission,
+      startRecording,
+      pauseRecording,
+      resumeRecording,
       stopRecording,
+      retryChunk,
+      requestMicrophonePermission,
     ],
   );
-
-  return value;
 }
