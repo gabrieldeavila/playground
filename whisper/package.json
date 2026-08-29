@@ -1,0 +1,27 @@
+{
+  "name": "react-quickie",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm install --prefix api && npm install --prefix ui",
+    "build": "npm run build --prefix api && npm run build --prefix ui",
+    "dev": "concurrently \"npm run dev --prefix ui\" \"npm run start:dev --prefix api\"",
+    "start": "concurrently \"npm run preview --prefix ui\" \"npm run start:prod --prefix api\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrieldeavila/react-quickie.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gabrieldeavila/react-quickie/issues"
+  },
+  "homepage": "https://github.com/gabrieldeavila/react-quickie#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

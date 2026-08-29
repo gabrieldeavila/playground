@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  ui:
+    build: ./ui
+    ports:
+      - "3100:3100"
+    restart: always
+  api:
+    build: ./api
+    ports:
+      - "3099:3099"
+    env_file:
+      - ./api/.env
+    restart: always
