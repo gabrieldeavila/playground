@@ -127,6 +127,19 @@ export function useAudioRecorder() {
       return;
     }
 
+    const audioMimeType = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/ogg;codecs=opus",
+    ].find((candidate) => MediaRecorder.isTypeSupported(candidate));
+
+    if (!audioMimeType) {
+      setIsSupported(false);
+      setLastError("Nenhum mime type de áudio suportado encontrado");
+      return;
+    }
+
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getDisplayMedia({
@@ -138,12 +151,24 @@ export function useAudioRecorder() {
       return;
     }
 
+    const audioTracks = stream.getAudioTracks();
+    if (!audioTracks.length) {
+      stream.getTracks().forEach((track) => track.stop());
+      setLastError(
+        "Nenhuma trilha de áudio foi capturada na janela compartilhada",
+      );
+      return;
+    }
+
     setHasPermission(true);
     mediaStreamRef.current = stream;
-    mimeTypeRef.current = mimeType;
+    mimeTypeRef.current = audioMimeType;
 
     const newSessionId = crypto.randomUUID();
-    const recorder = new MediaRecorder(stream, { mimeType });
+    const audioOnlyStream = new MediaStream(audioTracks);
+    const recorder = new MediaRecorder(audioOnlyStream, {
+      mimeType: audioMimeType,
+    });
     mediaRecorderRef.current = recorder;
     hasStartedRef.current = true;
     chunkPartsRef.current = [];
