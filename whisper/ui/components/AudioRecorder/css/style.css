@@ -1,0 +1,76 @@
+.audio-recorder {
+  display: grid;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: rgba(10, 10, 12, 0.72);
+  color: #f5f5f5;
+}
+
+.audio-recorder__header {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.audio-recorder__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.audio-recorder__title {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.audio-recorder__description {
+  margin: 0;
+  max-width: 42rem;
+  opacity: 0.8;
+}
+
+.audio-recorder__panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.audio-recorder__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.audio-recorder__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: #7c3aed;
+  box-shadow: 0 0 18px rgba(124, 58, 237, 0.75);
+}
+
+.audio-recorder__timer {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.audio-recorder__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.audio-recorder__actions button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.85rem 1.1rem;
+  background: #f5f5f5;
+  color: #0f0f10;
+}
