@@ -1,30 +1,62 @@
 import {
+  BadRequestException,
   Controller,
-  Get,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { WhisperService } from './whisper.service';
+import { nodewhisper } from 'nodejs-whisper';
 
 @Controller('whisper')
 export class WhisperController {
   constructor(private readonly whisperService: WhisperService) {}
 
-  @Get()
-  findAll() {
-    return this.whisperService.findAll();
-  }
+  @Post('translate')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'audio', maxCount: 1 },
+      { name: 'media', maxCount: 1 },
+    ]),
+  )
+  async translate(
+    @UploadedFiles()
+    files: {
+      audio?: any[];
+      media?: any[];
+    },
+  ) {
+    // const whisper = await nodewhisper(
+    //   '/Users/gabrielavila/Downloads/audio.wav',
+    //   {
+    //     modelName: 'small',
+    //     whisperOptions: {
+    //       outputInText: true,
+    //       outputInJson: true,
+    //       outputInCsv: false,
+    //       outputInSrt: false,
+    //       outputInVtt: false,
+    //       translateToEnglish: false,
+    //     },
+    //   },
+    // );
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.whisperService.findOne(+id);
-  }
+    // console.log(whisper);
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.whisperService.remove(+id);
+    const file = files.audio?.[0] ?? files.media?.[0];
+    console.log(file);
+
+    if (!file) {
+      throw new BadRequestException(
+        'Envie o arquivo no campo "audio" ou "media".',
+      );
+    }
+
+    return this.whisperService.translate(file);
   }
 }
