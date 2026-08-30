@@ -8,10 +8,16 @@ import RecorderErrorBanner from "../RecorderErrorBanner";
 import PendingChunkList from "../PendingChunkList";
 import RecorderStatus from "../RecorderStatus";
 import RecorderTimer from "../RecorderTimer";
+import TranscribedTextList from "../TranscribedTextList";
 
 const AudioRecorderContent = memo(() => {
-  const { session, pendingChunks, lastError, elapsedSeconds } =
-    useAudioRecorderBaseContext();
+  const {
+    session,
+    pendingChunks,
+    lastError,
+    elapsedSeconds,
+    transcribedTexts,
+  } = useAudioRecorderBaseContext();
   const {
     startRecording,
     pauseRecording,
@@ -60,6 +66,7 @@ const AudioRecorderContent = memo(() => {
         />
 
         <RecorderErrorBanner error={lastError} />
+        <TranscribedTextList texts={transcribedTexts} />
         <PendingChunkList
           chunks={pendingChunks}
           onRetry={(chunkId) => void retryChunk(chunkId)}

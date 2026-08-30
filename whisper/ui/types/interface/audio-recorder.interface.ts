@@ -30,6 +30,7 @@ export interface AudioRecorderBaseContextValue {
   elapsedSeconds: number;
   isSupported: boolean;
   hasPermission: boolean;
+  transcribedTexts: string[];
 }
 
 export interface AudioRecorderServicesContextValue {

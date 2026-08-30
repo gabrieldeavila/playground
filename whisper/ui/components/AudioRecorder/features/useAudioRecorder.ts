@@ -11,11 +11,19 @@ import type {
 
 const getNow = () => Date.now();
 
+type UploadAudioChunkResponse = {
+  text?: string;
+};
+
 export function useAudioRecorder() {
   const [session, setSession] = useState<AudioRecorderSession>(
     createRecorderSession(),
   );
   const [pendingChunks, setPendingChunks] = useState<AudioChunk[]>([]);
+  const [transcribedTexts, setTranscribedTexts] = useState<string[]>([
+    "de Madri e onde, de fato, o Trato de Madri foi debatido e pouco da guerra do Paraguai.\nEntão agora nós..."
+]);
+  console.log(transcribedTexts);
   const [lastError, setLastError] = useState<string | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hasPermission, setHasPermission] = useState(false);
@@ -70,7 +78,21 @@ export function useAudioRecorder() {
     chunkPartsRef.current = [];
     chunkStartAtRef.current = getNow();
     setPendingChunks((current) => [...current, chunk]);
-    void uploadAudioChunk(chunk);
+
+    try {
+      const response = (await uploadAudioChunk(
+        chunk,
+      )) as UploadAudioChunkResponse | null;
+      console.log(response);
+      const text = response?.text;
+      if (typeof text === "string") {
+        setTranscribedTexts((current) => [...current, text]);
+      }
+    } catch (error) {
+      setLastError(
+        error instanceof Error ? error.message : "Falha ao enviar áudio",
+      );
+    }
   }, [session.id]);
 
   const flushCurrentChunk = useCallback(() => {
@@ -109,21 +131,13 @@ export function useAudioRecorder() {
 
   const startRecording = useCallback(async () => {
     setLastError(null);
-    if (typeof window === "undefined" || typeof navigator === "undefined") {
+    if (typeof window === "undefined" || typeof navigator === "undefined")
       return;
-    }
     if (!navigator.mediaDevices?.getDisplayMedia) {
       setIsSupported(false);
       setLastError("Navegador sem suporte a captura de tela/áudio");
       return;
     }
-    if (
-      hasStartedRef.current &&
-      mediaRecorderRef.current?.state === "recording"
-    ) {
-      return;
-    }
-    hasStartedRef.current = true;
 
     const mimeType = getSupportedMimeType();
     if (!mimeType) {
@@ -138,7 +152,6 @@ export function useAudioRecorder() {
       "audio/mp4",
       "audio/ogg;codecs=opus",
     ].find((candidate) => MediaRecorder.isTypeSupported(candidate));
-
     if (!audioMimeType) {
       setIsSupported(false);
       setLastError("Nenhum mime type de áudio suportado encontrado");
@@ -182,9 +195,7 @@ export function useAudioRecorder() {
     setElapsedSeconds(0);
 
     recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunkPartsRef.current.push(event.data);
-      }
+      if (event.data.size > 0) chunkPartsRef.current.push(event.data);
     };
 
     recorder.onstop = () => {
@@ -192,14 +203,11 @@ export function useAudioRecorder() {
       if (hasStartedRef.current) {
         chunkStartAtRef.current = getNow();
         const restart = mediaRecorderRef.current;
-        if (restart && restart.state === "inactive") {
-          restart.start();
-        }
+        if (restart && restart.state === "inactive") restart.start();
       }
     };
 
     recorder.start();
-
     setSession({
       ...createRecorderSession(),
       id: newSessionId,
@@ -207,12 +215,11 @@ export function useAudioRecorder() {
       status: AudioRecorderStatusEnum.Recording,
       chunkSizeSeconds: AUDIO_RECORDER_CHUNK_SIZE_SECONDS,
     });
-
     scheduleChunkFlush();
-
-    uiTimerRef.current = window.setInterval(() => {
-      setElapsedSeconds((current) => current + 1);
-    }, 1000);
+    uiTimerRef.current = window.setInterval(
+      () => setElapsedSeconds((current) => current + 1),
+      1000,
+    );
   }, [flushCurrentChunk, scheduleChunkFlush]);
 
   const pauseRecording = useCallback(async () => {
@@ -274,6 +281,7 @@ export function useAudioRecorder() {
       elapsedSeconds,
       isSupported,
       hasPermission,
+      transcribedTexts,
       startRecording,
       pauseRecording,
       resumeRecording,
@@ -289,6 +297,7 @@ export function useAudioRecorder() {
       elapsedSeconds,
       isSupported,
       hasPermission,
+      transcribedTexts,
       startRecording,
       pauseRecording,
       resumeRecording,

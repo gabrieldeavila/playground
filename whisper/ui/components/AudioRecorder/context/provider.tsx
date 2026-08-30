@@ -19,8 +19,17 @@ export function AudioRecorderBaseProvider({
       elapsedSeconds: value.elapsedSeconds,
       isSupported: value.isSupported,
       hasPermission: value.hasPermission,
+      transcribedTexts: value.transcribedTexts,
     }),
-    [value],
+    [
+      value.session,
+      value.pendingChunks,
+      value.lastError,
+      value.elapsedSeconds,
+      value.isSupported,
+      value.hasPermission,
+      value.transcribedTexts,
+    ],
   );
 
   const servicesValue = useMemo(
@@ -33,7 +42,15 @@ export function AudioRecorderBaseProvider({
       requestDisplayMediaPermission: value.requestDisplayMediaPermission,
       downloadChunk: value.downloadChunk,
     }),
-    [value],
+    [
+      value.startRecording,
+      value.pauseRecording,
+      value.resumeRecording,
+      value.stopRecording,
+      value.retryChunk,
+      value.requestDisplayMediaPermission,
+      value.downloadChunk,
+    ],
   );
 
   return (
