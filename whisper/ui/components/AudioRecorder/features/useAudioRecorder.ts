@@ -73,16 +73,18 @@ export function useAudioRecorder() {
     void uploadAudioChunk(chunk);
   }, [session.id]);
 
+  const flushCurrentChunk = useCallback(() => {
+    void sendCurrentChunk();
+  }, [sendCurrentChunk]);
+
   const scheduleChunkFlush = useCallback(() => {
     if (chunkTimerRef.current) window.clearInterval(chunkTimerRef.current);
-    chunkTimerRef.current = window.setInterval(async () => {
+    chunkTimerRef.current = window.setInterval(() => {
       if (mediaRecorderRef.current?.state === "recording") {
-        mediaRecorderRef.current.requestData();
-        await new Promise((resolve) => setTimeout(resolve, 10));
-        void sendCurrentChunk();
+        mediaRecorderRef.current.stop();
       }
     }, AUDIO_RECORDER_CHUNK_SIZE_SECONDS * 1000);
-  }, [sendCurrentChunk]);
+  }, []);
 
   const stopStream = useCallback(() => {
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
@@ -121,6 +123,7 @@ export function useAudioRecorder() {
     ) {
       return;
     }
+    hasStartedRef.current = true;
 
     const mimeType = getSupportedMimeType();
     if (!mimeType) {
@@ -184,6 +187,17 @@ export function useAudioRecorder() {
       }
     };
 
+    recorder.onstop = () => {
+      flushCurrentChunk();
+      if (hasStartedRef.current) {
+        chunkStartAtRef.current = getNow();
+        const restart = mediaRecorderRef.current;
+        if (restart && restart.state === "inactive") {
+          restart.start();
+        }
+      }
+    };
+
     recorder.start();
 
     setSession({
@@ -199,7 +213,7 @@ export function useAudioRecorder() {
     uiTimerRef.current = window.setInterval(() => {
       setElapsedSeconds((current) => current + 1);
     }, 1000);
-  }, [scheduleChunkFlush]);
+  }, [flushCurrentChunk, scheduleChunkFlush]);
 
   const pauseRecording = useCallback(async () => {
     const recorder = mediaRecorderRef.current;
@@ -209,18 +223,15 @@ export function useAudioRecorder() {
       status: AudioRecorderStatusEnum.Pausing,
     }));
     clearTimers();
-    recorder.requestData();
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    await sendCurrentChunk();
+    hasStartedRef.current = false;
     recorder.stop();
     stopStream();
     mediaRecorderRef.current = null;
-    hasStartedRef.current = false;
     setSession((current) => ({
       ...current,
       status: AudioRecorderStatusEnum.Paused,
     }));
-  }, [clearTimers, sendCurrentChunk, stopStream]);
+  }, [clearTimers, stopStream]);
 
   const resumeRecording = useCallback(async () => {
     await startRecording();
@@ -232,20 +243,17 @@ export function useAudioRecorder() {
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state !== "inactive"
     ) {
-      mediaRecorderRef.current.requestData();
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      await sendCurrentChunk();
+      hasStartedRef.current = false;
       mediaRecorderRef.current.stop();
     }
     stopStream();
     mediaRecorderRef.current = null;
-    hasStartedRef.current = false;
     setSession((current) => ({
       ...current,
       status: AudioRecorderStatusEnum.Idle,
     }));
     setElapsedSeconds(0);
-  }, [clearTimers, sendCurrentChunk, stopStream]);
+  }, [clearTimers, stopStream]);
 
   const retryChunk = useCallback(async (_chunkId: string) => undefined, []);
 
