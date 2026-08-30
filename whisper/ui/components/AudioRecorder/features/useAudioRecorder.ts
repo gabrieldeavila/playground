@@ -3,6 +3,7 @@ import { AUDIO_RECORDER_CHUNK_SIZE_SECONDS } from "~types/consts/audio-recorder.
 import { AudioRecorderStatusEnum } from "~types/enum/audio-recorder-status.enum";
 import { createRecorderSession } from "@/helpers/recording/createRecorderSession";
 import { getSupportedMimeType } from "@/helpers/recording/getSupportedMimeType";
+import { uploadAudioChunk } from "@/helpers/api/uploadAudioChunk";
 import type {
   AudioChunk,
   AudioRecorderSession,
@@ -69,6 +70,7 @@ export function useAudioRecorder() {
     chunkPartsRef.current = [];
     chunkStartAtRef.current = getNow();
     setPendingChunks((current) => [...current, chunk]);
+    void uploadAudioChunk(chunk);
   }, [session.id]);
 
   const scheduleChunkFlush = useCallback(() => {
