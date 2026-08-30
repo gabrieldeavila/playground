@@ -40,7 +40,7 @@ export class WhisperService {
         modelName: 'small',
         whisperOptions: {
           outputInText: true,
-          outputInJson: true,
+          outputInJson: false,
           outputInCsv: false,
           outputInSrt: false,
           outputInVtt: false,
@@ -48,12 +48,23 @@ export class WhisperService {
         },
       });
 
-      return {
-        message: 'Arquivo processado com sucesso.',
-        filename: file.originalname,
-        mimetype: file.mimetype,
-        result: whisper,
-      };
+      const resultText = Array.isArray(whisper)
+        ? whisper
+            .map((item: any) =>
+              String(item?.transcript ?? item?.text ?? '')
+                .replace(/\[[^\]]*\]\s*/g, '')
+                .trim(),
+            )
+            .filter(Boolean)
+            .join(' ')
+            .trim()
+        : typeof whisper === 'string'
+          ? whisper.replace(/\[[^\]]*\]\s*/g, '').trim()
+          : String((whisper as any)?.transcript ?? (whisper as any)?.text ?? '')
+              .replace(/\[[^\]]*\]\s*/g, '')
+              .trim();
+
+      return { text: resultText, whisper };
     } catch (error) {
       throw new InternalServerErrorException(
         'Falha ao processar o arquivo com Whisper.',
