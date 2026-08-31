@@ -11,9 +11,11 @@
   "dependencies": {
     "@react-router/node": "^8",
     "@react-router/serve": "^8",
+    "dexie": "^4.4.5",
     "isbot": "^5.1.36",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-icons": "^5.7.0",
     "react-router": "^8"
   },
   "devDependencies": {

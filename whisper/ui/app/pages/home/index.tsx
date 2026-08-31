@@ -1,10 +1,10 @@
-import AudioRecorder from "@/components/AudioRecorder";
+import RecorderGate from "@/components/RecorderGate";
 import { memo } from "react";
 
 const Home = () => {
   return (
     <div>
-      <AudioRecorder />
+      <RecorderGate />
     </div>
   );
 };

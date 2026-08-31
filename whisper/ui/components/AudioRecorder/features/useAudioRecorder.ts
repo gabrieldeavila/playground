@@ -4,6 +4,7 @@ import { AudioRecorderStatusEnum } from "~types/enum/audio-recorder-status.enum"
 import { createRecorderSession } from "@/helpers/recording/createRecorderSession";
 import { getSupportedMimeType } from "@/helpers/recording/getSupportedMimeType";
 import { uploadAudioChunk } from "@/helpers/api/uploadAudioChunk";
+import { saveRecordingText } from "@/helpers/recording/recordingStorage";
 import type {
   AudioChunk,
   AudioRecorderSession,
@@ -20,14 +21,13 @@ export function useAudioRecorder() {
     createRecorderSession(),
   );
   const [pendingChunks, setPendingChunks] = useState<AudioChunk[]>([]);
-  const [transcribedTexts, setTranscribedTexts] = useState<string[]>([
-    "de Madri e onde, de fato, o Trato de Madri foi debatido e pouco da guerra do Paraguai.\nEntão agora nós...",
-  ]);
+  const [transcribedTexts, setTranscribedTexts] = useState<string[]>([]);
   const [audioChunks, setAudioChunks] = useState<AudioChunk[]>([]);
   const [lastError, setLastError] = useState<string | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hasPermission, setHasPermission] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
+  const recordingIdRef = useRef<string | null>(null);
 
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -51,7 +51,7 @@ export function useAudioRecorder() {
     const url = URL.createObjectURL(chunk.blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `chunk-${chunk.index}.webm`;
+    link.download = `chunk-${chunk.index + 1}.webm`;
     link.click();
     URL.revokeObjectURL(url);
   }, []);
@@ -87,6 +87,9 @@ export function useAudioRecorder() {
       const text = response?.text;
       if (typeof text === "string") {
         setTranscribedTexts((current) => [...current, text]);
+        if (recordingIdRef.current) {
+          void saveRecordingText(recordingIdRef.current, text);
+        }
         setAudioChunks((current) =>
           current.map((audioChunk) =>
             audioChunk.id === chunk.id
@@ -212,6 +215,7 @@ export function useAudioRecorder() {
     mimeTypeRef.current = audioMimeType;
 
     const newSessionId = crypto.randomUUID();
+    recordingIdRef.current = newSessionId;
     const audioOnlyStream = new MediaStream(audioTracks);
     const recorder = new MediaRecorder(audioOnlyStream, {
       mimeType: audioMimeType,
@@ -222,6 +226,9 @@ export function useAudioRecorder() {
     chunkStartAtRef.current = getNow();
     chunkIndexRef.current = 0;
     setElapsedSeconds(0);
+    setAudioChunks([]);
+    setPendingChunks([]);
+    setTranscribedTexts([]);
 
     recorder.ondataavailable = (event) => {
       if (event.data.size > 0) chunkPartsRef.current.push(event.data);

@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
 import {
   useAudioRecorderBaseContext,
   useAudioRecorderServicesContext,
@@ -18,6 +19,7 @@ const AudioRecorderContent = memo(() => {
     elapsedSeconds,
     transcribedTexts,
   } = useAudioRecorderBaseContext();
+  const { setShowRecorder } = useRecorderGateBaseContext();
   const {
     startRecording,
     pauseRecording,
@@ -69,6 +71,15 @@ const AudioRecorderContent = memo(() => {
           onRetry={(chunkId) => void retryChunk(chunkId)}
           onDownload={(chunk) => void downloadChunk(chunk)}
         />
+        <div className="audio-recorder__footer">
+          <button
+            type="button"
+            className="audio-recorder__back"
+            onClick={() => setShowRecorder(false)}
+          >
+            Voltar
+          </button>
+        </div>
       </div>
     </section>
   );
