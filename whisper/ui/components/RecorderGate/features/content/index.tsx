@@ -1,7 +1,7 @@
 import AudioRecorder from "@/components/AudioRecorder";
 import RecordingModal from "@/components/RecordingModal";
 import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 
 const RecorderGateContent = memo(() => {
   const {
@@ -9,13 +9,24 @@ const RecorderGateContent = memo(() => {
     setShowRecorder,
     isRecordingModalOpen,
     setIsRecordingModalOpen,
+    selectedRecordingId,
+    setSelectedRecordingId,
   } = useRecorderGateBaseContext();
+
+  const handleCreated = useCallback(
+    (recordingId: string) => {
+      setSelectedRecordingId(recordingId);
+      setShowRecorder(true);
+    },
+    [setSelectedRecordingId, setShowRecorder],
+  );
 
   return (
     <div className="recorder-gate">
       <RecordingModal
         isOpen={isRecordingModalOpen}
         onClose={() => setIsRecordingModalOpen(false)}
+        onCreated={handleCreated}
       />
       {!showRecorder ? (
         <section className="recorder-gate__home">
@@ -40,7 +51,7 @@ const RecorderGateContent = memo(() => {
         </section>
       ) : (
         <div className="recorder-gate__recorder">
-          <AudioRecorder />
+          <AudioRecorder recordingId={selectedRecordingId} />
         </div>
       )}
     </div>

@@ -6,12 +6,18 @@ import "./css/style.css";
 const RecordingModal = ({
   isOpen,
   onClose,
+  onCreated,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onCreated?: (recordingId: string) => void;
 }) => {
   return (
-    <RecordingModalBaseProvider isOpen={isOpen} onClose={onClose}>
+    <RecordingModalBaseProvider
+      isOpen={isOpen}
+      onClose={onClose}
+      onCreated={onCreated}
+    >
       <RecordingModalServicesProvider>
         <RecordingModalContent />
       </RecordingModalServicesProvider>

@@ -1,21 +1,30 @@
 import { type ReactNode, useCallback, useMemo, useState } from "react";
+import { createRecording } from "@/helpers/recording/recordingStorage";
 import { RecordingModalBaseContext } from "./context";
 
 export function RecordingModalBaseProvider({
   children,
   isOpen,
   onClose,
+  onCreated,
 }: {
   children: ReactNode;
   isOpen: boolean;
   onClose: () => void;
+  onCreated?: (recordingId: string) => void;
 }) {
   const [recordingName, setRecordingName] = useState("");
 
-  const handleCreateRecording = useCallback(() => {
+  const handleCreateRecording = useCallback(async () => {
+    const trimmedName = recordingName.trim();
+
+    if (!trimmedName) return;
+
+    const recording = await createRecording(trimmedName);
+    onCreated?.(recording.id);
     onClose();
     setRecordingName("");
-  }, [onClose]);
+  }, [onClose, onCreated, recordingName]);
 
   const value = useMemo(
     () => ({
@@ -25,7 +34,7 @@ export function RecordingModalBaseProvider({
       setRecordingName,
       handleCreateRecording,
     }),
-    [isOpen, recordingName, onClose],
+    [handleCreateRecording, isOpen, onClose, recordingName],
   );
 
   return (

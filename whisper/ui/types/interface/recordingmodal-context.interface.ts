@@ -3,8 +3,7 @@ export type RecordingModalBaseContextValue = {
   recordingName: string;
   setIsOpen: (value: boolean) => void;
   setRecordingName: (value: string) => void;
-  handleCreateRecording: () => void;
+  handleCreateRecording: () => Promise<void>;
 };
 
-export type RecordingModalServicesContextValue = {
-};
+export type RecordingModalServicesContextValue = {};

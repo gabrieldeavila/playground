@@ -1,5 +1,7 @@
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
+import { listRecordings } from "@/helpers/recording/recordingStorage";
+import type { Recording } from "~types/interface/recording.interface";
 import {
   useAudioRecorderBaseContext,
   useAudioRecorderServicesContext,
@@ -11,78 +13,106 @@ import RecorderStatus from "../RecorderStatus";
 import RecorderTimer from "../RecorderTimer";
 import TranscribedTextList from "../TranscribedTextList";
 
-const AudioRecorderContent = memo(() => {
-  const {
-    session,
-    pendingChunks,
-    lastError,
-    elapsedSeconds,
-    transcribedTexts,
-  } = useAudioRecorderBaseContext();
-  const { setShowRecorder } = useRecorderGateBaseContext();
-  const {
-    startRecording,
-    pauseRecording,
-    resumeRecording,
-    stopRecording,
-    retryChunk,
-    downloadChunk,
-  } = useAudioRecorderServicesContext();
+type AudioRecorderContentProps = {
+  recordingId: string | null;
+};
 
-  const isRecording = session.status === "recording";
-  const isPaused = session.status === "paused";
+const AudioRecorderContent = memo(
+  ({ recordingId }: AudioRecorderContentProps) => {
+    const {
+      session,
+      pendingChunks,
+      lastError,
+      elapsedSeconds,
+      transcribedTexts,
+    } = useAudioRecorderBaseContext();
+    const { setShowRecorder } = useRecorderGateBaseContext();
+    const {
+      startRecording,
+      pauseRecording,
+      resumeRecording,
+      stopRecording,
+      retryChunk,
+      downloadChunk,
+    } = useAudioRecorderServicesContext();
+    const [recording, setRecording] = useState<Recording | null>(null);
 
-  return (
-    <section aria-label="Audio recorder" className="audio-recorder">
-      <header className="audio-recorder__header">
-        <p className="audio-recorder__eyebrow">Continuous capture</p>
-        <h2 className="audio-recorder__title">Gravação contínua</h2>
-        <p className="audio-recorder__description">
-          Capture áudio em blocos periódicos e baixe cada chunk individualmente.
-        </p>
-      </header>
+    useEffect(() => {
+      let isMounted = true;
 
-      <div className="audio-recorder__panel">
-        <RecorderStatus
-          label={
-            lastError
-              ? "Erro na captura"
-              : session.status === "recording"
-                ? "Gravando"
-                : isPaused
-                  ? "Pausado"
-                  : "Pronto para iniciar a captura"
-          }
-          pendingChunks={pendingChunks.length}
-        />
-        <RecorderTimer elapsedSeconds={elapsedSeconds} />
-        <RecorderControls
-          isRecording={isRecording}
-          isPaused={isPaused}
-          onStart={() => void startRecording()}
-          onPause={() => void pauseRecording()}
-          onStop={() => void stopRecording()}
-          onResume={() => void resumeRecording()}
-        />
-        <RecorderErrorBanner error={lastError} />
-        <TranscribedTextList texts={transcribedTexts} />
-        <ChunkAccordion
-          chunks={pendingChunks}
-          onRetry={(chunkId) => void retryChunk(chunkId)}
-          onDownload={(chunk) => void downloadChunk(chunk)}
-        />
-        <div className="audio-recorder__footer">
-          <button
-            type="button"
-            className="audio-recorder__back"
-            onClick={() => setShowRecorder(false)}
-          >
-            Voltar
-          </button>
+      void (async () => {
+        if (!recordingId) {
+          setRecording(null);
+          return;
+        }
+
+        const recordings = await listRecordings();
+        const found =
+          recordings.find((item) => item.id === recordingId) ?? null;
+
+        if (isMounted) {
+          setRecording(found);
+        }
+      })();
+
+      return () => {
+        isMounted = false;
+      };
+    }, [recordingId]);
+
+    const isRecording = session.status === "recording";
+    const isPaused = session.status === "paused";
+    const recordingTitle = recording?.name?.trim() || "Gravação contínua";
+
+    return (
+      <section aria-label="Audio recorder" className="audio-recorder">
+        <header className="audio-recorder__header">
+          <p className="audio-recorder__eyebrow">Continuous capture</p>
+          <h2 className="audio-recorder__title">{recordingTitle}</h2>
+        </header>
+
+        <div className="audio-recorder__panel">
+          <RecorderStatus
+            label={
+              lastError
+                ? "Erro na captura"
+                : session.status === "recording"
+                  ? "Gravando"
+                  : isPaused
+                    ? "Pausado"
+                    : "Pronto para iniciar a captura"
+            }
+            pendingChunks={pendingChunks.length}
+          />
+          <RecorderTimer elapsedSeconds={elapsedSeconds} />
+          <RecorderControls
+            isRecording={isRecording}
+            isPaused={isPaused}
+            onStart={() => void startRecording()}
+            onPause={() => void pauseRecording()}
+            onStop={() => void stopRecording()}
+            onResume={() => void resumeRecording()}
+          />
+          <RecorderErrorBanner error={lastError} />
+          <TranscribedTextList texts={transcribedTexts} />
+          <ChunkAccordion
+            chunks={pendingChunks}
+            onRetry={(chunkId) => void retryChunk(chunkId)}
+            onDownload={(chunk) => void downloadChunk(chunk)}
+          />
+          <div className="audio-recorder__footer">
+            <button
+              type="button"
+              className="audio-recorder__back"
+              onClick={() => setShowRecorder(false)}
+            >
+              Voltar
+            </button>
+          </div>
         </div>
-      </div>
-    </section>
-  );
-});
+      </section>
+    );
+  },
+);
 
 export default AudioRecorderContent;

@@ -2,10 +2,14 @@ import { AudioRecorderProvider } from "./context/provider";
 import AudioRecorderContent from "./features/content";
 import "./css/style.css";
 
-const AudioRecorder = () => {
+type AudioRecorderProps = {
+  recordingId?: string | null;
+};
+
+const AudioRecorder = ({ recordingId = null }: AudioRecorderProps) => {
   return (
     <AudioRecorderProvider>
-      <AudioRecorderContent />
+      <AudioRecorderContent recordingId={recordingId} />
     </AudioRecorderProvider>
   );
 };

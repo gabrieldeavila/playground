@@ -8,6 +8,9 @@ export function RecorderGateBaseProvider({
 }) {
   const [showRecorder, setShowRecorder] = useState(false);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
+  const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(
+    null,
+  );
 
   const value = useMemo(
     () => ({
@@ -15,8 +18,10 @@ export function RecorderGateBaseProvider({
       setShowRecorder,
       isRecordingModalOpen,
       setIsRecordingModalOpen,
+      selectedRecordingId,
+      setSelectedRecordingId,
     }),
-    [showRecorder, isRecordingModalOpen],
+    [showRecorder, isRecordingModalOpen, selectedRecordingId],
   );
 
   return (
