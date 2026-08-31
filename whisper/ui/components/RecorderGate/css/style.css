@@ -25,8 +25,10 @@
 .recorder-gate__home {
   position: relative;
   z-index: 1;
-  padding: 2rem;
+  width: min(100%, 42rem);
+  padding: clamp(1.75rem, 3vw, 2.25rem);
   border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   background:
     radial-gradient(
       circle at top left,
@@ -39,9 +41,12 @@
       transparent 24%
     ),
     linear-gradient(180deg, rgba(12, 12, 16, 0.96), rgba(8, 8, 10, 0.92));
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+  text-align: left;
 }
 
 .recorder-gate__content::before {
@@ -68,6 +73,7 @@
 .recorder-gate__description {
   position: relative;
   z-index: 1;
+  max-width: 32rem;
   margin: 0 0 1.5rem;
   color: rgba(226, 232, 240, 0.72);
   line-height: 1.55;
@@ -100,6 +106,117 @@
   background: rgba(255, 255, 255, 0.08);
   color: #f8fafc;
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+.recorder-gate-recordings {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.recorder-gate-recordings--empty {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.recorder-gate-recordings__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.recorder-gate-recordings__eyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.recorder-gate-recordings__title {
+  margin: 0;
+  font-size: 0.98rem;
+  color: #e2e8f0;
+}
+
+.recorder-gate-recordings__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.recorder-gate-recordings__button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f8fafc;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.recorder-gate-recordings__button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.recorder-gate-recordings__button--active {
+  border-color: rgba(96, 165, 250, 0.45);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.recorder-gate-recordings__meta {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.recorder-gate-recordings__name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recorder-gate-recordings__date {
+  color: rgba(226, 232, 240, 0.62);
+  font-size: 0.86rem;
+}
+
+.recorder-gate-recordings__badge {
+  flex-shrink: 0;
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(226, 232, 240, 0.88);
+  font-size: 0.8rem;
+}
+
+.recorder-gate-recordings--empty .recorder-gate-recordings__empty-title {
+  margin: 0;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.recorder-gate-recordings--empty .recorder-gate-recordings__empty-description {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.62);
+  line-height: 1.5;
 }
 
 .recorder-gate__recorder {
@@ -142,7 +259,8 @@
 }
 
 .recorder-gate__button:focus-visible,
-.recorder-gate__back:focus-visible {
+.recorder-gate__back:focus-visible,
+.recorder-gate-recordings__button:focus-visible {
   outline: 2px solid rgba(96, 165, 250, 0.7);
   outline-offset: 2px;
 }

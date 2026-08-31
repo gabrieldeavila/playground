@@ -1,7 +1,10 @@
 import AudioRecorder from "@/components/AudioRecorder";
 import RecordingModal from "@/components/RecordingModal";
 import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
-import { memo, useCallback } from "react";
+import { listRecordings } from "@/helpers/recording/recordingStorage";
+import type { Recording } from "~types/interface/recording.interface";
+import { memo, useCallback, useEffect, useState } from "react";
+import RecordingsList from "./recordings-list";
 
 const RecorderGateContent = memo(() => {
   const {
@@ -12,8 +15,27 @@ const RecorderGateContent = memo(() => {
     selectedRecordingId,
     setSelectedRecordingId,
   } = useRecorderGateBaseContext();
+  const [recordings, setRecordings] = useState<Recording[]>([]);
+
+  const refreshRecordings = useCallback(async () => {
+    const items = await listRecordings();
+    setRecordings(items);
+  }, []);
+
+  useEffect(() => {
+    void refreshRecordings();
+  }, [refreshRecordings]);
 
   const handleCreated = useCallback(
+    (recordingId: string) => {
+      setSelectedRecordingId(recordingId);
+      setShowRecorder(true);
+      void refreshRecordings();
+    },
+    [refreshRecordings, setSelectedRecordingId, setShowRecorder],
+  );
+
+  const handleSelectRecording = useCallback(
     (recordingId: string) => {
       setSelectedRecordingId(recordingId);
       setShowRecorder(true);
@@ -41,13 +63,12 @@ const RecorderGateContent = memo(() => {
           >
             Iniciar nova gravação
           </button>
-          <button
-            type="button"
-            className="recorder-gate__button"
-            onClick={() => setShowRecorder(true)}
-          >
-            Iniciar gravação
-          </button>
+
+          <RecordingsList
+            recordings={recordings}
+            selectedRecordingId={selectedRecordingId}
+            onSelectRecording={handleSelectRecording}
+          />
         </section>
       ) : (
         <div className="recorder-gate__recorder">
