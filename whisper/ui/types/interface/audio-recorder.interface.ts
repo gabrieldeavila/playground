@@ -16,6 +16,7 @@ export interface AudioChunk {
   durationMs: number;
   createdAt: number;
   status: "pending" | "uploading" | "sent" | "failed";
+  text?: string;
   errorMessage?: string;
 }
 

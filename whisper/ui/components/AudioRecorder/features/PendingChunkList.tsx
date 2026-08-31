@@ -13,13 +13,13 @@ const PendingChunkList = memo(
 
     return (
       <ul className="audio-recorder__queue">
-        {chunks.map((chunk) => (
+        {chunks.map((chunk, index) => (
           <li
             key={chunk.id}
             className={`audio-recorder__queue-item audio-recorder__queue-item--${chunk.status}`}
           >
             <div>
-              <strong>Chunk #{chunk.index}</strong>
+              <strong>Chunk #{index + 1}</strong>
               <p>{chunk.durationMs}ms</p>
               {chunk.errorMessage ? <p>{chunk.errorMessage}</p> : null}
             </div>

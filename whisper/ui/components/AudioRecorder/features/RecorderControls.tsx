@@ -25,19 +25,16 @@ const RecorderControls = memo(
             Gravar
           </button>
         ) : null}
-
         {isRecording ? (
           <button type="button" onClick={onPause}>
             Pausar
           </button>
         ) : null}
-
         {isPaused ? (
           <button type="button" onClick={onResume}>
             Retomar
           </button>
         ) : null}
-
         <button type="button" onClick={onStop}>
           Parar
         </button>

@@ -21,9 +21,9 @@ export function useAudioRecorder() {
   );
   const [pendingChunks, setPendingChunks] = useState<AudioChunk[]>([]);
   const [transcribedTexts, setTranscribedTexts] = useState<string[]>([
-    "de Madri e onde, de fato, o Trato de Madri foi debatido e pouco da guerra do Paraguai.\nEntão agora nós..."
-]);
-  console.log(transcribedTexts);
+    "de Madri e onde, de fato, o Trato de Madri foi debatido e pouco da guerra do Paraguai.\nEntão agora nós...",
+  ]);
+  const [audioChunks, setAudioChunks] = useState<AudioChunk[]>([]);
   const [lastError, setLastError] = useState<string | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hasPermission, setHasPermission] = useState(false);
@@ -78,17 +78,46 @@ export function useAudioRecorder() {
     chunkPartsRef.current = [];
     chunkStartAtRef.current = getNow();
     setPendingChunks((current) => [...current, chunk]);
+    setAudioChunks((current) => [...current, chunk]);
 
     try {
       const response = (await uploadAudioChunk(
         chunk,
       )) as UploadAudioChunkResponse | null;
-      console.log(response);
       const text = response?.text;
       if (typeof text === "string") {
         setTranscribedTexts((current) => [...current, text]);
+        setAudioChunks((current) =>
+          current.map((audioChunk) =>
+            audioChunk.id === chunk.id
+              ? { ...audioChunk, text, status: "sent" }
+              : audioChunk,
+          ),
+        );
+      } else {
+        setAudioChunks((current) =>
+          current.map((audioChunk) =>
+            audioChunk.id === chunk.id
+              ? { ...audioChunk, status: "sent" }
+              : audioChunk,
+          ),
+        );
       }
     } catch (error) {
+      setAudioChunks((current) =>
+        current.map((audioChunk) =>
+          audioChunk.id === chunk.id
+            ? {
+                ...audioChunk,
+                status: "failed",
+                errorMessage:
+                  error instanceof Error
+                    ? error.message
+                    : "Falha ao enviar áudio",
+              }
+            : audioChunk,
+        ),
+      );
       setLastError(
         error instanceof Error ? error.message : "Falha ao enviar áudio",
       );
@@ -276,7 +305,7 @@ export function useAudioRecorder() {
   return useMemo(
     () => ({
       session,
-      pendingChunks,
+      pendingChunks: audioChunks,
       lastError,
       elapsedSeconds,
       isSupported,

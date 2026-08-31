@@ -5,7 +5,7 @@ import {
 } from "../../context/context";
 import RecorderControls from "../RecorderControls";
 import RecorderErrorBanner from "../RecorderErrorBanner";
-import PendingChunkList from "../PendingChunkList";
+import ChunkAccordion from "../ChunkAccordion";
 import RecorderStatus from "../RecorderStatus";
 import RecorderTimer from "../RecorderTimer";
 import TranscribedTextList from "../TranscribedTextList";
@@ -53,9 +53,7 @@ const AudioRecorderContent = memo(() => {
           }
           pendingChunks={pendingChunks.length}
         />
-
         <RecorderTimer elapsedSeconds={elapsedSeconds} />
-
         <RecorderControls
           isRecording={isRecording}
           isPaused={isPaused}
@@ -64,10 +62,9 @@ const AudioRecorderContent = memo(() => {
           onStop={() => void stopRecording()}
           onResume={() => void resumeRecording()}
         />
-
         <RecorderErrorBanner error={lastError} />
         <TranscribedTextList texts={transcribedTexts} />
-        <PendingChunkList
+        <ChunkAccordion
           chunks={pendingChunks}
           onRetry={(chunkId) => void retryChunk(chunkId)}
           onDownload={(chunk) => void downloadChunk(chunk)}

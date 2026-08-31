@@ -13,20 +13,15 @@ const TranscribedTextList = memo(({ texts }: TranscribedTextListProps) => {
       aria-label="Transcrições"
     >
       <header className="audio-recorder__transcriptions-header">
+        <p className="audio-recorder__transcriptions-eyebrow">Transcrições</p>
         <h3 className="audio-recorder__transcriptions-title">
           Texto retornado
         </h3>
       </header>
 
       <ul className="audio-recorder__transcriptions-list">
-        {texts.map((text, index) => (
-          <li
-            key={`${index}-${text}`}
-            className="audio-recorder__transcriptions-item"
-          >
-            <span className="audio-recorder__transcriptions-index">
-              {index + 1}
-            </span>
+        {texts.map((text) => (
+          <li key={text} className="audio-recorder__transcriptions-item">
             <p className="audio-recorder__transcriptions-text">{text}</p>
           </li>
         ))}
