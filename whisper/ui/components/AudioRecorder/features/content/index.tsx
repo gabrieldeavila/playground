@@ -1,8 +1,9 @@
 import { memo, useEffect, useState } from "react";
-import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
+import { FiEdit3 } from "react-icons/fi";
 import {
   listRecordings,
   listRecordingTexts,
+  updateRecordingName,
 } from "@/helpers/recording/recordingStorage";
 import type { Recording } from "~types/interface/recording.interface";
 import {
@@ -40,6 +41,8 @@ const AudioRecorderContent = memo(
       downloadChunk,
     } = useAudioRecorderServicesContext();
     const [recording, setRecording] = useState<Recording | null>(null);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [draftTitle, setDraftTitle] = useState("");
 
     useEffect(() => {
       let isMounted = true;
@@ -58,6 +61,7 @@ const AudioRecorderContent = memo(
 
         if (isMounted) {
           setRecording(found);
+          setDraftTitle(found?.name ?? "");
           setTranscribedTexts(storedTexts.map((item) => item.text));
         }
       })();
@@ -71,11 +75,67 @@ const AudioRecorderContent = memo(
     const isPaused = session.status === "paused";
     const recordingTitle = recording?.name?.trim() || "Gravação contínua";
 
+    const handleSaveTitle = async () => {
+      const nextTitle = draftTitle.trim();
+      if (!recordingId || !nextTitle) return;
+      await updateRecordingName(recordingId, nextTitle);
+      setRecording((current) =>
+        current
+          ? { ...current, name: nextTitle, updatedAt: Date.now() }
+          : current,
+      );
+      setIsEditingTitle(false);
+    };
+
     return (
       <section aria-label="Audio recorder" className="audio-recorder">
         <header className="audio-recorder__header">
           <p className="audio-recorder__eyebrow">Continuous capture</p>
-          <h2 className="audio-recorder__title">{recordingTitle}</h2>
+          <div className="audio-recorder__title-row">
+            {isEditingTitle ? (
+              <div className="audio-recorder__title-inline audio-recorder__title-inline--editing">
+                <input
+                  className="audio-recorder__title-input"
+                  value={draftTitle}
+                  onChange={(event) => setDraftTitle(event.target.value)}
+                  onBlur={() => void handleSaveTitle()}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") void handleSaveTitle();
+                    if (event.key === "Escape") {
+                      setDraftTitle(recording?.name ?? "");
+                      setIsEditingTitle(false);
+                    }
+                  }}
+                  size={Math.max(
+                    1,
+                    draftTitle.length || recording?.name?.length || 1,
+                  )}
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  className="audio-recorder__title-action"
+                  aria-label="Confirmar edição do título da gravação"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => void handleSaveTitle()}
+                >
+                  <FiEdit3 />
+                </button>
+              </div>
+            ) : (
+              <div className="audio-recorder__title-inline">
+                <h2 className="audio-recorder__title">{recordingTitle}</h2>
+                <button
+                  type="button"
+                  className="audio-recorder__title-action"
+                  aria-label="Editar título da gravação"
+                  onClick={() => setIsEditingTitle(true)}
+                >
+                  <FiEdit3 />
+                </button>
+              </div>
+            )}
+          </div>
         </header>
 
         <div className="audio-recorder__panel">

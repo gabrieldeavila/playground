@@ -39,11 +39,107 @@
   opacity: 0.66;
 }
 
+.audio-recorder__title-row {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.audio-recorder__title-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  width: max-content;
+  max-width: 100%;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  overflow: visible;
+}
+
+.audio-recorder__title-inline--editing {
+  width: max-content;
+  max-width: 100%;
+}
+
 .audio-recorder__title {
   margin: 0;
   font-size: clamp(2rem, 4vw, 4rem);
-  line-height: 0.95;
+  line-height: 1.15;
   letter-spacing: -0.05em;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  display: inline-block;
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+  text-indent: 0;
+  transform: none;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.audio-recorder__title-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+  vertical-align: middle;
+}
+.audio-recorder__title-action:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.audio-recorder__title-edit {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  width: max-content;
+  overflow: visible;
+}
+
+.audio-recorder__title-input {
+  display: inline-block;
+  width: max-content;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.15;
+  letter-spacing: -0.05em;
+  box-sizing: content-box;
+  -webkit-appearance: none;
+  appearance: none;
+  vertical-align: middle;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.audio-recorder__title-input::-webkit-search-decoration,
+.audio-recorder__title-input::-webkit-search-cancel-button,
+.audio-recorder__title-input::-webkit-search-results-button,
+.audio-recorder__title-input::-webkit-search-results-decoration {
+  display: none;
 }
 
 .audio-recorder__description {
