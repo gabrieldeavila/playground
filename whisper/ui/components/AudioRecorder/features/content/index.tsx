@@ -1,6 +1,9 @@
 import { memo, useEffect, useState } from "react";
 import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
-import { listRecordings } from "@/helpers/recording/recordingStorage";
+import {
+  listRecordings,
+  listRecordingTexts,
+} from "@/helpers/recording/recordingStorage";
 import type { Recording } from "~types/interface/recording.interface";
 import {
   useAudioRecorderBaseContext,
@@ -25,8 +28,9 @@ const AudioRecorderContent = memo(
       lastError,
       elapsedSeconds,
       transcribedTexts,
+      setTranscribedTexts,
     } = useAudioRecorderBaseContext();
-    const { setShowRecorder } = useRecorderGateBaseContext();
+
     const {
       startRecording,
       pauseRecording,
@@ -43,22 +47,25 @@ const AudioRecorderContent = memo(
       void (async () => {
         if (!recordingId) {
           setRecording(null);
+          setTranscribedTexts([]);
           return;
         }
 
         const recordings = await listRecordings();
         const found =
           recordings.find((item) => item.id === recordingId) ?? null;
+        const storedTexts = await listRecordingTexts(recordingId);
 
         if (isMounted) {
           setRecording(found);
+          setTranscribedTexts(storedTexts.map((item) => item.text));
         }
       })();
 
       return () => {
         isMounted = false;
       };
-    }, [recordingId]);
+    }, [recordingId, setTranscribedTexts]);
 
     const isRecording = session.status === "recording";
     const isPaused = session.status === "paused";
@@ -100,15 +107,6 @@ const AudioRecorderContent = memo(
             onRetry={(chunkId) => void retryChunk(chunkId)}
             onDownload={(chunk) => void downloadChunk(chunk)}
           />
-          <div className="audio-recorder__footer">
-            <button
-              type="button"
-              className="audio-recorder__back"
-              onClick={() => setShowRecorder(false)}
-            >
-              Voltar
-            </button>
-          </div>
         </div>
       </section>
     );

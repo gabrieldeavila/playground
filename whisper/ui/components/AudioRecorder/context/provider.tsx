@@ -20,6 +20,7 @@ export function AudioRecorderBaseProvider({
       isSupported: value.isSupported,
       hasPermission: value.hasPermission,
       transcribedTexts: value.transcribedTexts,
+      setTranscribedTexts: value.setTranscribedTexts,
     }),
     [
       value.session,
@@ -29,6 +30,7 @@ export function AudioRecorderBaseProvider({
       value.isSupported,
       value.hasPermission,
       value.transcribedTexts,
+      value.setTranscribedTexts,
     ],
   );
 

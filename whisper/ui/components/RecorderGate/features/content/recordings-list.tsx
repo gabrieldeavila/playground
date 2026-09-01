@@ -33,7 +33,6 @@ const RecordingsList = memo(
       >
         <div className="recorder-gate-recordings__header">
           <span className="recorder-gate-recordings__eyebrow">Biblioteca</span>
-          <h2 className="recorder-gate-recordings__title">Gravações salvas</h2>
         </div>
 
         <ul className="recorder-gate-recordings__list">

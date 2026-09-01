@@ -30,7 +30,7 @@ export const saveRecordingText = async (recordingId: string, text: string) => {
   });
 };
 
-export const listRecordings = async () => audioRecorderDb.recordings.toArray();
+export const listRecordings = async () => audioRecorderDb.recordings.orderBy("updatedAt").reverse().toArray();
 
 export const listRecordingTexts = async (recordingId: string) =>
   audioRecorderDb.recordingTexts

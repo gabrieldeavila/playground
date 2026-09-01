@@ -1,3 +1,4 @@
+import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
 import { memo } from "react";
 
 interface RecorderControlsProps {
@@ -18,6 +19,8 @@ const RecorderControls = memo(
     onStop,
     onResume,
   }: RecorderControlsProps) => {
+    const { setShowRecorder } = useRecorderGateBaseContext();
+
     return (
       <div className="audio-recorder__actions">
         {!isRecording && !isPaused ? (
@@ -37,6 +40,9 @@ const RecorderControls = memo(
         ) : null}
         <button type="button" onClick={onStop}>
           Parar
+        </button>
+        <button type="button" onClick={() => setShowRecorder(false)}>
+          Voltar
         </button>
       </div>
     );

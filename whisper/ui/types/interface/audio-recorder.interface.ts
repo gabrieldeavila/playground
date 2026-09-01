@@ -32,6 +32,7 @@ export interface AudioRecorderBaseContextValue {
   isSupported: boolean;
   hasPermission: boolean;
   transcribedTexts: string[];
+  setTranscribedTexts: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export interface AudioRecorderServicesContextValue {

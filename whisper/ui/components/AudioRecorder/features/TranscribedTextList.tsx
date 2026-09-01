@@ -14,9 +14,6 @@ const TranscribedTextList = memo(({ texts }: TranscribedTextListProps) => {
     >
       <header className="audio-recorder__transcriptions-header">
         <p className="audio-recorder__transcriptions-eyebrow">Transcrições</p>
-        <h3 className="audio-recorder__transcriptions-title">
-          Texto retornado
-        </h3>
       </header>
 
       <ul className="audio-recorder__transcriptions-list">

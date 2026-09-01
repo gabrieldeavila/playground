@@ -9,6 +9,7 @@ import type {
   AudioChunk,
   AudioRecorderSession,
 } from "~types/interface/audio-recorder.interface";
+import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
 
 const getNow = () => Date.now();
 
@@ -20,6 +21,7 @@ export function useAudioRecorder() {
   const [session, setSession] = useState<AudioRecorderSession>(
     createRecorderSession(),
   );
+  const { selectedRecordingId } = useRecorderGateBaseContext();
   const [pendingChunks, setPendingChunks] = useState<AudioChunk[]>([]);
   const [transcribedTexts, setTranscribedTexts] = useState<string[]>([]);
   const [audioChunks, setAudioChunks] = useState<AudioChunk[]>([]);
@@ -27,7 +29,6 @@ export function useAudioRecorder() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [hasPermission, setHasPermission] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
-  const recordingIdRef = useRef<string | null>(null);
 
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -87,8 +88,8 @@ export function useAudioRecorder() {
       const text = response?.text;
       if (typeof text === "string") {
         setTranscribedTexts((current) => [...current, text]);
-        if (recordingIdRef.current) {
-          void saveRecordingText(recordingIdRef.current, text);
+        if (selectedRecordingId) {
+          saveRecordingText(selectedRecordingId, text);
         }
         setAudioChunks((current) =>
           current.map((audioChunk) =>
@@ -214,8 +215,7 @@ export function useAudioRecorder() {
     mediaStreamRef.current = stream;
     mimeTypeRef.current = audioMimeType;
 
-    const newSessionId = crypto.randomUUID();
-    recordingIdRef.current = newSessionId;
+    const newSessionId = selectedRecordingId!;
     const audioOnlyStream = new MediaStream(audioTracks);
     const recorder = new MediaRecorder(audioOnlyStream, {
       mimeType: audioMimeType,
@@ -228,7 +228,6 @@ export function useAudioRecorder() {
     setElapsedSeconds(0);
     setAudioChunks([]);
     setPendingChunks([]);
-    setTranscribedTexts([]);
 
     recorder.ondataavailable = (event) => {
       if (event.data.size > 0) chunkPartsRef.current.push(event.data);
@@ -318,6 +317,7 @@ export function useAudioRecorder() {
       isSupported,
       hasPermission,
       transcribedTexts,
+      setTranscribedTexts,
       startRecording,
       pauseRecording,
       resumeRecording,
