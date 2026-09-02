@@ -39,4 +39,10 @@ export const listRecordingTexts = async (recordingId: string) =>
     .equals(recordingId)
     .sortBy("createdAt");
 
+export const updateRecordingText = async (id: string, text: string) => {
+  await audioRecorderDb.recordingTexts.update(id, {
+    text,
+  });
+};
+
 export const updateRecordingName = renameRecording;

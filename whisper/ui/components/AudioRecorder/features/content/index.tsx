@@ -5,6 +5,7 @@ import {
   listRecordings,
   listRecordingTexts,
   updateRecordingName,
+  updateRecordingText,
 } from "@/helpers/recording/recordingStorage";
 import type { Recording } from "~types/interface/recording.interface";
 import {
@@ -165,7 +166,22 @@ const AudioRecorderContent = memo(
             onResume={() => void resumeRecording()}
           />
           <RecorderErrorBanner error={lastError} />
-          <TranscribedTextList texts={transcribedTexts} />
+          <TranscribedTextList
+            texts={transcribedTexts}
+            recordingId={recordingId}
+            onUpdateText={async (currentRecordingId, index, text) => {
+              const currentTexts = await listRecordingTexts(currentRecordingId);
+              const target = currentTexts[index];
+              if (target) {
+                await updateRecordingText(target.id, text);
+              }
+              setTranscribedTexts((current) => {
+                const nextTexts = [...current];
+                nextTexts[index] = text;
+                return nextTexts;
+              });
+            }}
+          />
           <ChunkAccordion
             chunks={pendingChunks}
             onRetry={(chunkId) => void retryChunk(chunkId)}
