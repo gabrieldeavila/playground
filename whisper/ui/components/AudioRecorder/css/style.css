@@ -97,12 +97,21 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition:
     transform 180ms ease,
-    background 180ms ease;
+    background 180ms ease,
+    opacity 180ms ease;
   vertical-align: middle;
 }
 .audio-recorder__title-action:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.12);
+}
+
+.audio-recorder__title-action--visible {
+  opacity: 0.92;
+}
+
+.audio-recorder__title-row:hover .audio-recorder__title-action {
+  opacity: 1;
 }
 
 .audio-recorder__title-edit {
@@ -114,6 +123,7 @@
 }
 
 .audio-recorder__title-input {
+  field-sizing: content;
   display: inline-block;
   width: max-content;
   min-width: 0;

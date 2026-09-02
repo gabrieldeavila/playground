@@ -1,24 +1,52 @@
-.audio-recorder__history-toggle {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
+.audio-recorder__title-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+  white-space: nowrap;
 }
 
-.audio-recorder__history-button {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.04);
-  color: inherit;
-  border-radius: 999px;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
+.audio-recorder__title-inline--editing {
+  flex: 0 0 auto;
 }
 
-.audio-recorder__history-button:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.22);
+.audio-recorder__title {
+  display: inline-block;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.audio-recorder__title-input {
+  display: inline-block;
+  flex: 0 0 auto;
+  box-sizing: content-box;
+  min-width: 8ch;
+  max-width: 28ch;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.audio-recorder__title-action {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+
+.audio-recorder__title-action--visible {
+  visibility: visible;
 }

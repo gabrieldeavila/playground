@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import { FiEdit3 } from "react-icons/fi";
+import "./history-toggle.css";
 import {
   listRecordings,
   listRecordingTexts,
@@ -106,9 +107,12 @@ const AudioRecorderContent = memo(
                       setIsEditingTitle(false);
                     }
                   }}
-                  size={Math.max(
-                    1,
-                    draftTitle.length || recording?.name?.length || 1,
+                  size={Math.min(
+                    28,
+                    Math.max(
+                      8,
+                      draftTitle.length || recording?.name?.length || 8,
+                    ),
                   )}
                   autoFocus
                 />
@@ -127,7 +131,7 @@ const AudioRecorderContent = memo(
                 <h2 className="audio-recorder__title">{recordingTitle}</h2>
                 <button
                   type="button"
-                  className="audio-recorder__title-action"
+                  className="audio-recorder__title-action audio-recorder__title-action--visible"
                   aria-label="Editar título da gravação"
                   onClick={() => setIsEditingTitle(true)}
                 >
