@@ -45,9 +45,7 @@ const RecordingsList = memo(
               <li key={recording.id} className="recorder-gate-recordings__item">
                 <button
                   type="button"
-                  className={`recorder-gate-recordings__button${
-                    isActive ? " recorder-gate-recordings__button--active" : ""
-                  }`}
+                  className={`recorder-gate-recordings__button${isActive ? " recorder-gate-recordings__button--active" : ""}`}
                   onClick={() => onSelectRecording(recording.id)}
                 >
                   <span className="recorder-gate-recordings__meta">

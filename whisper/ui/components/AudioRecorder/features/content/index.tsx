@@ -18,6 +18,7 @@ import ChunkAccordion from "../ChunkAccordion";
 import RecorderStatus from "../RecorderStatus";
 import RecorderTimer from "../RecorderTimer";
 import TranscribedTextList from "../TranscribedTextList";
+import { useNavigate } from "react-router";
 
 type AudioRecorderContentProps = {
   recordingId: string | null;
@@ -33,6 +34,7 @@ const AudioRecorderContent = memo(
       transcribedTexts,
       setTranscribedTexts,
     } = useAudioRecorderBaseContext();
+    const navigate = useNavigate();
 
     const {
       startRecording,
@@ -164,6 +166,10 @@ const AudioRecorderContent = memo(
             onPause={() => void pauseRecording()}
             onStop={() => void stopRecording()}
             onResume={() => void resumeRecording()}
+            onBack={() => {
+              void stopRecording();
+              navigate("/");
+            }}
           />
           <RecorderErrorBanner error={lastError} />
           <TranscribedTextList

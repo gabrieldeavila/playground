@@ -1,23 +1,25 @@
 import AudioRecorder from "@/components/AudioRecorder";
 import RecordingModal from "@/components/RecordingModal";
-import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
+import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/RecorderGateBaseContext";
+import { useRecorderGateServicesContext } from "@/components/RecorderGate/context/RecorderGateServicesContext";
 import {
   deleteRecording,
   listRecordings,
 } from "@/helpers/recording/recordingStorage";
 import type { Recording } from "~types/interface/recording.interface";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import RecordingsList from "./recordings-list";
 
 const RecorderGateContent = memo(() => {
+  const navigate = useNavigate();
   const {
-    showRecorder,
-    setShowRecorder,
     isRecordingModalOpen,
     setIsRecordingModalOpen,
     selectedRecordingId,
     setSelectedRecordingId,
   } = useRecorderGateBaseContext();
+  const { initialMode } = useRecorderGateServicesContext();
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<Recording | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -34,19 +36,31 @@ const RecorderGateContent = memo(() => {
   const handleCreated = useCallback(
     (recordingId: string) => {
       setSelectedRecordingId(recordingId);
-      setShowRecorder(true);
+      setIsRecordingModalOpen(false);
+      void navigate(`/recordings/${recordingId}`);
       void refreshRecordings();
     },
-    [refreshRecordings, setSelectedRecordingId, setShowRecorder],
+    [
+      navigate,
+      refreshRecordings,
+      setIsRecordingModalOpen,
+      setSelectedRecordingId,
+    ],
   );
 
   const handleSelectRecording = useCallback(
     (recordingId: string) => {
       setSelectedRecordingId(recordingId);
-      setShowRecorder(true);
+      void navigate(`/recordings/${recordingId}`);
     },
-    [setSelectedRecordingId, setShowRecorder],
+    [navigate, setSelectedRecordingId],
   );
+
+  const handleCreateRecording = useCallback(() => {
+    setDeleteTarget(null);
+    setIsRecordingModalOpen(true);
+    void navigate("/recordings/new");
+  }, [navigate, setIsRecordingModalOpen]);
 
   const handleRequestDeleteRecording = useCallback(
     (recording: Recording) => {
@@ -57,25 +71,19 @@ const RecorderGateContent = memo(() => {
   );
 
   const handleCloseDeleteModal = useCallback(() => {
-    if (isDeleting) {
-      return;
-    }
-
+    if (isDeleting) return;
     setDeleteTarget(null);
     setIsRecordingModalOpen(false);
   }, [isDeleting, setIsRecordingModalOpen]);
 
   const handleConfirmDelete = useCallback(async () => {
-    if (!deleteTarget) {
-      return;
-    }
-
+    if (!deleteTarget) return;
     setIsDeleting(true);
     try {
       await deleteRecording(deleteTarget.id);
       if (selectedRecordingId === deleteTarget.id) {
         setSelectedRecordingId(null);
-        setShowRecorder(false);
+        void navigate("/");
       }
       setDeleteTarget(null);
       setIsRecordingModalOpen(false);
@@ -85,12 +93,17 @@ const RecorderGateContent = memo(() => {
     }
   }, [
     deleteTarget,
+    navigate,
     refreshRecordings,
     selectedRecordingId,
-    setSelectedRecordingId,
-    setShowRecorder,
     setIsRecordingModalOpen,
+    setSelectedRecordingId,
   ]);
+
+  const isRecorderView = useMemo(
+    () => Boolean(selectedRecordingId),
+    [selectedRecordingId],
+  );
 
   return (
     <div className="recorder-gate">
@@ -107,7 +120,7 @@ const RecorderGateContent = memo(() => {
         isDeleting={isDeleting}
         onCancelDelete={handleCloseDeleteModal}
       />
-      {!showRecorder ? (
+      {!isRecorderView ? (
         <section className="recorder-gate__home">
           <h1 className="recorder-gate__title">Audio Studio</h1>
           <p className="recorder-gate__description">
@@ -116,14 +129,10 @@ const RecorderGateContent = memo(() => {
           <button
             type="button"
             className="recorder-gate__button"
-            onClick={() => {
-              setDeleteTarget(null);
-              setIsRecordingModalOpen(true);
-            }}
+            onClick={handleCreateRecording}
           >
             Iniciar nova gravação
           </button>
-
           <RecordingsList
             recordings={recordings}
             selectedRecordingId={selectedRecordingId}

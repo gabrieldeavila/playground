@@ -1,32 +1,17 @@
-import { type ReactNode, useMemo, useState } from "react";
-import { RecorderGateBaseContext } from "./context";
+import type { RecorderGateBaseContextValue } from "@/types/interface/recordergate-context.interface";
+import { createContext, useContext } from "react";
 
-export function RecorderGateBaseProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const [showRecorder, setShowRecorder] = useState(false);
-  const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
-  const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(
-    null,
-  );
+export const RecorderGateBaseContext =
+  createContext<RecorderGateBaseContextValue | null>(null);
 
-  const value = useMemo(
-    () => ({
-      showRecorder,
-      setShowRecorder,
-      isRecordingModalOpen,
-      setIsRecordingModalOpen,
-      selectedRecordingId,
-      setSelectedRecordingId,
-    }),
-    [showRecorder, isRecordingModalOpen, selectedRecordingId],
-  );
+export const useRecorderGateBaseContext = () => {
+  const context = useContext(RecorderGateBaseContext);
 
-  return (
-    <RecorderGateBaseContext.Provider value={value}>
-      {children}
-    </RecorderGateBaseContext.Provider>
-  );
-}
+  if (!context) {
+    throw new Error(
+      "useRecorderGateBaseContext must be used within a RecorderGateBaseContext",
+    );
+  }
+
+  return context;
+};

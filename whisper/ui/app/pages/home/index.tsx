@@ -1,12 +1,7 @@
 import RecorderGate from "@/components/RecorderGate";
-import { memo } from "react";
 
 const Home = () => {
-  return (
-    <div>
-      <RecorderGate />
-    </div>
-  );
+  return <RecorderGate />;
 };
 
 export default Home;
