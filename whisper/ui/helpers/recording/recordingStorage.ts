@@ -33,6 +33,21 @@ export const saveRecordingText = async (recordingId: string, text: string) => {
 export const listRecordings = async () =>
   audioRecorderDb.recordings.orderBy("updatedAt").reverse().toArray();
 
+export const deleteRecording = async (recordingId: string) => {
+  await audioRecorderDb.transaction(
+    "rw",
+    audioRecorderDb.recordings,
+    audioRecorderDb.recordingTexts,
+    async () => {
+      await audioRecorderDb.recordings.delete(recordingId);
+      await audioRecorderDb.recordingTexts
+        .where("recordingId")
+        .equals(recordingId)
+        .delete();
+    },
+  );
+};
+
 export const listRecordingTexts = async (recordingId: string) =>
   audioRecorderDb.recordingTexts
     .where("recordingId")

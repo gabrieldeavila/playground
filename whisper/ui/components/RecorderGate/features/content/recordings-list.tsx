@@ -5,6 +5,7 @@ type RecordingsListProps = {
   recordings: Recording[];
   selectedRecordingId: string | null;
   onSelectRecording: (recordingId: string) => void;
+  onRequestDeleteRecording: (recording: Recording) => void;
 };
 
 const RecordingsList = memo(
@@ -12,6 +13,7 @@ const RecordingsList = memo(
     recordings,
     selectedRecordingId,
     onSelectRecording,
+    onRequestDeleteRecording,
   }: RecordingsListProps) => {
     if (recordings.length === 0) {
       return (
@@ -64,8 +66,21 @@ const RecordingsList = memo(
                     </span>
                   </span>
 
-                  <span className="recorder-gate-recordings__badge">
-                    {isActive ? "Ativa" : "Abrir"}
+                  <span className="recorder-gate-recordings__actions">
+                    <span className="recorder-gate-recordings__badge">
+                      {isActive ? "Ativa" : "Abrir"}
+                    </span>
+                    <button
+                      type="button"
+                      className="recorder-gate-recordings__badge recorder-gate-recordings__badge--danger"
+                      aria-label={`Deletar gravação ${recording.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onRequestDeleteRecording(recording);
+                      }}
+                    >
+                      Deletar
+                    </button>
                   </span>
                 </button>
               </li>

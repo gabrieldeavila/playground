@@ -1,7 +1,10 @@
 import AudioRecorder from "@/components/AudioRecorder";
 import RecordingModal from "@/components/RecordingModal";
 import { useRecorderGateBaseContext } from "@/components/RecorderGate/context/context";
-import { listRecordings } from "@/helpers/recording/recordingStorage";
+import {
+  deleteRecording,
+  listRecordings,
+} from "@/helpers/recording/recordingStorage";
 import type { Recording } from "~types/interface/recording.interface";
 import { memo, useCallback, useEffect, useState } from "react";
 import RecordingsList from "./recordings-list";
@@ -16,6 +19,8 @@ const RecorderGateContent = memo(() => {
     setSelectedRecordingId,
   } = useRecorderGateBaseContext();
   const [recordings, setRecordings] = useState<Recording[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<Recording | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const refreshRecordings = useCallback(async () => {
     const items = await listRecordings();
@@ -43,12 +48,64 @@ const RecorderGateContent = memo(() => {
     [setSelectedRecordingId, setShowRecorder],
   );
 
+  const handleRequestDeleteRecording = useCallback(
+    (recording: Recording) => {
+      setDeleteTarget(recording);
+      setIsRecordingModalOpen(true);
+    },
+    [setIsRecordingModalOpen],
+  );
+
+  const handleCloseDeleteModal = useCallback(() => {
+    if (isDeleting) {
+      return;
+    }
+
+    setDeleteTarget(null);
+    setIsRecordingModalOpen(false);
+  }, [isDeleting, setIsRecordingModalOpen]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deleteTarget) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteRecording(deleteTarget.id);
+      if (selectedRecordingId === deleteTarget.id) {
+        setSelectedRecordingId(null);
+        setShowRecorder(false);
+      }
+      setDeleteTarget(null);
+      setIsRecordingModalOpen(false);
+      await refreshRecordings();
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [
+    deleteTarget,
+    refreshRecordings,
+    selectedRecordingId,
+    setSelectedRecordingId,
+    setShowRecorder,
+    setIsRecordingModalOpen,
+  ]);
+
   return (
     <div className="recorder-gate">
       <RecordingModal
         isOpen={isRecordingModalOpen}
-        onClose={() => setIsRecordingModalOpen(false)}
+        onClose={() => {
+          setIsRecordingModalOpen(false);
+          setDeleteTarget(null);
+        }}
         onCreated={handleCreated}
+        mode={deleteTarget ? "delete" : "create"}
+        deleteTargetName={deleteTarget?.name}
+        onConfirmDelete={handleConfirmDelete}
+        isDeleting={isDeleting}
+        onCancelDelete={handleCloseDeleteModal}
       />
       {!showRecorder ? (
         <section className="recorder-gate__home">
@@ -59,7 +116,10 @@ const RecorderGateContent = memo(() => {
           <button
             type="button"
             className="recorder-gate__button"
-            onClick={() => setIsRecordingModalOpen(true)}
+            onClick={() => {
+              setDeleteTarget(null);
+              setIsRecordingModalOpen(true);
+            }}
           >
             Iniciar nova gravação
           </button>
@@ -68,6 +128,7 @@ const RecorderGateContent = memo(() => {
             recordings={recordings}
             selectedRecordingId={selectedRecordingId}
             onSelectRecording={handleSelectRecording}
+            onRequestDeleteRecording={handleRequestDeleteRecording}
           />
         </section>
       ) : (

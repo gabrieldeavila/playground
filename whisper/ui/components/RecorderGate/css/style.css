@@ -117,7 +117,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.03);
-  overflow: auto
+  overflow: auto;
 }
 
 .recorder-gate-recordings--empty {
@@ -172,6 +172,12 @@
     border-color 0.2s ease;
 }
 
+.recorder-gate-recordings__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .recorder-gate-recordings__button:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.06);
@@ -209,6 +215,30 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: rgba(226, 232, 240, 0.88);
   font-size: 0.8rem;
+}
+
+.recorder-gate-recordings__badge--danger {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.22);
+  color: #fecaca;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.recorder-gate-recordings__badge--danger:hover {
+  transform: translateY(-1px);
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fff1f2;
+}
+
+.recorder-gate-recordings__badge--danger:focus-visible {
+  outline: 2px solid rgba(248, 113, 113, 0.75);
+  outline-offset: 2px;
 }
 
 .recorder-gate-recordings--empty .recorder-gate-recordings__empty-title {
