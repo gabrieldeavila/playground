@@ -4,7 +4,10 @@ import { AudioRecorderStatusEnum } from "~types/enum/audio-recorder-status.enum"
 import { createRecorderSession } from "@/helpers/recording/createRecorderSession";
 import { getSupportedMimeType } from "@/helpers/recording/getSupportedMimeType";
 import { uploadAudioChunk } from "@/helpers/api/uploadAudioChunk";
-import { saveRecordingText } from "@/helpers/recording/recordingStorage";
+import {
+  saveRecordingText,
+  getRecordingById,
+} from "@/helpers/recording/recordingStorage";
 import type {
   AudioChunk,
   AudioRecorderSession,
@@ -38,6 +41,7 @@ export function useAudioRecorder() {
   const chunkTimerRef = useRef<number | null>(null);
   const chunkIndexRef = useRef(0);
   const mimeTypeRef = useRef("");
+  const recordingTypeRef = useRef<"microphone" | "computer-audio" | null>(null);
   const isUnmountedRef = useRef(false);
   const hasStartedRef = useRef(false);
 
@@ -144,6 +148,7 @@ export function useAudioRecorder() {
   const stopStream = useCallback(() => {
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
     mediaStreamRef.current = null;
+    recordingTypeRef.current = null;
   }, []);
 
   const requestDisplayMediaPermission = useCallback(async () => {
@@ -164,21 +169,26 @@ export function useAudioRecorder() {
 
   const startRecording = useCallback(async () => {
     setLastError(null);
+
     if (typeof window === "undefined" || typeof navigator === "undefined")
       return;
-    if (!navigator.mediaDevices?.getDisplayMedia) {
-      setIsSupported(false);
-      setLastError("Navegador sem suporte a captura de tela/áudio");
+
+    const recordingId = selectedRecordingId;
+    if (!recordingId) {
+      setLastError("Nenhuma gravação selecionada");
       return;
     }
 
-    const mimeType = getSupportedMimeType();
-    if (!mimeType) {
-      setIsSupported(false);
-      setLastError("Nenhum mime type de áudio suportado encontrado");
+    const recording = await getRecordingById(recordingId);
+    if (!recording) {
+      setLastError("Gravação não encontrada");
       return;
     }
 
+    console.log(recording.type);
+
+    const recordingType =
+      recording.type === "audio" ? "microphone" : "computer-audio";
     const audioMimeType = [
       "audio/webm;codecs=opus",
       "audio/webm",
@@ -190,15 +200,34 @@ export function useAudioRecorder() {
       setLastError("Nenhum mime type de áudio suportado encontrado");
       return;
     }
+    console.log(recordingType);
 
     let stream: MediaStream;
     try {
-      stream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
-        audio: true,
-      });
+      if (recordingType === "microphone") {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setIsSupported(false);
+          setLastError("Navegador sem suporte a captura de microfone");
+          return;
+        }
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } else {
+        if (!navigator.mediaDevices?.getDisplayMedia) {
+          setIsSupported(false);
+          setLastError("Navegador sem suporte a captura de tela/áudio");
+          return;
+        }
+        stream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+          audio: true,
+        });
+      }
     } catch {
-      setLastError("Não foi possível acessar a captura de tela/áudio");
+      setLastError(
+        recordingType === "microphone"
+          ? "Não foi possível acessar o microfone"
+          : "Não foi possível acessar a captura de tela/áudio",
+      );
       return;
     }
 
@@ -206,16 +235,21 @@ export function useAudioRecorder() {
     if (!audioTracks.length) {
       stream.getTracks().forEach((track) => track.stop());
       setLastError(
-        "Nenhuma trilha de áudio foi capturada na janela compartilhada",
+        recordingType === "microphone"
+          ? "Nenhuma trilha de áudio foi capturada do microfone"
+          : "Nenhuma trilha de áudio foi capturada na janela compartilhada",
       );
       return;
     }
 
+    console.log(recordingType);
+
     setHasPermission(true);
     mediaStreamRef.current = stream;
     mimeTypeRef.current = audioMimeType;
+    recordingTypeRef.current = recordingType;
 
-    const newSessionId = selectedRecordingId!;
+    const newSessionId = recordingId;
     const audioOnlyStream = new MediaStream(audioTracks);
     const recorder = new MediaRecorder(audioOnlyStream, {
       mimeType: audioMimeType,

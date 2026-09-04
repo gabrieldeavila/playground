@@ -1,11 +1,12 @@
 import { audioRecorderDb } from "@/helpers/db/audioRecorderDb";
 import type { Recording } from "~types/interface/recording.interface";
 
-export const createRecording = async (name: string) => {
+export const createRecording = async (name: string, type: string) => {
   const now = Date.now();
   const recording: Recording = {
     id: crypto.randomUUID(),
     name,
+    type,
     createdAt: now,
     updatedAt: now,
   };
@@ -13,6 +14,9 @@ export const createRecording = async (name: string) => {
   await audioRecorderDb.recordings.add(recording);
   return recording;
 };
+
+export const getRecordingById = async (recordingId: string) =>
+  audioRecorderDb.recordings.get(recordingId);
 
 export const renameRecording = async (id: string, name: string) => {
   await audioRecorderDb.recordings.update(id, {

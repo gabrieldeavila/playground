@@ -1,6 +1,7 @@
 export interface Recording {
   id: string;
   name: string;
+  type: string;
   createdAt: number;
   updatedAt: number;
 }

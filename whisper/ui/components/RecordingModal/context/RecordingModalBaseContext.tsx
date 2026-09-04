@@ -1,6 +1,7 @@
 import { createRecording } from "@/helpers/recording/recordingStorage";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { RecordingModalBaseContext } from "./context";
+import { RecordingModalSelectionProvider } from "./RecordingModalSelectionContext";
 
 export function RecordingModalBaseProvider({
   children,
@@ -24,17 +25,18 @@ export function RecordingModalBaseProvider({
   isDeleting?: boolean;
 }) {
   const [recordingName, setRecordingName] = useState("");
+  const [recordingType, setRecordingType] = useState("audio");
 
   const handleCreateRecording = useCallback(async () => {
     const trimmedName = recordingName.trim();
 
     if (!trimmedName) return;
 
-    const recording = await createRecording(trimmedName);
+    const recording = await createRecording(trimmedName, recordingType);
     onCreated?.(recording.id);
     onClose();
     setRecordingName("");
-  }, [onClose, onCreated, recordingName]);
+  }, [onClose, onCreated, recordingName, recordingType]);
 
   const value = useMemo(
     () => ({
@@ -55,7 +57,7 @@ export function RecordingModalBaseProvider({
       isDeleting,
       isOpen,
       mode,
-      onConfirmDelete,
+      onCancelDelete,
       onClose,
       onConfirmDelete,
       recordingName,
@@ -63,8 +65,10 @@ export function RecordingModalBaseProvider({
   );
 
   return (
-    <RecordingModalBaseContext.Provider value={value}>
-      {children}
-    </RecordingModalBaseContext.Provider>
+    <RecordingModalSelectionProvider>
+      <RecordingModalBaseContext.Provider value={value}>
+        {children}
+      </RecordingModalBaseContext.Provider>
+    </RecordingModalSelectionProvider>
   );
 }
