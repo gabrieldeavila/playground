@@ -122,7 +122,7 @@ const RecorderGateContent = memo(() => {
       />
       {!isRecorderView ? (
         <section className="recorder-gate__home">
-          <h1 className="recorder-gate__title">Audio Studio</h1>
+          <h1 className="recorder-gate__title">Aural Studio</h1>
           <p className="recorder-gate__description">
             Inicie uma nova gravação ou acesse a experiência de áudio.
           </p>

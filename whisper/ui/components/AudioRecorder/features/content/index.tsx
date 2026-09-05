@@ -94,7 +94,7 @@ const AudioRecorderContent = memo(
     return (
       <section aria-label="Audio recorder" className="audio-recorder">
         <header className="audio-recorder__header">
-          <p className="audio-recorder__eyebrow">Continuous capture</p>
+          <p className="audio-recorder__eyebrow">Aural Studio</p>
           <div className="audio-recorder__title-row">
             {isEditingTitle ? (
               <div className="audio-recorder__title-inline audio-recorder__title-inline--editing">

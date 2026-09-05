@@ -1,7 +1,7 @@
 import RecorderGate from "@/components/RecorderGate";
 
-const Home = () => {
-  return <RecorderGate />;
-};
+export const meta = () => [{ title: "🎤 Aural Studio" }];
 
-export default Home;
+export default function HomePage() {
+  return <RecorderGate />;
+}
