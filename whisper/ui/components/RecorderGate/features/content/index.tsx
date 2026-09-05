@@ -59,8 +59,7 @@ const RecorderGateContent = memo(() => {
   const handleCreateRecording = useCallback(() => {
     setDeleteTarget(null);
     setIsRecordingModalOpen(true);
-    void navigate("/recordings/new");
-  }, [navigate, setIsRecordingModalOpen]);
+  }, [setIsRecordingModalOpen]);
 
   const handleRequestDeleteRecording = useCallback(
     (recording: Recording) => {

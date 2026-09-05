@@ -26,6 +26,7 @@
   position: relative;
   z-index: 1;
   width: 96dvw;
+  min-height: 96dvh;
   padding: clamp(1.75rem, 3vw, 2.25rem);
   border-radius: 5px;
   border: 1px solid rgba(255, 255, 255, 0.1);
