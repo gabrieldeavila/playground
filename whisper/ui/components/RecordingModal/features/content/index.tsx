@@ -137,7 +137,7 @@ const RecordingModalContent = memo(() => {
               <button
                 type="button"
                 className="recording-modal__button"
-                onClick={handleCreateRecording}
+                onClick={() => handleCreateRecording(selectedSource)}
               >
                 Criar
               </button>

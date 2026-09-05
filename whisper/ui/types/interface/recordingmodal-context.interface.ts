@@ -6,7 +6,7 @@ export type RecordingModalBaseContextValue = {
   isDeleting: boolean;
   setIsOpen: (value: boolean) => void;
   setRecordingName: (value: string) => void;
-  handleCreateRecording: () => Promise<void>;
+  handleCreateRecording: (selectedSource: string) => Promise<void>;
   onConfirmDelete?: () => void | Promise<void>;
   onCancelDelete?: () => void;
 };

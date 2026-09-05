@@ -185,10 +185,9 @@ export function useAudioRecorder() {
       return;
     }
 
-    console.log(recording.type);
-
     const recordingType =
-      recording.type === "audio" ? "microphone" : "computer-audio";
+      recording.type === "microphone" ? "microphone" : "computer-audio";
+
     const audioMimeType = [
       "audio/webm;codecs=opus",
       "audio/webm",
@@ -200,7 +199,6 @@ export function useAudioRecorder() {
       setLastError("Nenhum mime type de áudio suportado encontrado");
       return;
     }
-    console.log(recordingType);
 
     let stream: MediaStream;
     try {
@@ -241,8 +239,6 @@ export function useAudioRecorder() {
       );
       return;
     }
-
-    console.log(recordingType);
 
     setHasPermission(true);
     mediaStreamRef.current = stream;
