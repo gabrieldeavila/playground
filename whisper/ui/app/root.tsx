@@ -10,7 +10,15 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 
-export const meta: Route.MetaFunction = () => [{ title: "Aural Studio" }];
+export const meta: Route.MetaFunction = () => [
+  { title: "Aural Studio" },
+  { charSet: "utf-8" },
+  {
+    rel: "icon",
+    type: "image/svg+xml",
+    href: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-size="52">🎤</text></svg>',
+  },
+];
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -32,6 +40,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        <link
+          rel="icon"
+          type="image/svg+xml"
+          href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-size="52">🎤</text></svg>'
+        />
         <Links />
       </head>
       <body>
