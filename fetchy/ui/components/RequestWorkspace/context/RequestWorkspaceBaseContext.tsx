@@ -50,6 +50,23 @@ export function RequestWorkspaceBaseProvider({
   const [activeTab, setActiveTab] = useState(initialRequestTabs[0].id);
   const [requestTabs, setRequestTabs] = useState(initialRequestTabs);
 
+  const createRequest = useCallback(() => {
+    const id = `request-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const newRequest: RequestTab = {
+      id,
+      label: "New Request",
+      method: "GET",
+      url: "",
+      queryParams: [],
+      headers: [],
+      body: { type: "none", content: "" },
+      auth: { type: "none" },
+    };
+
+    setRequestTabs((tabs) => [...tabs, newRequest]);
+    setActiveTab(id);
+  }, []);
+
   const updateActiveRequest = useCallback(
     (update: Partial<RequestDraft>) => {
       setRequestTabs((tabs) =>
@@ -108,6 +125,7 @@ export function RequestWorkspaceBaseProvider({
       requestTabs,
       setActiveSection,
       setActiveTab,
+      createRequest,
       updateActiveRequest,
       addQueryParameter: () => addRow("queryParams"),
       updateQueryParameter: (id, update) =>
@@ -121,6 +139,7 @@ export function RequestWorkspaceBaseProvider({
       activeSection,
       activeTab,
       addRow,
+      createRequest,
       removeRow,
       requestTabs,
       updateActiveRequest,

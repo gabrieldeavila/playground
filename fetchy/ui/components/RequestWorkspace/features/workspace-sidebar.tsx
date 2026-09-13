@@ -8,10 +8,16 @@ type WorkspaceSidebarProps = {
   activeTab: string;
   requestTabs: RequestTab[];
   onSelectTab: (tabId: string) => void;
+  onCreateRequest: () => void;
 };
 
 const WorkspaceSidebar = memo(
-  ({ activeTab, requestTabs, onSelectTab }: WorkspaceSidebarProps) => (
+  ({
+    activeTab,
+    requestTabs,
+    onSelectTab,
+    onCreateRequest,
+  }: WorkspaceSidebarProps) => (
     <aside className="hidden border-r border-(--color-border) bg-(--color-surface)/35 lg:flex lg:flex-col">
       <div className="flex items-center justify-between px-4 pb-3 pt-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
@@ -19,6 +25,7 @@ const WorkspaceSidebar = memo(
         </p>
         <Button
           aria-label="Criar nova request"
+          onClick={onCreateRequest}
           variant="ghost"
           size="sm"
           className="min-h-8 px-2"

@@ -7,17 +7,23 @@ type RequestTabsProps = {
   activeTab: string;
   requestTabs: RequestTab[];
   onSelectTab: (tabId: string) => void;
+  onCreateRequest: () => void;
 };
 
 const RequestTabs = memo(
-  ({ activeTab, requestTabs, onSelectTab }: RequestTabsProps) => (
+  ({
+    activeTab,
+    requestTabs,
+    onSelectTab,
+    onCreateRequest,
+  }: RequestTabsProps) => (
     <div className="flex items-center gap-1 overflow-x-auto border-b border-(--color-border) px-3 pt-3 lg:px-5">
       {requestTabs.map((tab) => (
         <button
           key={tab.id}
           type="button"
           onClick={() => onSelectTab(tab.id)}
-          className="group flex min-w-36 items-center gap-2 rounded-t-lg border border-b-0 px-3 py-2.5 text-xs"
+          className="group flex min-w-36 items-center gap-2 rounded-t-lg border border-b-0 px-3 py-2.5 text-xs border-(--color-border)"
           data-active={tab.id === activeTab}
         >
           <span
@@ -40,7 +46,8 @@ const RequestTabs = memo(
       ))}
       <button
         type="button"
-        aria-label="Abrir nova aba"
+        aria-label="Criar nova request"
+        onClick={onCreateRequest}
         className="grid size-8 shrink-0 place-items-center rounded-lg text-(--color-text-muted) hover:bg-white/5"
       >
         <FiPlus aria-hidden="true" />

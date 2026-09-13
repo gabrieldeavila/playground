@@ -33,12 +33,14 @@ export const RequestToolbar = memo(function RequestToolbar({
         <option>PATCH</option>
         <option>DELETE</option>
       </Select>
-      <Input
-        aria-label="URL da requisição"
-        value={request.url}
-        onChange={(event) => onUpdate({ url: event.target.value })}
-        className="flex-1 font-mono text-xs sm:text-sm"
-      />
+      <div className="grow">
+        <Input
+          aria-label="URL da requisição"
+          value={request.url}
+          onChange={(event) => onUpdate({ url: event.target.value })}
+          className="flex-1 font-mono text-xs sm:text-sm"
+        />
+      </div>
       <div className="flex gap-2">
         <Button
           variant="secondary"
