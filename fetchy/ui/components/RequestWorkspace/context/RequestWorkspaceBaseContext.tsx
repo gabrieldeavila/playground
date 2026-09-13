@@ -87,6 +87,16 @@ export function RequestWorkspaceBaseProvider({
     [activeTab],
   );
 
+  const renameRequest = useCallback((requestId: string, label: string) => {
+    const nextLabel = label.trim() || "New Request";
+
+    setRequestTabs((tabs) =>
+      tabs.map((tab) =>
+        tab.id === requestId ? { ...tab, label: nextLabel } : tab,
+      ),
+    );
+  }, []);
+
   const updateActiveRequest = useCallback(
     (update: Partial<RequestDraft>) => {
       setRequestTabs((tabs) =>
@@ -147,6 +157,7 @@ export function RequestWorkspaceBaseProvider({
       setActiveTab,
       createRequest,
       closeRequest,
+      renameRequest,
       updateActiveRequest,
       addQueryParameter: () => addRow("queryParams"),
       updateQueryParameter: (id, update) =>
@@ -163,6 +174,7 @@ export function RequestWorkspaceBaseProvider({
       closeRequest,
       createRequest,
       removeRow,
+      renameRequest,
       requestTabs,
       updateActiveRequest,
       updateRows,

@@ -20,6 +20,7 @@ const RequestWorkspaceContent = memo(() => {
     setActiveTab,
     createRequest,
     closeRequest,
+    renameRequest,
     updateActiveRequest,
     addQueryParameter,
     updateQueryParameter,
@@ -64,6 +65,7 @@ const RequestWorkspaceContent = memo(() => {
               requestTabs={requestTabs}
               onSelectTab={setActiveTab}
               onCreateRequest={createRequest}
+              onRenameRequest={renameRequest}
             />
             <section className="flex min-w-0 flex-col">
               <RequestTabs
