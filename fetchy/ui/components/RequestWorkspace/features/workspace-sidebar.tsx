@@ -24,7 +24,7 @@ const WorkspaceSidebar = memo(
           Workspace
         </p>
         <Button
-          aria-label="Criar nova request"
+          aria-label="Create new request"
           onClick={onCreateRequest}
           variant="ghost"
           size="sm"
@@ -32,7 +32,7 @@ const WorkspaceSidebar = memo(
           leftIcon={<FiPlus aria-hidden="true" />}
         />
       </div>
-      <nav className="space-y-1 px-3" aria-label="Navegação do workspace">
+      <nav className="space-y-1 px-3" aria-label="Workspace navigation">
         <button
           className="flex w-full items-center gap-3 rounded-lg bg-(--color-primary)/10 px-3 py-2.5 text-left text-sm font-medium text-(--color-primary)"
           type="button"

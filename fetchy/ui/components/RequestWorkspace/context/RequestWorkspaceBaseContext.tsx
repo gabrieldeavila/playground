@@ -67,6 +67,26 @@ export function RequestWorkspaceBaseProvider({
     setActiveTab(id);
   }, []);
 
+  const closeRequest = useCallback(
+    (requestId: string) => {
+      setRequestTabs((tabs) => {
+        const requestIndex = tabs.findIndex((tab) => tab.id === requestId);
+        if (requestIndex === -1) return tabs;
+
+        const remainingTabs = tabs.filter((tab) => tab.id !== requestId);
+
+        if (requestId === activeTab && remainingTabs.length > 0) {
+          const nextTab =
+            remainingTabs[requestIndex] ?? remainingTabs[requestIndex - 1];
+          setActiveTab(nextTab.id);
+        }
+
+        return remainingTabs;
+      });
+    },
+    [activeTab],
+  );
+
   const updateActiveRequest = useCallback(
     (update: Partial<RequestDraft>) => {
       setRequestTabs((tabs) =>
@@ -126,6 +146,7 @@ export function RequestWorkspaceBaseProvider({
       setActiveSection,
       setActiveTab,
       createRequest,
+      closeRequest,
       updateActiveRequest,
       addQueryParameter: () => addRow("queryParams"),
       updateQueryParameter: (id, update) =>
@@ -139,6 +160,7 @@ export function RequestWorkspaceBaseProvider({
       activeSection,
       activeTab,
       addRow,
+      closeRequest,
       createRequest,
       removeRow,
       requestTabs,

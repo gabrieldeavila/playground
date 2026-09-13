@@ -20,7 +20,7 @@ export const RequestToolbar = memo(function RequestToolbar({
   return (
     <div className="flex flex-col gap-3 xl:flex-row xl:items-end">
       <Select
-        aria-label="Método HTTP"
+        aria-label="HTTP method"
         value={request.method}
         onChange={(event) =>
           onUpdate({ method: event.target.value as RequestTab["method"] })
@@ -35,7 +35,7 @@ export const RequestToolbar = memo(function RequestToolbar({
       </Select>
       <div className="grow">
         <Input
-          aria-label="URL da requisição"
+          aria-label="Request URL"
           value={request.url}
           onChange={(event) => onUpdate({ url: event.target.value })}
           className="flex-1 font-mono text-xs sm:text-sm"
@@ -44,7 +44,7 @@ export const RequestToolbar = memo(function RequestToolbar({
       <div className="flex gap-2">
         <Button
           variant="secondary"
-          aria-label="Importar cURL"
+          aria-label="Import cURL"
           leftIcon={<FiUpload aria-hidden="true" />}
           className="flex-1 sm:flex-none"
         >

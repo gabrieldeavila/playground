@@ -48,6 +48,7 @@ export type RequestWorkspaceBaseContextValue = {
   setActiveSection: (section: "request" | "response") => void;
   setActiveTab: (tabId: string) => void;
   createRequest: () => void;
+  closeRequest: (requestId: string) => void;
   updateActiveRequest: (update: Partial<RequestDraft>) => void;
   addQueryParameter: () => void;
   updateQueryParameter: (
