@@ -11,16 +11,21 @@ import type { Route } from "./+types/root";
 import "./i18n";
 import "./app.css";
 
-export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+export const meta: Route.MetaFunction = () => [
+  { title: "Fetchy" },
+  { charSet: "utf-8" },
   {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
+    rel: "icon",
+    type: "image/svg+xml",
+    href: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-size="52">🛰️</text></svg>',
   },
+];
+
+export const links: Route.LinksFunction = () => [
   {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    rel: "icon",
+    type: "image/svg+xml",
+    href: "/logo.svg",
   },
 ];
 
@@ -30,6 +35,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Fetchy</title>
+        <link
+          rel="icon"
+          type="image/svg+xml"
+          href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-size="52">🛰️</text></svg>'
+        />
         <Meta />
         <Links />
       </head>
