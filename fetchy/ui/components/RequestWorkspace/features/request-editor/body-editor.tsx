@@ -4,8 +4,10 @@ import { lintGutter, linter } from "@codemirror/lint";
 import { EditorView } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
 import CodeMirror from "@uiw/react-codemirror";
-import { memo } from "react";
+import { memo, useState } from "react";
+import { FiAlignLeft } from "react-icons/fi";
 
+import { Button } from "@/ui/components/primitives/button";
 import { Select } from "@/ui/components/primitives/select";
 import { Textarea } from "@/ui/components/primitives/textarea";
 import type { RequestBody } from "@/types/interface/request.interface";
@@ -93,6 +95,23 @@ export const BodyEditor = memo(function BodyEditor({
   body,
   onChange,
 }: BodyEditorProps) {
+  const [formatError, setFormatError] = useState<string | null>(null);
+
+  const handleFormatJson = () => {
+    try {
+      const formattedJson = JSON.stringify(JSON.parse(body.content), null, 2);
+      onChange({ ...body, content: formattedJson });
+      setFormatError(null);
+    } catch {
+      setFormatError("The request body contains invalid JSON.");
+    }
+  };
+
+  const handleBodyChange = (content: string) => {
+    if (formatError) setFormatError(null);
+    onChange({ ...body, content });
+  };
+
   return (
     <div className="space-y-3">
       <Select
@@ -110,28 +129,46 @@ export const BodyEditor = memo(function BodyEditor({
         <option value="text">Text</option>
       </Select>
       {body.type === "json" && (
-        <div className="overflow-hidden rounded-md border border-(--color-border) bg-(--color-background)">
-          <CodeMirror
-            aria-label="JSON request body"
-            value={body.content}
-            height="256px"
-            extensions={[
-              json(),
-              linter(jsonParseLinter()),
-              lintGutter(),
-              jsonEditorTheme,
-              jsonSyntaxHighlighting,
-            ]}
-            onChange={(value) => onChange({ ...body, content: value })}
-            className="text-xs"
-            basicSetup={{
-              lineNumbers: true,
-              foldGutter: true,
-              bracketMatching: true,
-              closeBrackets: true,
-              highlightActiveLine: true,
-            }}
-          />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs text-(--color-text-muted)">JSON body</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              leftIcon={<FiAlignLeft aria-hidden="true" />}
+              onClick={handleFormatJson}
+            >
+              Format JSON
+            </Button>
+          </div>
+          <div className="overflow-hidden rounded-md border border-(--color-border) bg-(--color-background)">
+            <CodeMirror
+              aria-label="JSON request body"
+              value={body.content}
+              height="256px"
+              extensions={[
+                json(),
+                linter(jsonParseLinter()),
+                lintGutter(),
+                jsonEditorTheme,
+                jsonSyntaxHighlighting,
+              ]}
+              onChange={handleBodyChange}
+              className="text-xs"
+              basicSetup={{
+                lineNumbers: true,
+                foldGutter: true,
+                bracketMatching: true,
+                closeBrackets: true,
+                highlightActiveLine: true,
+              }}
+            />
+          </div>
+          {formatError && (
+            <p role="alert" className="text-xs text-(--color-danger)">
+              {formatError}
+            </p>
+          )}
         </div>
       )}
       {body.type === "text" && (
