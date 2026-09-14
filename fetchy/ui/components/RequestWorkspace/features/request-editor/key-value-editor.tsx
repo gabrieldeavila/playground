@@ -1,7 +1,8 @@
 import { memo } from "react";
-import { FiPlus, FiX } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiPlus, FiX } from "react-icons/fi";
 
 import { Button } from "@/ui/components/primitives/button";
+import { IconButton } from "@/ui/components/primitives/icon-button";
 import { Input } from "@/ui/components/primitives/input";
 import type { RequestKeyValue } from "@/types/interface/request.interface";
 
@@ -22,15 +23,16 @@ export const KeyValueEditor = memo(function KeyValueEditor({
 }: KeyValueEditorProps) {
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_auto] gap-2 text-[11px] uppercase tracking-[0.14em] text-(--color-text-muted)">
+      <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_auto_auto] gap-2 text-[11px] uppercase tracking-[0.14em] text-(--color-text-muted)">
         <span>Key</span>
         <span>Value</span>
+        <span className="sr-only">Toggle visibility</span>
         <span className="sr-only">Actions</span>
       </div>
       {rows.map((row) => (
         <div
           key={row.id}
-          className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_auto] items-center gap-2"
+          className={`grid grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_auto_auto] items-center gap-2 transition-opacity ${row.enabled ? "" : "opacity-45"}`}
         >
           <Input
             aria-label={`${label} key`}
@@ -48,14 +50,29 @@ export const KeyValueEditor = memo(function KeyValueEditor({
             placeholder="Value"
             className="min-h-10 font-mono text-xs"
           />
-          <button
-            type="button"
-            aria-label={`Remover ${label.toLowerCase()}`}
+          <IconButton
+            label={`${row.enabled ? "Disable" : "Enable"} ${label.toLowerCase()}`}
+            icon={
+              row.enabled ? (
+                <FiEye aria-hidden="true" />
+              ) : (
+                <FiEyeOff aria-hidden="true" />
+              )
+            }
+            size="sm"
+            variant="ghost"
+            aria-pressed={row.enabled}
+            onClick={() => onChange(row.id, { enabled: !row.enabled })}
+            className="size-8 rounded-md text-(--color-text-muted) hover:text-(--color-primary)"
+          />
+          <IconButton
+            label={`Remove ${label.toLowerCase()}`}
+            icon={<FiX aria-hidden="true" />}
+            size="sm"
+            variant="ghost"
             onClick={() => onRemove(row.id)}
-            className="grid size-10 place-items-center rounded-lg text-(--color-text-muted) hover:text-(--color-danger)"
-          >
-            <FiX aria-hidden="true" />
-          </button>
+            className="size-8 rounded-md text-(--color-text-muted) hover:text-(--color-danger)"
+          />
         </div>
       ))}
       <Button
