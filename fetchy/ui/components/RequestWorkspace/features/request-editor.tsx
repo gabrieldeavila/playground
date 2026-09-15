@@ -28,6 +28,7 @@ type RequestEditorProps = {
   onUpdateHeader: (rowId: string, update: Partial<RequestKeyValue>) => void;
   onRemoveHeader: (rowId: string) => void;
   onSend: () => void;
+  isSending: boolean;
 };
 
 const RequestEditor = memo(function RequestEditor({
@@ -40,12 +41,18 @@ const RequestEditor = memo(function RequestEditor({
   onUpdateHeader,
   onRemoveHeader,
   onSend,
+  isSending,
 }: RequestEditorProps) {
   const [section, setSection] = useState<Section>("Headers");
 
   return (
     <div className="flex min-w-0 flex-col gap-5">
-      <RequestToolbar request={request} onUpdate={onUpdate} onSend={onSend} />
+      <RequestToolbar
+        request={request}
+        onUpdate={onUpdate}
+        onSend={onSend}
+        isSending={isSending}
+      />
       <Card className="min-h-[420px] overflow-hidden border-white/10 bg-(--color-surface)/80">
         <Card.Header className="border-b border-(--color-border) p-0">
           <Tabs

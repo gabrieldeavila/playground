@@ -41,6 +41,23 @@ export type RequestTab = RequestDraft & {
   label: string;
 };
 
+export type ExecuteRequestPayload = {
+  method: HttpMethod;
+  url: string;
+  queryParams: Omit<RequestKeyValue, "id" | "enabled">[];
+  headers: Omit<RequestKeyValue, "id" | "enabled">[];
+  body: RequestBody | null;
+  auth: RequestAuth;
+};
+
+export type ExecuteRequestResponse = {
+  status: number;
+  statusText: string;
+  responseHeaders: Record<string, string>;
+  responseBody: unknown;
+  duration: number;
+};
+
 export type RequestWorkspaceBaseContextValue = {
   activeSection: "request" | "response";
   activeTab: string;
@@ -63,5 +80,5 @@ export type RequestWorkspaceBaseContextValue = {
 };
 
 export type RequestWorkspaceServicesContextValue = {
-  mockSendRequest: () => void;
+  executeRequest: (request: RequestTab) => Promise<ExecuteRequestResponse>;
 };

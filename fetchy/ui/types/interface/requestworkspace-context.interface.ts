@@ -1,4 +1,6 @@
 export type {
+  ExecuteRequestPayload,
+  ExecuteRequestResponse,
   HttpMethod,
   RequestAuth,
   RequestBody,

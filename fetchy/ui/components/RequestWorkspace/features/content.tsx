@@ -1,5 +1,7 @@
+import { isAxiosError } from "axios";
 import { memo, useState } from "react";
 
+import type { ExecuteRequestResponse } from "@/types/interface/request.interface";
 import { StandardModal } from "@/ui/components/primitives/standard-modal";
 
 import {
@@ -29,8 +31,10 @@ const RequestWorkspaceContent = memo(() => {
     updateHeader,
     removeHeader,
   } = useRequestWorkspaceBaseContext();
-  const { mockSendRequest } = useRequestWorkspaceServicesContext();
-  const [hasResponse, setHasResponse] = useState(false);
+  const { executeRequest } = useRequestWorkspaceServicesContext();
+  const [response, setResponse] = useState<ExecuteRequestResponse | null>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
   const [pendingCloseRequestId, setPendingCloseRequestId] = useState<
     string | null
   >(null);
@@ -41,9 +45,29 @@ const RequestWorkspaceContent = memo(() => {
 
   if (!request) return null;
 
-  const handleSend = () => {
-    mockSendRequest();
-    setHasResponse(true);
+  const handleSend = async () => {
+    setIsSending(true);
+    setRequestError(null);
+    setResponse(null);
+
+    try {
+      const nextResponse = await executeRequest(request);
+      setResponse(nextResponse);
+    } catch (error) {
+      if (isAxiosError<{ message?: string }>(error)) {
+        const message = error.response?.data?.message;
+        setRequestError(
+          message ??
+            (error.response
+              ? `Backend request failed with status ${error.response.status}.`
+              : "Could not connect to the backend."),
+        );
+      } else {
+        setRequestError("Could not execute the request.");
+      }
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleConfirmClose = () => {
@@ -87,8 +111,13 @@ const RequestWorkspaceContent = memo(() => {
                     onUpdateHeader={updateHeader}
                     onRemoveHeader={removeHeader}
                     onSend={handleSend}
+                    isSending={isSending}
                   />
-                  <ResponsePanel hasResponse={hasResponse} request={request} />
+                  <ResponsePanel
+                    response={response}
+                    error={requestError}
+                    request={request}
+                  />
                 </div>
                 <WorkspaceFooter />
               </div>

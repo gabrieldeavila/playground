@@ -10,12 +10,14 @@ type RequestToolbarProps = {
   request: RequestTab;
   onUpdate: (update: Partial<RequestTab>) => void;
   onSend: () => void;
+  isSending: boolean;
 };
 
 export const RequestToolbar = memo(function RequestToolbar({
   request,
   onUpdate,
   onSend,
+  isSending,
 }: RequestToolbarProps) {
   const handleUrlPaste = (event: ClipboardEvent<HTMLInputElement>) => {
     const pastedText = event.clipboardData.getData("text").trim();
@@ -58,7 +60,12 @@ export const RequestToolbar = memo(function RequestToolbar({
         />
       </div>
       <div className="flex gap-2">
-        <Button onClick={onSend} className="flex-1 sm:flex-none">
+        <Button
+          onClick={onSend}
+          isLoading={isSending}
+          disabled={isSending}
+          className="flex-1 sm:flex-none"
+        >
           Send
         </Button>
       </div>
