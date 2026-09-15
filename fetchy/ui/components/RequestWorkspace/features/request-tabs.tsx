@@ -40,13 +40,13 @@ const RequestTabs = memo(
           <span
             className={
               tab.method === "GET"
-                ? "text-(--color-success)"
-                : "text-(--color-warning)"
+                ? "shrink-0 text-(--color-success)"
+                : "shrink-0 text-(--color-warning)"
             }
           >
             {tab.method}
           </span>
-          <span className="min-w-0 truncate text-(--color-text-muted)">
+          <span className="min-w-0 flex-1 truncate text-(--color-text-muted)">
             {tab.label}
           </span>
           <IconButton
