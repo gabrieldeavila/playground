@@ -14,41 +14,103 @@ const createRow = (key: string, value: string): RequestKeyValue => ({
 const tokenizeShellInput = (input: string): string[] => {
   const tokens: string[] = [];
   let token = "";
-  let quote: "'" | '"' | null = null;
+  let quote: "'" | '"' | "ansi" | null = null;
   let escaping = false;
 
-  for (const character of input.replace(/\\\n/g, " ")) {
+  const pushToken = () => {
+    if (!token) return;
+    tokens.push(token);
+    token = "";
+  };
+
+  for (let index = 0; index < input.length; index += 1) {
+    const character = input[index];
+    const nextCharacter = input[index + 1];
+
+    if (quote === "ansi") {
+      if (character === "\\") {
+        if (nextCharacter === "\n") {
+          index += 1;
+          continue;
+        }
+
+        if (nextCharacter !== undefined) {
+          // Keep JSON escapes such as \\n and \\t intact, while decoding
+          // escaped quotes and the escaped single quote used by Bash.
+          if (
+            nextCharacter === "n" ||
+            nextCharacter === "r" ||
+            nextCharacter === "t"
+          ) {
+            token += `\\${nextCharacter}`;
+          } else {
+            token += nextCharacter;
+          }
+          index += 1;
+          continue;
+        }
+      }
+
+      if (character === "'") {
+        quote = null;
+      } else {
+        token += character;
+      }
+      continue;
+    }
+
+    if (quote === "'") {
+      if (character === "'") quote = null;
+      else token += character;
+      continue;
+    }
+
+    if (quote === '"') {
+      if (escaping) {
+        token += character;
+        escaping = false;
+      } else if (character === "\\") {
+        escaping = true;
+      } else if (character === '"') {
+        quote = null;
+      } else {
+        token += character;
+      }
+      continue;
+    }
+
     if (escaping) {
       token += character;
       escaping = false;
       continue;
     }
 
-    if (character === "\\" && quote !== "'") {
-      escaping = true;
+    if (character === "\\") {
+      if (nextCharacter === "\n") {
+        index += 1;
+      } else {
+        escaping = true;
+      }
       continue;
     }
 
-    if (quote) {
-      if (character === quote) quote = null;
-      else token += character;
+    if (character === "$" && nextCharacter === "'") {
+      quote = "ansi";
+      index += 1;
       continue;
     }
 
     if (character === "'" || character === '"') {
       quote = character;
     } else if (/\s/.test(character)) {
-      if (token) {
-        tokens.push(token);
-        token = "";
-      }
+      pushToken();
     } else {
       token += character;
     }
   }
 
   if (escaping) token += "\\";
-  if (token) tokens.push(token);
+  pushToken();
   return tokens;
 };
 
@@ -87,9 +149,6 @@ export const parseCurl = (input: string): CurlImportResult | null => {
     const token = tokens[index];
     const next = tokens[index + 1];
 
-    // A pasted payload can contain another cURL command. Only parse the
-    // outer command and ignore the nested command's remaining arguments.
-    if (token.toLowerCase() === "curl") break;
 
     if (token === "-X" || token === "--request") {
       const normalizedMethod = next?.toUpperCase();
