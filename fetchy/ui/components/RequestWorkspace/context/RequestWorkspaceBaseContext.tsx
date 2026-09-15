@@ -1,12 +1,18 @@
-import { type ReactNode, useCallback, useMemo, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
+import { createNewRequest, useRequestTabs } from "@/helpers/use-request-tabs";
+import { requestDb } from "@/helpers/request-db";
 import type {
   RequestDraft,
   RequestKeyValue,
-  RequestTab,
   RequestWorkspaceBaseContextValue,
 } from "@/types/interface/requestworkspace-context.interface";
-
 import { RequestWorkspaceBaseContext } from "./context";
 
 const createRow = (key = "", value = ""): RequestKeyValue => ({
@@ -16,29 +22,6 @@ const createRow = (key = "", value = ""): RequestKeyValue => ({
   enabled: true,
 });
 
-const initialRequestTabs: RequestTab[] = [
-  {
-    id: "users",
-    label: "List users",
-    method: "GET",
-    url: "https://api.example.com/users",
-    queryParams: [],
-    headers: [createRow("Accept", "application/json")],
-    body: { type: "none", content: "" },
-    auth: { type: "none" },
-  },
-  {
-    id: "create-user",
-    label: "Create user",
-    method: "POST",
-    url: "https://api.example.com/users",
-    queryParams: [],
-    headers: [createRow("Content-Type", "application/json")],
-    body: { type: "json", content: '{\n  "name": "Gabriel"\n}' },
-    auth: { type: "none" },
-  },
-];
-
 export function RequestWorkspaceBaseProvider({
   children,
 }: {
@@ -47,24 +30,21 @@ export function RequestWorkspaceBaseProvider({
   const [activeSection, setActiveSection] = useState<"request" | "response">(
     "request",
   );
-  const [activeTab, setActiveTab] = useState(initialRequestTabs[0].id);
-  const [requestTabs, setRequestTabs] = useState(initialRequestTabs);
+  const [activeTab, setActiveTab] = useState("");
+  const { requestTabs, setRequestTabs, hasLoadedRequests } = useRequestTabs();
+
+  useEffect(() => {
+    if (!hasLoadedRequests || requestTabs.length === 0) return;
+
+    setActiveTab((currentActiveTab) => currentActiveTab || requestTabs[0].id);
+    void requestDb.requests.bulkPut(requestTabs);
+  }, [hasLoadedRequests, requestTabs]);
 
   const createRequest = useCallback(() => {
-    const id = `request-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const newRequest: RequestTab = {
-      id,
-      label: "New Request",
-      method: "GET",
-      url: "",
-      queryParams: [],
-      headers: [],
-      body: { type: "none", content: "" },
-      auth: { type: "none" },
-    };
+    const newRequest = createNewRequest();
 
     setRequestTabs((tabs) => [...tabs, newRequest]);
-    setActiveTab(id);
+    setActiveTab(newRequest.id);
   }, []);
 
   const closeRequest = useCallback(
@@ -74,8 +54,16 @@ export function RequestWorkspaceBaseProvider({
         if (requestIndex === -1) return tabs;
 
         const remainingTabs = tabs.filter((tab) => tab.id !== requestId);
+        void requestDb.requests.delete(requestId);
 
-        if (requestId === activeTab && remainingTabs.length > 0) {
+        if (remainingTabs.length === 0) {
+          const replacementRequest = createNewRequest();
+          void requestDb.requests.put(replacementRequest);
+          setActiveTab(replacementRequest.id);
+          return [replacementRequest];
+        }
+
+        if (requestId === activeTab) {
           const nextTab =
             remainingTabs[requestIndex] ?? remainingTabs[requestIndex - 1];
           setActiveTab(nextTab.id);
