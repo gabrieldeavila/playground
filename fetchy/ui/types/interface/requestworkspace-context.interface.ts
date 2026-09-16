@@ -10,3 +10,5 @@ export type {
   RequestWorkspaceBaseContextValue,
   RequestWorkspaceServicesContextValue,
 } from "./request.interface";
+
+export type WorkspaceSection = "requests" | "history";

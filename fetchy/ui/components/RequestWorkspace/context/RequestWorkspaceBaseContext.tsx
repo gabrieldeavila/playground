@@ -31,6 +31,9 @@ export function RequestWorkspaceBaseProvider({
     "request",
   );
   const [activeTab, setActiveTab] = useState("");
+  const [workspaceSection, setWorkspaceSection] = useState<
+    "requests" | "history"
+  >("requests");
   const { requestTabs, setRequestTabs, hasLoadedRequests } = useRequestTabs();
 
   useEffect(() => {
@@ -141,8 +144,10 @@ export function RequestWorkspaceBaseProvider({
       activeSection,
       activeTab,
       requestTabs,
+      workspaceSection,
       setActiveSection,
       setActiveTab,
+      setWorkspaceSection,
       createRequest,
       closeRequest,
       renameRequest,
@@ -159,6 +164,8 @@ export function RequestWorkspaceBaseProvider({
       activeSection,
       activeTab,
       addRow,
+      setWorkspaceSection,
+      workspaceSection,
       closeRequest,
       createRequest,
       removeRow,

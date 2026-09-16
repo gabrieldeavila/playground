@@ -11,6 +11,8 @@ type WorkspaceSidebarProps = {
   onSelectTab: (tabId: string) => void;
   onCreateRequest: () => void;
   onRenameRequest: (requestId: string, label: string) => void;
+  workspaceSection: "requests" | "history";
+  onWorkspaceSectionChange: (section: "requests" | "history") => void;
 };
 
 const WorkspaceSidebar = memo(
@@ -20,6 +22,8 @@ const WorkspaceSidebar = memo(
     onSelectTab,
     onCreateRequest,
     onRenameRequest,
+    workspaceSection,
+    onWorkspaceSectionChange,
   }: WorkspaceSidebarProps) => {
     const [editingRequestId, setEditingRequestId] = useState<string | null>(
       null,
@@ -60,7 +64,9 @@ const WorkspaceSidebar = memo(
         </div>
         <nav className="space-y-1 px-3" aria-label="Workspace navigation">
           <button
-            className="flex w-full items-center gap-3 rounded-lg bg-(--color-primary)/10 px-3 py-2.5 text-left text-sm font-medium text-(--color-primary)"
+            aria-current={workspaceSection === "requests" ? "page" : undefined}
+            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium ${workspaceSection === "requests" ? "bg-(--color-primary)/10 text-(--color-primary)" : "text-(--color-text-muted) hover:bg-white/5"}`}
+            onClick={() => onWorkspaceSectionChange("requests")}
             type="button"
           >
             <FiLayers aria-hidden="true" />
@@ -77,7 +83,9 @@ const WorkspaceSidebar = memo(
             Environments
           </button>
           <button
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-(--color-text-muted) hover:bg-white/5"
+            aria-current={workspaceSection === "history" ? "page" : undefined}
+            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm ${workspaceSection === "history" ? "bg-(--color-primary)/10 font-medium text-(--color-primary)" : "text-(--color-text-muted) hover:bg-white/5"}`}
+            onClick={() => onWorkspaceSectionChange("history")}
             type="button"
           >
             <FiClock aria-hidden="true" />

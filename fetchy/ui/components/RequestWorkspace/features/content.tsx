@@ -1,6 +1,8 @@
 import { isAxiosError } from "axios";
 import { memo, useState } from "react";
 
+import { buildRequestCurl } from "@/helpers/request-curl";
+import { saveRequestHistory } from "@/helpers/request-db";
 import type { ExecuteRequestResponse } from "@/types/interface/request.interface";
 import { StandardModal } from "@/ui/components/primitives/standard-modal";
 
@@ -8,6 +10,7 @@ import {
   useRequestWorkspaceBaseContext,
   useRequestWorkspaceServicesContext,
 } from "../context/context";
+import HistoryPanel from "./history-panel";
 import RequestEditor from "./request-editor";
 import RequestTabs from "./request-tabs";
 import ResponsePanel from "./response-panel";
@@ -19,6 +22,8 @@ const RequestWorkspaceContent = memo(() => {
   const {
     activeTab,
     requestTabs,
+    workspaceSection,
+    setWorkspaceSection,
     setActiveTab,
     createRequest,
     closeRequest,
@@ -53,6 +58,17 @@ const RequestWorkspaceContent = memo(() => {
     try {
       const nextResponse = await executeRequest(request);
       setResponse(nextResponse);
+
+      try {
+        await saveRequestHistory({
+          id: `history-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          curl: buildRequestCurl(request),
+          response: nextResponse,
+          createdAt: Date.now(),
+        });
+      } catch (historyError) {
+        console.error("Could not persist request history.", historyError);
+      }
     } catch (error) {
       if (isAxiosError<{ message?: string }>(error)) {
         const message = error.response?.data?.message;
@@ -79,7 +95,7 @@ const RequestWorkspaceContent = memo(() => {
 
   return (
     <>
-      <main className="min-h-dvh overflow-hidden -bg`">
+      <main className="min-h-dvh overflow-hidden bg-(--color-bg)">
         <div className="pointer-events-none fixed inset-0 opacity-70 [background-image:radial-gradient(circle_at_78%_4%,rgba(94,168,255,0.13),transparent_28%),radial-gradient(circle_at_12%_82%,rgba(126,87,194,0.09),transparent_26%)]" />
         <div className="relative mx-auto flex min-h-dvh flex-col border-x border-(--color-border) bg-(--color-bg)/85 backdrop-blur-xl">
           <WorkspaceHeader />
@@ -90,37 +106,48 @@ const RequestWorkspaceContent = memo(() => {
               onSelectTab={setActiveTab}
               onCreateRequest={createRequest}
               onRenameRequest={renameRequest}
+              workspaceSection={workspaceSection}
+              onWorkspaceSectionChange={setWorkspaceSection}
             />
             <section className="flex min-w-0 flex-col">
-              <RequestTabs
-                activeTab={activeTab}
-                requestTabs={requestTabs}
-                onSelectTab={setActiveTab}
-                onCreateRequest={createRequest}
-                onCloseRequest={setPendingCloseRequestId}
-              />
-              <div className="flex flex-1 flex-col gap-5 p-4 sm:p-5 lg:p-7">
-                <div className="grid min-h-0 flex-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.78fr)]">
-                  <RequestEditor
-                    request={request}
-                    onUpdate={updateActiveRequest}
-                    onAddQueryParameter={addQueryParameter}
-                    onUpdateQueryParameter={updateQueryParameter}
-                    onRemoveQueryParameter={removeQueryParameter}
-                    onAddHeader={addHeader}
-                    onUpdateHeader={updateHeader}
-                    onRemoveHeader={removeHeader}
-                    onSend={handleSend}
-                    isSending={isSending}
-                  />
-                  <ResponsePanel
-                    response={response}
-                    error={requestError}
-                    request={request}
-                  />
+              {workspaceSection === "history" ? (
+                <div className="flex flex-1 flex-col gap-5 p-4 sm:p-5 lg:p-7">
+                  <HistoryPanel />
+                  <WorkspaceFooter />
                 </div>
-                <WorkspaceFooter />
-              </div>
+              ) : (
+                <>
+                  <RequestTabs
+                    activeTab={activeTab}
+                    requestTabs={requestTabs}
+                    onSelectTab={setActiveTab}
+                    onCreateRequest={createRequest}
+                    onCloseRequest={setPendingCloseRequestId}
+                  />
+                  <div className="flex flex-1 flex-col gap-5 p-4 sm:p-5 lg:p-7">
+                    <div className="grid min-h-0 flex-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.78fr)]">
+                      <RequestEditor
+                        request={request}
+                        onUpdate={updateActiveRequest}
+                        onAddQueryParameter={addQueryParameter}
+                        onUpdateQueryParameter={updateQueryParameter}
+                        onRemoveQueryParameter={removeQueryParameter}
+                        onAddHeader={addHeader}
+                        onUpdateHeader={updateHeader}
+                        onRemoveHeader={removeHeader}
+                        onSend={handleSend}
+                        isSending={isSending}
+                      />
+                      <ResponsePanel
+                        response={response}
+                        error={requestError}
+                        request={request}
+                      />
+                    </div>
+                    <WorkspaceFooter />
+                  </div>
+                </>
+              )}
             </section>
           </div>
         </div>

@@ -60,9 +60,11 @@ export type ExecuteRequestResponse = {
 
 export type RequestWorkspaceBaseContextValue = {
   activeSection: "request" | "response";
+  workspaceSection: "requests" | "history";
   activeTab: string;
   requestTabs: RequestTab[];
   setActiveSection: (section: "request" | "response") => void;
+  setWorkspaceSection: (section: "requests" | "history") => void;
   setActiveTab: (tabId: string) => void;
   createRequest: () => void;
   closeRequest: (requestId: string) => void;
