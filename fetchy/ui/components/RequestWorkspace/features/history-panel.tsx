@@ -35,7 +35,7 @@ const HistoryPanel = memo(function HistoryPanel() {
   };
 
   return (
-    <Card className="min-h-[420px] border-white/10 bg-(--color-surface)/80">
+    <Card className="flex max-h-[min(720px,calc(100dvh-9rem))] min-h-[420px] flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
       <Card.Header className="border-b border-(--color-border) p-4 sm:p-5">
         <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
           <FiClock aria-hidden="true" /> Request history
@@ -45,7 +45,7 @@ const HistoryPanel = memo(function HistoryPanel() {
           Successful backend executions are stored as cURL and response data.
         </p>
       </Card.Header>
-      <Card.Body className="space-y-4 p-4 sm:p-5">
+      <Card.Body className="workspace-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto p-4 pb-8 sm:p-5 sm:pb-8">
         {entries.length === 0 ? (
           <EmptyState
             icon={<FiInbox />}

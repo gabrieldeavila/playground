@@ -6,6 +6,8 @@ import { saveRequestHistory } from "@/helpers/request-db";
 import type { ExecuteRequestResponse } from "@/types/interface/request.interface";
 import { StandardModal } from "@/ui/components/primitives/standard-modal";
 
+import "./css/scrollbar.css";
+
 import {
   useRequestWorkspaceBaseContext,
   useRequestWorkspaceServicesContext,

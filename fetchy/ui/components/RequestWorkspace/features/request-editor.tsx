@@ -53,7 +53,7 @@ const RequestEditor = memo(function RequestEditor({
         onSend={onSend}
         isSending={isSending}
       />
-      <Card className="min-h-[420px] overflow-hidden border-white/10 bg-(--color-surface)/80">
+      <Card className="flex max-h-[min(720px,calc(100dvh-9rem))] min-h-[420px] flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
         <Card.Header className="border-b border-(--color-border) p-0">
           <Tabs
             defaultValue="Headers"
@@ -70,7 +70,7 @@ const RequestEditor = memo(function RequestEditor({
             </Tabs.List>
           </Tabs>
         </Card.Header>
-        <Card.Body className="p-4 sm:p-5">
+        <Card.Body className="workspace-scrollbar min-h-0 flex-1 overflow-y-auto p-4 pb-8 sm:p-5 sm:pb-8">
           {section === "Headers" && (
             <KeyValueEditor
               label="Header"

@@ -23,7 +23,7 @@ const ResponsePanel = memo(
     const isExternalError = hasResponse && response.status >= 400;
 
     return (
-      <Card className="min-h-[420px] overflow-hidden border-white/10 bg-(--color-surface)/80">
+      <Card className="flex max-h-[min(720px,calc(100dvh-9rem))] min-h-[420px] flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
         <Card.Header className="border-b border-(--color-border) p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -59,7 +59,7 @@ const ResponsePanel = memo(
             <Alert variant="danger">{error}</Alert>
           </Card.Body>
         ) : hasResponse ? (
-          <Card.Body className="p-0">
+          <Card.Body className="workspace-scrollbar min-h-0 flex-1 overflow-y-auto p-0 pb-8">
             <Tabs defaultValue="Body">
               <Tabs.List className="w-full rounded-none border-0 border-b border-(--color-border) bg-transparent p-2">
                 <Tabs.Trigger value="Body">Body</Tabs.Trigger>
