@@ -34,48 +34,73 @@ export function RequestWorkspaceBaseProvider({
   const [workspaceSection, setWorkspaceSection] = useState<
     "requests" | "history"
   >("requests");
+  const [openRequestIds, setOpenRequestIds] = useState<string[]>([]);
   const { requestTabs, setRequestTabs, hasLoadedRequests } = useRequestTabs();
 
   useEffect(() => {
     if (!hasLoadedRequests || requestTabs.length === 0) return;
 
+    setOpenRequestIds((currentIds) =>
+      currentIds.length > 0
+        ? currentIds.filter((id) => requestTabs.some((tab) => tab.id === id))
+        : requestTabs.map((tab) => tab.id),
+    );
     setActiveTab((currentActiveTab) => currentActiveTab || requestTabs[0].id);
     void requestDb.requests.bulkPut(requestTabs);
   }, [hasLoadedRequests, requestTabs]);
+
+  const openRequest = useCallback((requestId: string) => {
+    setOpenRequestIds((ids) =>
+      ids.includes(requestId) ? ids : [...ids, requestId],
+    );
+    setActiveTab(requestId);
+    setWorkspaceSection("requests");
+  }, []);
 
   const createRequest = useCallback(() => {
     const newRequest = createNewRequest();
 
     setRequestTabs((tabs) => [...tabs, newRequest]);
+    setOpenRequestIds((ids) => [...ids, newRequest.id]);
     setActiveTab(newRequest.id);
   }, []);
 
-  const closeRequest = useCallback(
+  const closeTab = useCallback(
     (requestId: string) => {
-      setRequestTabs((tabs) => {
-        const requestIndex = tabs.findIndex((tab) => tab.id === requestId);
-        if (requestIndex === -1) return tabs;
-
-        const remainingTabs = tabs.filter((tab) => tab.id !== requestId);
-        void requestDb.requests.delete(requestId);
-
-        if (remainingTabs.length === 0) {
-          const replacementRequest = createNewRequest();
-          void requestDb.requests.put(replacementRequest);
-          setActiveTab(replacementRequest.id);
-          return [replacementRequest];
-        }
+      setOpenRequestIds((ids) => {
+        const nextIds = ids.filter((id) => id !== requestId);
 
         if (requestId === activeTab) {
-          const nextTab =
-            remainingTabs[requestIndex] ?? remainingTabs[requestIndex - 1];
-          setActiveTab(nextTab.id);
+          const closedIndex = ids.indexOf(requestId);
+          const nextActiveId =
+            nextIds[closedIndex] ?? nextIds[closedIndex - 1] ?? "";
+          setActiveTab(nextActiveId);
         }
 
-        return remainingTabs;
+        return nextIds;
       });
     },
     [activeTab],
+  );
+
+  const deleteRequest = useCallback(
+    (requestId: string) => {
+      setRequestTabs((tabs) => tabs.filter((tab) => tab.id !== requestId));
+      setOpenRequestIds((ids) => {
+        const requestIndex = ids.indexOf(requestId);
+        const nextIds = ids.filter((id) => id !== requestId);
+
+        if (requestId === activeTab) {
+          const nextActiveId =
+            nextIds[requestIndex] ?? nextIds[requestIndex - 1] ?? "";
+          setActiveTab(nextActiveId);
+        }
+
+        return nextIds;
+      });
+      void requestDb.requests.delete(requestId);
+    },
+    [activeTab, setRequestTabs],
   );
 
   const renameRequest = useCallback((requestId: string, label: string) => {
@@ -139,17 +164,28 @@ export function RequestWorkspaceBaseProvider({
     [activeTab, requestTabs, updateActiveRequest],
   );
 
+  const openRequestTabs = useMemo(
+    () =>
+      openRequestIds
+        .map((id) => requestTabs.find((tab) => tab.id === id))
+        .filter((tab): tab is (typeof requestTabs)[number] => Boolean(tab)),
+    [openRequestIds, requestTabs],
+  );
+
   const value = useMemo<RequestWorkspaceBaseContextValue>(
     () => ({
       activeSection,
       activeTab,
       requestTabs,
+      openRequestTabs,
       workspaceSection,
       setActiveSection,
       setActiveTab,
       setWorkspaceSection,
+      openRequest,
       createRequest,
-      closeRequest,
+      closeTab,
+      deleteRequest,
       renameRequest,
       updateActiveRequest,
       addQueryParameter: () => addRow("queryParams"),
@@ -164,15 +200,18 @@ export function RequestWorkspaceBaseProvider({
       activeSection,
       activeTab,
       addRow,
-      setWorkspaceSection,
-      workspaceSection,
-      closeRequest,
+      closeTab,
       createRequest,
+      deleteRequest,
+      openRequest,
+      openRequestTabs,
       removeRow,
       renameRequest,
       requestTabs,
+      setWorkspaceSection,
       updateActiveRequest,
       updateRows,
+      workspaceSection,
     ],
   );
 

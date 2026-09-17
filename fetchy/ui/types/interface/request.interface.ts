@@ -63,11 +63,14 @@ export type RequestWorkspaceBaseContextValue = {
   workspaceSection: "requests" | "history";
   activeTab: string;
   requestTabs: RequestTab[];
+  openRequestTabs: RequestTab[];
   setActiveSection: (section: "request" | "response") => void;
   setWorkspaceSection: (section: "requests" | "history") => void;
   setActiveTab: (tabId: string) => void;
+  openRequest: (requestId: string) => void;
   createRequest: () => void;
-  closeRequest: (requestId: string) => void;
+  closeTab: (requestId: string) => void;
+  deleteRequest: (requestId: string) => void;
   renameRequest: (requestId: string, label: string) => void;
   updateActiveRequest: (update: Partial<RequestDraft>) => void;
   addQueryParameter: () => void;

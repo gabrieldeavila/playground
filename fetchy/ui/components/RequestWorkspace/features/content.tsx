@@ -24,11 +24,13 @@ const RequestWorkspaceContent = memo(() => {
   const {
     activeTab,
     requestTabs,
+    openRequestTabs,
     workspaceSection,
     setWorkspaceSection,
-    setActiveTab,
+    openRequest,
     createRequest,
-    closeRequest,
+    closeTab,
+    deleteRequest,
     renameRequest,
     updateActiveRequest,
     addQueryParameter,
@@ -42,17 +44,17 @@ const RequestWorkspaceContent = memo(() => {
   const [response, setResponse] = useState<ExecuteRequestResponse | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
-  const [pendingCloseRequestId, setPendingCloseRequestId] = useState<
+  const [pendingDeleteRequestId, setPendingDeleteRequestId] = useState<
     string | null
   >(null);
   const request = requestTabs.find((item) => item.id === activeTab);
-  const pendingCloseRequest = requestTabs.find(
-    (item) => item.id === pendingCloseRequestId,
+  const pendingDeleteRequest = requestTabs.find(
+    (item) => item.id === pendingDeleteRequestId,
   );
 
-  if (!request) return null;
-
   const handleSend = async () => {
+    if (!request) return;
+
     setIsSending(true);
     setRequestError(null);
     setResponse(null);
@@ -88,11 +90,11 @@ const RequestWorkspaceContent = memo(() => {
     }
   };
 
-  const handleConfirmClose = () => {
-    if (!pendingCloseRequestId) return;
+  const handleConfirmDelete = () => {
+    if (!pendingDeleteRequestId) return;
 
-    closeRequest(pendingCloseRequestId);
-    setPendingCloseRequestId(null);
+    deleteRequest(pendingDeleteRequestId);
+    setPendingDeleteRequestId(null);
   };
 
   return (
@@ -105,9 +107,10 @@ const RequestWorkspaceContent = memo(() => {
             <WorkspaceSidebar
               activeTab={activeTab}
               requestTabs={requestTabs}
-              onSelectTab={setActiveTab}
+              onSelectTab={openRequest}
               onCreateRequest={createRequest}
               onRenameRequest={renameRequest}
+              onDeleteRequest={setPendingDeleteRequestId}
               workspaceSection={workspaceSection}
               onWorkspaceSectionChange={setWorkspaceSection}
             />
@@ -127,31 +130,37 @@ const RequestWorkspaceContent = memo(() => {
                 <>
                   <RequestTabs
                     activeTab={activeTab}
-                    requestTabs={requestTabs}
-                    onSelectTab={setActiveTab}
+                    requestTabs={openRequestTabs}
+                    onSelectTab={openRequest}
                     onCreateRequest={createRequest}
-                    onCloseRequest={setPendingCloseRequestId}
+                    onCloseTab={closeTab}
                   />
                   <div className="workspace-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4 sm:p-5 lg:p-7">
-                    <div className="grid min-h-0 flex-1 items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.78fr)]">
-                      <RequestEditor
-                        request={request}
-                        onUpdate={updateActiveRequest}
-                        onAddQueryParameter={addQueryParameter}
-                        onUpdateQueryParameter={updateQueryParameter}
-                        onRemoveQueryParameter={removeQueryParameter}
-                        onAddHeader={addHeader}
-                        onUpdateHeader={updateHeader}
-                        onRemoveHeader={removeHeader}
-                        onSend={handleSend}
-                        isSending={isSending}
-                      />
-                      <ResponsePanel
-                        response={response}
-                        error={requestError}
-                        request={request}
-                      />
-                    </div>
+                    {request ? (
+                      <div className="grid min-h-0 flex-1 items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.78fr)]">
+                        <RequestEditor
+                          request={request}
+                          onUpdate={updateActiveRequest}
+                          onAddQueryParameter={addQueryParameter}
+                          onUpdateQueryParameter={updateQueryParameter}
+                          onRemoveQueryParameter={removeQueryParameter}
+                          onAddHeader={addHeader}
+                          onUpdateHeader={updateHeader}
+                          onRemoveHeader={removeHeader}
+                          onSend={handleSend}
+                          isSending={isSending}
+                        />
+                        <ResponsePanel
+                          response={response}
+                          error={requestError}
+                          request={request}
+                        />
+                      </div>
+                    ) : (
+                      <div className="grid min-h-0 flex-1 place-items-center rounded-lg border border-dashed border-(--color-border) text-sm text-(--color-text-muted)">
+                        Select a request from Open requests to open it.
+                      </div>
+                    )}
                     <WorkspaceFooter />
                   </div>
                 </>
@@ -161,13 +170,13 @@ const RequestWorkspaceContent = memo(() => {
         </div>
       </main>
       <StandardModal
-        open={pendingCloseRequestId !== null}
+        open={pendingDeleteRequestId !== null}
         onOpenChange={(open) => {
-          if (!open) setPendingCloseRequestId(null);
+          if (!open) setPendingDeleteRequestId(null);
         }}
         title="Delete request?"
-        onCancel={() => setPendingCloseRequestId(null)}
-        onSave={handleConfirmClose}
+        onCancel={() => setPendingDeleteRequestId(null)}
+        onSave={handleConfirmDelete}
         cancelLabel="Cancel"
         saveLabel="Delete"
         size="sm"
@@ -175,7 +184,7 @@ const RequestWorkspaceContent = memo(() => {
         <p className="text-sm leading-6 text-(--color-text-muted)">
           Are you sure you want to delete the request{" "}
           <strong className="text-(--color-text)">
-            {pendingCloseRequest?.label ?? "selected request"}
+            {pendingDeleteRequest?.label ?? "selected request"}
           </strong>
           ? This action cannot be undone.
         </p>

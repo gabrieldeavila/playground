@@ -9,7 +9,7 @@ type RequestTabsProps = {
   requestTabs: RequestTab[];
   onSelectTab: (tabId: string) => void;
   onCreateRequest: () => void;
-  onCloseRequest: (requestId: string) => void;
+  onCloseTab: (requestId: string) => void;
 };
 
 const RequestTabs = memo(
@@ -18,7 +18,7 @@ const RequestTabs = memo(
     requestTabs,
     onSelectTab,
     onCreateRequest,
-    onCloseRequest,
+    onCloseTab,
   }: RequestTabsProps) => (
     <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-b border-(--color-border) px-3 pt-3 lg:px-5">
       {requestTabs.map((tab) => (
@@ -56,7 +56,7 @@ const RequestTabs = memo(
             size="sm"
             onClick={(event) => {
               event.stopPropagation();
-              onCloseRequest(tab.id);
+              onCloseTab(tab.id);
             }}
             className="size-6 rounded-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100 w-2.5 h-2.5"
           />

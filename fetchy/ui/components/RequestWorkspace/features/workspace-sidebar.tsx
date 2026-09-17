@@ -1,7 +1,15 @@
 import { memo, useState } from "react";
-import { FiClock, FiDatabase, FiLayers, FiPlus } from "react-icons/fi";
+import {
+  FiClock,
+  FiFileText,
+  FiGlobe,
+  FiMoreVertical,
+  FiPlus,
+  FiTrash2,
+} from "react-icons/fi";
 
 import { Button } from "@/ui/components/primitives/button";
+import { DropdownMenu } from "@/ui/components/primitives/dropdown-menu";
 import { Input } from "@/ui/components/primitives/input";
 import type { RequestTab } from "@/types/interface/request.interface";
 
@@ -11,6 +19,7 @@ type WorkspaceSidebarProps = {
   onSelectTab: (tabId: string) => void;
   onCreateRequest: () => void;
   onRenameRequest: (requestId: string, label: string) => void;
+  onDeleteRequest: (requestId: string) => void;
   workspaceSection: "requests" | "history";
   onWorkspaceSectionChange: (section: "requests" | "history") => void;
 };
@@ -22,6 +31,7 @@ const WorkspaceSidebar = memo(
     onSelectTab,
     onCreateRequest,
     onRenameRequest,
+    onDeleteRequest,
     workspaceSection,
     onWorkspaceSectionChange,
   }: WorkspaceSidebarProps) => {
@@ -69,7 +79,7 @@ const WorkspaceSidebar = memo(
             onClick={() => onWorkspaceSectionChange("requests")}
             type="button"
           >
-            <FiLayers aria-hidden="true" />
+            <FiFileText aria-hidden="true" />
             Requests
             <span className="ml-auto text-xs text-(--color-text-muted)">
               {requestTabs.length}
@@ -79,7 +89,7 @@ const WorkspaceSidebar = memo(
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-(--color-text-muted) hover:bg-white/5"
             type="button"
           >
-            <FiDatabase aria-hidden="true" />
+            <FiGlobe aria-hidden="true" />
             Environments
           </button>
           <button
@@ -102,6 +112,7 @@ const WorkspaceSidebar = memo(
 
               return isEditing ? (
                 <Input
+                  key={tab.id}
                   autoFocus
                   aria-label={`Rename ${tab.label}`}
                   value={editingLabel}
@@ -114,29 +125,47 @@ const WorkspaceSidebar = memo(
                   className="h-8 px-2 text-xs"
                 />
               ) : (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => onSelectTab(tab.id)}
-                  onDoubleClick={() => startEditing(tab)}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs hover:bg-white/5"
-                >
-                  <span
-                    className={
-                      tab.method === "GET"
-                        ? "text-(--color-success)"
-                        : "text-(--color-warning)"
-                    }
+                <div key={tab.id} className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onSelectTab(tab.id)}
+                    onDoubleClick={() => startEditing(tab)}
+                    className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-3 py-2 text-left text-xs hover:bg-white/5"
                   >
-                    {tab.method}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate text-(--color-text-muted)">
-                    {tab.label}
-                  </span>
-                  {tab.id === activeTab && (
-                    <span className="size-1.5 rounded-full bg-(--color-primary)" />
-                  )}
-                </button>
+                    <span
+                      className={
+                        tab.method === "GET"
+                          ? "text-(--color-success)"
+                          : "text-(--color-warning)"
+                      }
+                    >
+                      {tab.method}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-(--color-text-muted)">
+                      {tab.label}
+                    </span>
+                    {tab.id === activeTab && (
+                      <span className="size-1.5 rounded-full bg-(--color-primary)" />
+                    )}
+                  </button>
+                  <DropdownMenu>
+                    <DropdownMenu.Trigger
+                      aria-label={`Actions for ${tab.label}`}
+                      className="size-8 justify-center border-0 bg-transparent p-0 text-(--color-text-muted) hover:bg-white/5"
+                    >
+                      <FiMoreVertical aria-hidden="true" />
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content align="end">
+                      <DropdownMenu.Item
+                        className="text-(--color-danger)"
+                        onClick={() => onDeleteRequest(tab.id)}
+                      >
+                        <FiTrash2 aria-hidden="true" className="mr-2" />
+                        Delete
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu>
+                </div>
               );
             })}
           </div>
