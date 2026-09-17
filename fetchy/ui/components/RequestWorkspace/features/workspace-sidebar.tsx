@@ -125,12 +125,15 @@ const WorkspaceSidebar = memo(
                   className="h-8 px-2 text-xs"
                 />
               ) : (
-                <div key={tab.id} className="flex items-center gap-1">
+                <div
+                  key={tab.id}
+                  className="group flex items-center gap-1 rounded-lg hover:bg-white/5"
+                >
                   <button
                     type="button"
                     onClick={() => onSelectTab(tab.id)}
                     onDoubleClick={() => startEditing(tab)}
-                    className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-3 py-2 text-left text-xs hover:bg-white/5"
+                    className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-3 py-2 text-left text-xs"
                   >
                     <span
                       className={
@@ -151,9 +154,13 @@ const WorkspaceSidebar = memo(
                   <DropdownMenu>
                     <DropdownMenu.Trigger
                       aria-label={`Actions for ${tab.label}`}
-                      className="size-8 justify-center border-0 bg-transparent p-0 text-(--color-text-muted) hover:bg-white/5"
+                      className="size-8 justify-center border-0 bg-transparent p-0 text-(--color-text-muted)"
                     >
-                      <FiMoreVertical aria-hidden="true" />
+                      <FiMoreVertical
+                        aria-hidden="true"
+                        className="shrink-0 text-(--color-text-muted)"
+                        size={18}
+                      />
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content align="end">
                       <DropdownMenu.Item
