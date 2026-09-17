@@ -20,7 +20,7 @@ const RequestTabs = memo(
     onCreateRequest,
     onCloseRequest,
   }: RequestTabsProps) => (
-    <div className="flex items-center gap-1 overflow-x-auto border-b border-(--color-border) px-3 pt-3 lg:px-5">
+    <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-b border-(--color-border) px-3 pt-3 lg:px-5">
       {requestTabs.map((tab) => (
         <div
           key={tab.id}

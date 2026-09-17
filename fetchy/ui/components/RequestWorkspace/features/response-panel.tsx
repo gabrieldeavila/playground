@@ -23,7 +23,7 @@ const ResponsePanel = memo(
     const isExternalError = hasResponse && response.status >= 400;
 
     return (
-      <Card className="flex max-h-[min(720px,calc(100dvh-9rem))] min-h-[420px] flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
+      <Card className="flex h-full min-h-0 flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
         <Card.Header className="border-b border-(--color-border) p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -55,7 +55,7 @@ const ResponsePanel = memo(
           )}
         </Card.Header>
         {error ? (
-          <Card.Body className="p-4 sm:p-5">
+          <Card.Body className="min-h-0 flex-1 p-4 sm:p-5">
             <Alert variant="danger">{error}</Alert>
           </Card.Body>
         ) : hasResponse ? (
@@ -80,7 +80,7 @@ const ResponsePanel = memo(
             </Tabs>
           </Card.Body>
         ) : (
-          <Card.Body className="flex min-h-[300px] items-center p-4 sm:p-5">
+          <Card.Body className="flex min-h-0 flex-1 items-center p-4 sm:p-5">
             <EmptyState
               icon={<FiInbox />}
               title="No response yet"

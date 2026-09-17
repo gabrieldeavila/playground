@@ -35,7 +35,7 @@ const HistoryPanel = memo(function HistoryPanel() {
   };
 
   return (
-    <Card className="flex max-h-[min(720px,calc(100dvh-9rem))] min-h-[420px] flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
+    <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
       <Card.Header className="border-b border-(--color-border) p-4 sm:p-5">
         <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
           <FiClock aria-hidden="true" /> Request history

@@ -46,14 +46,14 @@ const RequestEditor = memo(function RequestEditor({
   const [section, setSection] = useState<Section>("Headers");
 
   return (
-    <div className="flex min-w-0 flex-col gap-5">
+    <div className="flex min-h-0 min-w-0 flex-col gap-5">
       <RequestToolbar
         request={request}
         onUpdate={onUpdate}
         onSend={onSend}
         isSending={isSending}
       />
-      <Card className="flex max-h-[min(720px,calc(100dvh-9rem))] min-h-[420px] flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
+      <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
         <Card.Header className="border-b border-(--color-border) p-0">
           <Tabs
             defaultValue="Headers"
