@@ -2,7 +2,6 @@ import { memo, useState } from "react";
 import {
   FiClock,
   FiFileText,
-  FiGlobe,
   FiMoreVertical,
   FiPlus,
   FiTrash2,
@@ -84,13 +83,6 @@ const WorkspaceSidebar = memo(
             <span className="ml-auto text-xs text-(--color-text-muted)">
               {requestTabs.length}
             </span>
-          </button>
-          <button
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-(--color-text-muted) hover:bg-white/5"
-            type="button"
-          >
-            <FiGlobe aria-hidden="true" />
-            Environments
           </button>
           <button
             aria-current={workspaceSection === "history" ? "page" : undefined}
