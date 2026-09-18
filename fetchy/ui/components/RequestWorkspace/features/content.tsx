@@ -4,7 +4,6 @@ import { memo, useCallback, useState } from "react";
 import { buildRequestCurl } from "@/helpers/request-curl";
 import { saveRequestHistory } from "@/helpers/request-db";
 import { useSendShortcut } from "@/helpers/use-send-shortcut";
-import type { ExecuteRequestResponse } from "@/types/interface/request.interface";
 import { StandardModal } from "@/ui/components/primitives/standard-modal";
 
 import "./css/scrollbar.css";
@@ -33,6 +32,7 @@ const RequestWorkspaceContent = memo(() => {
     closeTab,
     deleteRequest,
     renameRequest,
+    updateRequest,
     updateActiveRequest,
     addQueryParameter,
     updateQueryParameter,
@@ -42,8 +42,9 @@ const RequestWorkspaceContent = memo(() => {
     removeHeader,
   } = useRequestWorkspaceBaseContext();
   const { executeRequest } = useRequestWorkspaceServicesContext();
-  const [response, setResponse] = useState<ExecuteRequestResponse | null>(null);
-  const [requestError, setRequestError] = useState<string | null>(null);
+  const [requestErrors, setRequestErrors] = useState<Record<string, string>>(
+    {},
+  );
   const [isSending, setIsSending] = useState(false);
   const [pendingDeleteRequestId, setPendingDeleteRequestId] = useState<
     string | null
@@ -56,18 +57,25 @@ const RequestWorkspaceContent = memo(() => {
   const handleSend = useCallback(async () => {
     if (!request || isSending) return;
 
+    const requestId = request.id;
+    const requestSnapshot = request;
+
     setIsSending(true);
-    setRequestError(null);
-    setResponse(null);
+    setRequestErrors((currentErrors) => {
+      const nextErrors = { ...currentErrors };
+      delete nextErrors[requestId];
+      return nextErrors;
+    });
+    updateRequest(requestId, { lastResponse: undefined });
 
     try {
-      const nextResponse = await executeRequest(request);
-      setResponse(nextResponse);
+      const nextResponse = await executeRequest(requestSnapshot);
+      updateRequest(requestId, { lastResponse: nextResponse });
 
       try {
         await saveRequestHistory({
           id: `history-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-          curl: buildRequestCurl(request),
+          curl: buildRequestCurl(requestSnapshot),
           response: nextResponse,
           createdAt: Date.now(),
         });
@@ -75,21 +83,21 @@ const RequestWorkspaceContent = memo(() => {
         console.error("Could not persist request history.", historyError);
       }
     } catch (error) {
-      if (isAxiosError<{ message?: string }>(error)) {
-        const message = error.response?.data?.message;
-        setRequestError(
-          message ??
-            (error.response
-              ? `Backend request failed with status ${error.response.status}.`
-              : "Could not connect to the backend."),
-        );
-      } else {
-        setRequestError("Could not execute the request.");
-      }
+      const message = isAxiosError<{ message?: string }>(error)
+        ? (error.response?.data?.message ??
+          (error.response
+            ? `Backend request failed with status ${error.response.status}.`
+            : "Could not connect to the backend."))
+        : "Could not execute the request.";
+
+      setRequestErrors((currentErrors) => ({
+        ...currentErrors,
+        [requestId]: message,
+      }));
     } finally {
       setIsSending(false);
     }
-  }, [executeRequest, isSending, request]);
+  }, [executeRequest, isSending, request, updateRequest]);
 
   useSendShortcut(handleSend);
 
@@ -142,6 +150,7 @@ const RequestWorkspaceContent = memo(() => {
                     {request ? (
                       <div className="grid min-h-0 flex-1 items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.78fr)]">
                         <RequestEditor
+                          key={`request-editor-${request.id}`}
                           request={request}
                           onUpdate={updateActiveRequest}
                           onAddQueryParameter={addQueryParameter}
@@ -154,8 +163,9 @@ const RequestWorkspaceContent = memo(() => {
                           isSending={isSending}
                         />
                         <ResponsePanel
-                          response={response}
-                          error={requestError}
+                          key={`response-panel-${request.id}`}
+                          response={request.lastResponse ?? null}
+                          error={requestErrors[request.id] ?? null}
                           request={request}
                         />
                       </div>

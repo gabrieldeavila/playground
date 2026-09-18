@@ -39,6 +39,7 @@ export type RequestDraft = {
 export type RequestTab = RequestDraft & {
   id: string;
   label: string;
+  lastResponse?: ExecuteRequestResponse;
 };
 
 export type ExecuteRequestPayload = {
@@ -72,6 +73,7 @@ export type RequestWorkspaceBaseContextValue = {
   closeTab: (requestId: string) => void;
   deleteRequest: (requestId: string) => void;
   renameRequest: (requestId: string, label: string) => void;
+  updateRequest: (requestId: string, update: Partial<RequestTab>) => void;
   updateActiveRequest: (update: Partial<RequestDraft>) => void;
   addQueryParameter: () => void;
   updateQueryParameter: (

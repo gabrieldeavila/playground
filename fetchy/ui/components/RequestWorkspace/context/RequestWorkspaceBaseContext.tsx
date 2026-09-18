@@ -8,9 +8,11 @@ import {
 
 import { createNewRequest, useRequestTabs } from "@/helpers/use-request-tabs";
 import { requestDb } from "@/helpers/request-db";
+import { ACTIVE_REQUEST_TAB_STORAGE_KEY } from "@/types/consts/request-workspace.const";
 import type {
   RequestDraft,
   RequestKeyValue,
+  RequestTab,
   RequestWorkspaceBaseContextValue,
 } from "@/types/interface/requestworkspace-context.interface";
 import { RequestWorkspaceBaseContext } from "./context";
@@ -45,9 +47,29 @@ export function RequestWorkspaceBaseProvider({
         ? currentIds.filter((id) => requestTabs.some((tab) => tab.id === id))
         : requestTabs.map((tab) => tab.id),
     );
-    setActiveTab((currentActiveTab) => currentActiveTab || requestTabs[0].id);
+    setActiveTab((currentActiveTab) => {
+      if (
+        currentActiveTab &&
+        requestTabs.some((tab) => tab.id === currentActiveTab)
+      ) {
+        return currentActiveTab;
+      }
+
+      const savedActiveTab = window.localStorage.getItem(
+        ACTIVE_REQUEST_TAB_STORAGE_KEY,
+      );
+      return requestTabs.some((tab) => tab.id === savedActiveTab)
+        ? (savedActiveTab ?? requestTabs[0].id)
+        : requestTabs[0].id;
+    });
     void requestDb.requests.bulkPut(requestTabs);
   }, [hasLoadedRequests, requestTabs]);
+
+  useEffect(() => {
+    if (!hasLoadedRequests || !activeTab) return;
+
+    window.localStorage.setItem(ACTIVE_REQUEST_TAB_STORAGE_KEY, activeTab);
+  }, [activeTab, hasLoadedRequests]);
 
   const openRequest = useCallback((requestId: string) => {
     setOpenRequestIds((ids) =>
@@ -113,13 +135,20 @@ export function RequestWorkspaceBaseProvider({
     );
   }, []);
 
-  const updateActiveRequest = useCallback(
-    (update: Partial<RequestDraft>) => {
+  const updateRequest = useCallback(
+    (requestId: string, update: Partial<RequestTab>) => {
       setRequestTabs((tabs) =>
-        tabs.map((tab) => (tab.id === activeTab ? { ...tab, ...update } : tab)),
+        tabs.map((tab) => (tab.id === requestId ? { ...tab, ...update } : tab)),
       );
     },
-    [activeTab],
+    [],
+  );
+
+  const updateActiveRequest = useCallback(
+    (update: Partial<RequestDraft>) => {
+      updateRequest(activeTab, update);
+    },
+    [activeTab, updateRequest],
   );
 
   const updateRows = useCallback(
@@ -187,6 +216,7 @@ export function RequestWorkspaceBaseProvider({
       closeTab,
       deleteRequest,
       renameRequest,
+      updateRequest,
       updateActiveRequest,
       addQueryParameter: () => addRow("queryParams"),
       updateQueryParameter: (id, update) =>
@@ -210,6 +240,7 @@ export function RequestWorkspaceBaseProvider({
       requestTabs,
       setWorkspaceSection,
       updateActiveRequest,
+      updateRequest,
       updateRows,
       workspaceSection,
     ],
