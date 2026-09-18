@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
 
 import { Card } from "@/ui/components/primitives/card";
+import { cn } from "@/ui/helpers/cn";
 import { Tabs } from "@/ui/components/primitives/tabs";
 import type {
   RequestAuth,
@@ -70,7 +71,12 @@ const RequestEditor = memo(function RequestEditor({
             </Tabs.List>
           </Tabs>
         </Card.Header>
-        <Card.Body className="workspace-scrollbar min-h-0 flex-1 overflow-y-auto p-4 pb-8 sm:p-5 sm:pb-8">
+        <Card.Body
+          className={cn(
+            "workspace-scrollbar min-h-0 flex-1 overflow-y-auto p-4 pb-8 sm:p-5 sm:pb-8",
+            section === "Body" && "overflow-hidden",
+          )}
+        >
           {section === "Headers" && (
             <KeyValueEditor
               label="Header"

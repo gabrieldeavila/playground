@@ -11,6 +11,8 @@ import type {
   RequestTab,
 } from "@/types/interface/request.interface";
 
+import { JsonCodeEditor } from "./request-editor/body-editor";
+
 type ResponsePanelProps = {
   request: RequestTab;
   response: ExecuteRequestResponse | null;
@@ -60,14 +62,17 @@ const ResponsePanel = memo(
           </Card.Body>
         ) : hasResponse ? (
           <Card.Body className="workspace-scrollbar min-h-0 flex-1 overflow-y-auto p-0 pb-8">
-            <Tabs defaultValue="Body">
-              <Tabs.List className="w-full rounded-none border-0 border-b border-(--color-border) bg-transparent p-2">
+            <Tabs defaultValue="Body" className="flex min-h-full flex-col">
+              <Tabs.List className="w-full shrink-0 rounded-none border-0 border-b border-(--color-border) bg-transparent p-2">
                 <Tabs.Trigger value="Body">Body</Tabs.Trigger>
                 <Tabs.Trigger value="Headers">Headers</Tabs.Trigger>
                 <Tabs.Trigger value="Received">Received request</Tabs.Trigger>
               </Tabs.List>
-              <Tabs.Content value="Body" className="mt-0 p-4 sm:p-5">
-                <ResponseCode value={response.responseBody} />
+              <Tabs.Content
+                value="Body"
+                className="mt-0 flex min-h-0 flex-1 flex-col p-4 sm:p-5"
+              >
+                <ResponseCode value={response.responseBody} fillHeight />
               </Tabs.Content>
               <Tabs.Content value="Headers" className="mt-0 p-4 sm:p-5">
                 <ResponseCode value={response.responseHeaders} />
@@ -94,10 +99,32 @@ const ResponsePanel = memo(
   },
 );
 
-const ResponseCode = memo(({ value }: { value: unknown }) => (
-  <pre className="overflow-auto rounded-lg border border-(--color-border) bg-(--color-bg)/70 p-4 text-xs leading-6 text-(--color-text-muted)">
-    <code>{JSON.stringify(value, null, 2)}</code>
-  </pre>
-));
+const ResponseCode = memo(
+  ({ value, fillHeight = false }: { value: unknown; fillHeight?: boolean }) => {
+    const content = formatCodeValue(value);
+
+    return (
+      <JsonCodeEditor
+        ariaLabel="Response code"
+        value={content}
+        readOnly
+        height={fillHeight ? "100%" : "320px"}
+        className={fillHeight ? "flex min-h-0 flex-1" : undefined}
+      />
+    );
+  },
+);
+
+const formatCodeValue = (value: unknown) => {
+  if (typeof value === "string") {
+    try {
+      return JSON.stringify(JSON.parse(value), null, 2);
+    } catch {
+      return value;
+    }
+  }
+
+  return JSON.stringify(value, null, 2) ?? "null";
+};
 
 export default ResponsePanel;

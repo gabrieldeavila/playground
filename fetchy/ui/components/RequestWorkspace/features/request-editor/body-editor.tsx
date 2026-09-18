@@ -10,6 +10,7 @@ import { FiAlignLeft } from "react-icons/fi";
 import { Button } from "@/ui/components/primitives/button";
 import { Select } from "@/ui/components/primitives/select";
 import { Textarea } from "@/ui/components/primitives/textarea";
+import { cn } from "@/ui/helpers/cn";
 import type { RequestBody } from "@/types/interface/request.interface";
 
 const jsonEditorTheme = EditorView.theme(
@@ -86,6 +87,55 @@ const jsonSyntaxHighlighting = syntaxHighlighting(
   ]),
 );
 
+type JsonCodeEditorProps = {
+  value: string;
+  readOnly?: boolean;
+  ariaLabel: string;
+  height?: string;
+  className?: string;
+  onChange?: (value: string) => void;
+};
+
+export const JsonCodeEditor = memo(function JsonCodeEditor({
+  value,
+  readOnly = false,
+  ariaLabel,
+  height = "256px",
+  className,
+  onChange,
+}: JsonCodeEditorProps) {
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-md border border-(--color-border) bg-(--color-background)",
+        className,
+      )}
+    >
+      <CodeMirror
+        aria-label={ariaLabel}
+        value={value}
+        height={height}
+        readOnly={readOnly}
+        extensions={[
+          json(),
+          ...(!readOnly ? [linter(jsonParseLinter()), lintGutter()] : []),
+          jsonEditorTheme,
+          jsonSyntaxHighlighting,
+        ]}
+        className="h-full text-xs"
+        onChange={onChange}
+        basicSetup={{
+          lineNumbers: true,
+          foldGutter: true,
+          bracketMatching: true,
+          closeBrackets: !readOnly,
+          highlightActiveLine: !readOnly,
+        }}
+      />
+    </div>
+  );
+});
+
 type BodyEditorProps = {
   body: RequestBody;
   onChange: (body: RequestBody) => void;
@@ -113,7 +163,7 @@ export const BodyEditor = memo(function BodyEditor({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="flex h-full min-h-0 flex-col gap-3">
       <Select
         aria-label="Body type"
         value={body.type}
@@ -129,7 +179,7 @@ export const BodyEditor = memo(function BodyEditor({
         <option value="text">Text</option>
       </Select>
       {body.type === "json" && (
-        <div className="space-y-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-2">
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs text-(--color-text-muted)">JSON body</span>
             <Button
@@ -141,29 +191,13 @@ export const BodyEditor = memo(function BodyEditor({
               Format JSON
             </Button>
           </div>
-          <div className="overflow-hidden rounded-md border border-(--color-border) bg-(--color-background)">
-            <CodeMirror
-              aria-label="JSON request body"
-              value={body.content}
-              height="256px"
-              extensions={[
-                json(),
-                linter(jsonParseLinter()),
-                lintGutter(),
-                jsonEditorTheme,
-                jsonSyntaxHighlighting,
-              ]}
-              onChange={handleBodyChange}
-              className="text-xs"
-              basicSetup={{
-                lineNumbers: true,
-                foldGutter: true,
-                bracketMatching: true,
-                closeBrackets: true,
-                highlightActiveLine: true,
-              }}
-            />
-          </div>
+          <JsonCodeEditor
+            ariaLabel="JSON request body"
+            value={body.content}
+            height="100%"
+            className="min-h-0 flex-1"
+            onChange={handleBodyChange}
+          />
           {formatError && (
             <p role="alert" className="text-xs text-(--color-danger)">
               {formatError}
@@ -178,7 +212,7 @@ export const BodyEditor = memo(function BodyEditor({
           onChange={(event) =>
             onChange({ ...body, content: event.target.value })
           }
-          className="min-h-64 resize-none font-mono text-xs leading-6"
+          className="min-h-64 flex-1 resize-none font-mono text-xs leading-6"
         />
       )}
     </div>
