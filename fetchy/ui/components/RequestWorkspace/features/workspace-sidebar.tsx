@@ -7,6 +7,7 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 
+import { getRequestMethodColor } from "@/helpers/request-method-color";
 import { Button } from "@/ui/components/primitives/button";
 import { DropdownMenu } from "@/ui/components/primitives/dropdown-menu";
 import { Input } from "@/ui/components/primitives/input";
@@ -127,13 +128,7 @@ const WorkspaceSidebar = memo(
                     onDoubleClick={() => startEditing(tab)}
                     className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-3 py-2 text-left text-xs"
                   >
-                    <span
-                      className={
-                        tab.method === "GET"
-                          ? "text-(--color-success)"
-                          : "text-(--color-warning)"
-                      }
-                    >
+                    <span className={getRequestMethodColor(tab.method)}>
                       {tab.method}
                     </span>
                     <span className="min-w-0 flex-1 truncate text-(--color-text-muted)">

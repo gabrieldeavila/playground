@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { FiPlus, FiX } from "react-icons/fi";
 
+import { getRequestMethodColor } from "@/helpers/request-method-color";
 import type { RequestTab } from "@/types/interface/request.interface";
 import { IconButton } from "@/ui/components/primitives/icon-button";
 
@@ -37,13 +38,7 @@ const RequestTabs = memo(
           className="group flex min-w-36 cursor-pointer items-center gap-2 rounded-t-lg border border-b-0 border-(--color-border) px-3 py-2.5 text-xs data-[active=true]:bg-(--color-surface) data-[active=true]:text-(--color-text) data-[active=true]:shadow-[inset_0_-2px_0_var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--color-primary)"
           data-active={tab.id === activeTab}
         >
-          <span
-            className={
-              tab.method === "GET"
-                ? "shrink-0 text-(--color-success)"
-                : "shrink-0 text-(--color-warning)"
-            }
-          >
+          <span className={`shrink-0 ${getRequestMethodColor(tab.method)}`}>
             {tab.method}
           </span>
           <span className="min-w-0 flex-1 truncate text-(--color-text-muted)">
