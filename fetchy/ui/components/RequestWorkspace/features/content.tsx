@@ -1,8 +1,9 @@
 import { isAxiosError } from "axios";
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 
 import { buildRequestCurl } from "@/helpers/request-curl";
 import { saveRequestHistory } from "@/helpers/request-db";
+import { useSendShortcut } from "@/helpers/use-send-shortcut";
 import type { ExecuteRequestResponse } from "@/types/interface/request.interface";
 import { StandardModal } from "@/ui/components/primitives/standard-modal";
 
@@ -52,8 +53,8 @@ const RequestWorkspaceContent = memo(() => {
     (item) => item.id === pendingDeleteRequestId,
   );
 
-  const handleSend = async () => {
-    if (!request) return;
+  const handleSend = useCallback(async () => {
+    if (!request || isSending) return;
 
     setIsSending(true);
     setRequestError(null);
@@ -88,7 +89,9 @@ const RequestWorkspaceContent = memo(() => {
     } finally {
       setIsSending(false);
     }
-  };
+  }, [executeRequest, isSending, request]);
+
+  useSendShortcut(handleSend);
 
   const handleConfirmDelete = () => {
     if (!pendingDeleteRequestId) return;
