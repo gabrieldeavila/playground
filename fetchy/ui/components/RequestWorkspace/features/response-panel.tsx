@@ -61,8 +61,8 @@ const ResponsePanel = memo(
             <Alert variant="danger">{error}</Alert>
           </Card.Body>
         ) : hasResponse ? (
-          <Card.Body className="workspace-scrollbar min-h-0 flex-1 overflow-y-auto p-0 pb-8">
-            <Tabs defaultValue="Body" className="flex min-h-full flex-col">
+          <Card.Body className="min-h-0 flex-1 overflow-hidden p-0 pb-8">
+            <Tabs defaultValue="Body" className="flex h-full min-h-0 flex-col">
               <Tabs.List className="w-full shrink-0 rounded-none border-0 border-b border-(--color-border) bg-transparent p-2">
                 <Tabs.Trigger value="Body">Body</Tabs.Trigger>
                 <Tabs.Trigger value="Headers">Headers</Tabs.Trigger>
@@ -74,12 +74,19 @@ const ResponsePanel = memo(
               >
                 <ResponseCode value={response.responseBody} fillHeight />
               </Tabs.Content>
-              <Tabs.Content value="Headers" className="mt-0 p-4 sm:p-5">
-                <ResponseCode value={response.responseHeaders} />
+              <Tabs.Content
+                value="Headers"
+                className="mt-0 flex min-h-0 flex-1 flex-col p-4 sm:p-5"
+              >
+                <ResponseCode value={response.responseHeaders} fillHeight />
               </Tabs.Content>
-              <Tabs.Content value="Received" className="mt-0 p-4 sm:p-5">
+              <Tabs.Content
+                value="Received"
+                className="mt-0 flex min-h-0 flex-1 flex-col p-4 sm:p-5"
+              >
                 <ResponseCode
                   value={{ method: request.method, url: request.url }}
+                  fillHeight
                 />
               </Tabs.Content>
             </Tabs>
