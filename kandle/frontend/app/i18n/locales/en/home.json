@@ -1,0 +1,56 @@
+{
+  "brand": {
+    "ariaLabel": "Nexa home"
+  },
+  "hero": {
+    "eyebrow": "The next layer of your work",
+    "titleBefore": "Clarity to create what comes",
+    "titleAccent": "next.",
+    "description": "Nexa is the calm space between idea and delivery. Connect teams, decisions, and progress in an experience designed to move what truly matters forward.",
+    "primaryAction": "Get started",
+    "secondaryAction": "See how it works",
+    "socialProof": "+2,000 creators",
+    "socialProofDescription": "have already found their next step."
+  },
+  "dashboard": {
+    "eyebrow": "Focus panel",
+    "title": "A week in motion",
+    "live": "Live",
+    "progress": "Overall progress",
+    "deliveries": "Deliveries",
+    "inFocus": "In focus",
+    "today": "Today",
+    "impact": "Impact",
+    "updated": "Updated just now",
+    "recoveredTime": "Time recovered"
+  },
+  "features": {
+    "sectionEyebrow": "Made for your real rhythm",
+    "title": "Simple becomes powerful when everything connects.",
+    "description": "A flexible foundation for turning intention into momentum, without hiding what needs your attention.",
+    "items": [
+      {
+        "eyebrow": "Work rhythm",
+        "title": "Less noise. More momentum.",
+        "description": "Organize what matters in a space that follows your rhythm and makes every decision clearer."
+      },
+      {
+        "eyebrow": "Everything connected",
+        "title": "A view for every layer.",
+        "description": "From the first draft to the final result, keep context, people, and priorities in one place."
+      },
+      {
+        "eyebrow": "Continuous clarity",
+        "title": "Progress you can feel.",
+        "description": "Turn scattered signals into a simple read of what is moving forward — and what comes next."
+      }
+    ]
+  },
+  "cta": {
+    "eyebrow": "Your next chapter starts here",
+    "title": "Make room for what matters.",
+    "description": "Start with a clearer view, bring your team together, and give your work the clarity it deserves.",
+    "action": "Discover Nexa"
+  },
+  "footer": "© 2025 Nexa. Made to move forward."
+}

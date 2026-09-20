@@ -1,0 +1,12 @@
+{
+  "name": "kandle",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -n backend,frontend \"pnpm --dir backend run start:dev\" \"pnpm --dir frontend run dev\"",
+    "build": "pnpm --dir backend run build && pnpm --dir frontend run build",
+    "start": "concurrently -k -n backend,frontend \"pnpm --dir backend run start:prod\" \"pnpm --dir frontend run start\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
