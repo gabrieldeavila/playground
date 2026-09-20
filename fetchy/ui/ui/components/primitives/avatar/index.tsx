@@ -38,7 +38,7 @@ export const Avatar = memo(
             aria-label={alt || fallback}
             className={cn(
               "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full",
-              "bg-(--color-surface-3) font-semibold text-(--color-text)",
+              "bg-surface-3 font-semibold text-text",
               "ring-1 ring-inset ring-white/10",
               sizeClasses[size],
               className,

@@ -24,17 +24,17 @@ const variantClasses: Record<IconButtonVariant, string> = {
     "hover:border-white/16 hover:shadow-[0_10px_20px_rgba(0,0,0,0.16)]",
   ),
   secondary: cn(
-    "border border-[var(--color-border-strong)]",
+    "border border-border-strong",
     "bg-[linear-gradient(180deg,var(--color-surface-2),var(--color-surface))]",
-    "text-[var(--color-text)] shadow-[0_6px_14px_rgba(0,0,0,0.1)]",
+    "text-text shadow-[0_6px_14px_rgba(0,0,0,0.1)]",
     "hover:border-white/16 hover:bg-[linear-gradient(180deg,var(--color-surface-3),var(--color-surface-2))]",
   ),
   outline: cn(
-    "border border-[var(--color-primary)] bg-transparent",
-    "text-[var(--color-primary)] hover:bg-[var(--color-primary)]/[0.1]",
+    "border border-(--color-primary) bg-transparent",
+    "text-(--color-primary) hover:bg-(--color-primary)/10",
   ),
   ghost: cn(
-    "border border-transparent bg-transparent text-[var(--color-text)]",
+    "border border-transparent bg-transparent text-text",
     "hover:border-white/8 hover:bg-white/[0.035]",
   ),
   destructive: cn(
@@ -65,13 +65,13 @@ export const IconButton = memo(
       type={type}
       aria-label={label}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-[var(--button-radius)]",
+        "inline-flex shrink-0 items-center justify-center rounded-(--button-radius)",
         "transition-[transform,box-shadow,border-color,background-color,opacity]",
-        "duration-[var(--transition-base)] ease-[var(--transition-base)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]",
-        "focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]",
+        "duration-(--transition-base) ease-(--transition-base)",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-primary)",
+        "focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        "active:translate-y-[1px] active:scale-[0.97]",
+        "active:translate-y-px active:scale-0.97",
         sizeClasses[size],
         variantClasses[variant],
         className,

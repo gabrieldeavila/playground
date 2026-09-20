@@ -23,7 +23,7 @@ export const KeyValueEditor = memo(function KeyValueEditor({
 }: KeyValueEditorProps) {
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_auto_auto] gap-2 text-[11px] uppercase tracking-[0.14em] text-(--color-text-muted)">
+      <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_auto_auto] gap-2 text-[11px] uppercase tracking-[0.14em] text-text-muted">
         <span>Key</span>
         <span>Value</span>
         <span className="sr-only">Toggle visibility</span>
@@ -63,7 +63,7 @@ export const KeyValueEditor = memo(function KeyValueEditor({
             variant="ghost"
             aria-pressed={row.enabled}
             onClick={() => onChange(row.id, { enabled: !row.enabled })}
-            className="size-8 rounded-md text-(--color-text-muted) hover:text-(--color-primary)"
+            className="size-8 rounded-md text-text-muted hover:text-(--color-primary)"
           />
           <IconButton
             label={`Remove ${label.toLowerCase()}`}
@@ -71,7 +71,7 @@ export const KeyValueEditor = memo(function KeyValueEditor({
             size="sm"
             variant="ghost"
             onClick={() => onRemove(row.id)}
-            className="size-8 rounded-md text-(--color-text-muted) hover:text-(--color-danger)"
+            className="size-8 rounded-md text-text-muted hover:text-danger"
           />
         </div>
       ))}

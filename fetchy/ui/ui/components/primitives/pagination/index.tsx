@@ -42,7 +42,7 @@ const PageButton = ({
     {...props}
     type="button"
     className={cn(
-      "inline-flex size-9 items-center justify-center rounded-(--radius-sm) text-sm text-text-muted transition-colors hover:bg-white/[0.06] hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-40",
+      "inline-flex size-9 items-center justify-center rounded-sm text-sm text-text-muted transition-colors hover:bg-white/6 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-40",
       active && "bg-primary text-white hover:bg-primary-hover hover:text-white",
       className,
     )}

@@ -54,8 +54,8 @@ const RequestEditor = memo(function RequestEditor({
         onSend={onSend}
         isSending={isSending}
       />
-      <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
-        <Card.Header className="border-b border-(--color-border) p-0">
+      <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border-white/10 bg-surface/80 pb-8">
+        <Card.Header className="border-b border-border p-0">
           <Tabs
             defaultValue="Headers"
             onValueChange={(value) => setSection(value as Section)}

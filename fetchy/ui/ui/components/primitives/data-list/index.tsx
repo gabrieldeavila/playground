@@ -16,7 +16,7 @@ const DataListRoot = forwardRef<HTMLDListElement, DataListProps>(
   ({ className, ...props }, ref) => (
     <dl
       ref={ref}
-      className={cn("divide-y divide-(--color-border)", className)}
+      className={cn("divide-y divide-border", className)}
       {...props}
     />
   ),
@@ -35,8 +35,8 @@ const DataListItem = memo(
         )}
         {...props}
       >
-        <dt className="text-sm text-(--color-text-muted)">{label}</dt>
-        <dd className="text-sm text-(--color-text)">{children}</dd>
+        <dt className="text-sm text-text-muted">{label}</dt>
+        <dd className="text-sm text-text">{children}</dd>
       </div>
     ),
   ),

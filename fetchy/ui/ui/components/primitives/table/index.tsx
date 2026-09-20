@@ -35,7 +35,7 @@ const TableHeader = memo(
     ({ className, ...props }, ref) => (
       <thead
         ref={ref}
-        className={cn("border-b border-(--color-border)", className)}
+        className={cn("border-b border-border", className)}
         {...props}
       />
     ),
@@ -64,7 +64,7 @@ const TableFooter = memo(
       <tfoot
         ref={ref}
         className={cn(
-          "border-t border-(--color-border) font-medium",
+          "border-t border-border font-medium",
           className,
         )}
         {...props}
@@ -81,7 +81,7 @@ const TableRow = memo(
       <tr
         ref={ref}
         className={cn(
-          "border-b border-(--color-border) transition-colors hover:bg-(--color-surface-2)",
+          "border-b border-border transition-colors hover:bg-surface-2",
           className,
         )}
         {...props}
@@ -98,7 +98,7 @@ const TableHead = memo(
       <th
         ref={ref}
         className={cn(
-          "h-11 px-4 text-left align-middle font-medium text-(--color-text-muted)",
+          "h-11 px-4 text-left align-middle font-medium text-text-muted",
           className,
         )}
         {...props}
@@ -114,7 +114,7 @@ const TableCell = memo(
     ({ className, ...props }, ref) => (
       <td
         ref={ref}
-        className={cn("p-4 align-middle text-(--color-text)", className)}
+        className={cn("p-4 align-middle text-text", className)}
         {...props}
       />
     ),
@@ -128,7 +128,7 @@ const TableCaption = memo(
     ({ className, ...props }, ref) => (
       <caption
         ref={ref}
-        className={cn("mt-4 text-sm text-(--color-text-muted)", className)}
+        className={cn("mt-4 text-sm text-text-muted", className)}
         {...props}
       />
     ),

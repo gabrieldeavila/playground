@@ -49,22 +49,22 @@ const variantClasses: Record<ButtonVariant, string> = {
     "relative overflow-hidden border border-white/12",
     "bg-[linear-gradient(135deg,var(--color-primary),var(--color-primary-hover))]",
     "text-white shadow-[0_8px_18px_rgba(0,0,0,0.14),0_0_0_1px_rgba(255,255,255,0.05)]",
-    "before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_var(--button-radial-x,_50%)_var(--button-radial-y,_50%),rgba(255,255,255,0.16),transparent_62%)]",
-    "before:opacity-[var(--button-radial-opacity,_0)] before:transition-[opacity,background-position] before:duration-[var(--transition-base)]",
+    "before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_var(--button-radial-x,50%)_var(--button-radial-y,50%),rgba(255,255,255,0.16),transparent_62%)]",
+    "before:opacity-(--button-radial-opacity,0) before:transition-[opacity,background-position] before:duration-(--transition-base)",
     "hover:border-white/16 hover:shadow-[0_10px_20px_rgba(0,0,0,0.16),0_0_0_1px_rgba(255,255,255,0.07)]",
   ),
   secondary: cn(
-    "border border-[var(--color-border-strong)]",
+    "border border-border-strong",
     "bg-[linear-gradient(180deg,var(--color-surface-2),var(--color-surface))]",
-    "text-[var(--color-text)] shadow-[0_6px_14px_rgba(0,0,0,0.1)]",
+    "text-text shadow-[0_6px_14px_rgba(0,0,0,0.1)]",
     "hover:border-white/16 hover:bg-[linear-gradient(180deg,var(--color-surface-3),var(--color-surface-2))] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]",
   ),
   outline: cn(
-    "border border-[var(--color-primary)] bg-transparent",
-    "text-[var(--color-primary)] hover:bg-[var(--color-primary)]/[0.1]",
+    "border border-(--color-primary) bg-transparent",
+    "text-(--color-primary) hover:bg-(--color-primary)/10",
   ),
   ghost: cn(
-    "border border-transparent bg-transparent text-[var(--color-text)]",
+    "border border-transparent bg-transparent text-text",
     "hover:border-white/8 hover:bg-white/[0.035]",
   ),
   destructive: cn(
@@ -91,7 +91,7 @@ const ButtonContent = ({
     {isLoading ? (
       <span
         aria-hidden="true"
-        className="relative z-10 h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+        className="relative z-10 animate-spin rounded-full border-2 border-current border-r-transparent size-4"
       />
     ) : (
       leftIcon && (
@@ -155,15 +155,15 @@ export const Button = memo(
 
     const buttonClassName = cn(
       "group relative inline-flex flex-nowrap items-center justify-center gap-2.5 whitespace-nowrap",
-      "rounded-[var(--button-radius)]",
+      "rounded-(--button-radius)",
       "font-medium leading-none tracking-[0.02em]",
       "transition-[transform,box-shadow,border-color,background-color,opacity]",
-      "duration-[var(--transition-base)] ease-[var(--transition-base)]",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]",
-      "focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]",
+      "duration-(--transition-base) ease-(--transition-base)",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-primary)",
+      "focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
       "disabled:cursor-not-allowed disabled:opacity-50",
-      "active:translate-y-[1px] active:scale-[0.99]",
-      "before:pointer-events-none before:absolute before:inset-[1px] before:rounded-[inherit] before:bg-[radial-gradient(circle_at_var(--button-radial-x,_50%)_var(--button-radial-y,_50%),var(--button-tracking-color,rgba(14,18,28,var(--button-radial-opacity,_0.34))),transparent_62%)] before:opacity-0 before:transition-[opacity,background-position] before:duration-[var(--transition-base)] hover:before:opacity-100",
+      "active:translate-y-px active:scale-0.99",
+      "before:pointer-events-none before:absolute before:inset-px before:rounded-[inherit] before:bg-[radial-gradient(circle_at_var(--button-radial-x,50%)_var(--button-radial-y,50%),var(--button-tracking-color,rgba(14,18,28,var(--button-radial-opacity,0.34))),transparent_62%)] before:opacity-0 before:transition-[opacity,background-position] before:duration-(--transition-base) hover:before:opacity-100",
       sizeClasses[size],
       variantClasses[variant],
       className,
@@ -171,7 +171,7 @@ export const Button = memo(
 
     const content = (contentChildren: ReactNode) => (
       <>
-        <span className="absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/[0.06]" />
+        <span className="absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/6" />
         <ButtonContent
           isLoading={isLoading}
           leftIcon={leftIcon}
@@ -196,7 +196,7 @@ export const Button = memo(
         "aria-disabled": isDisabled || undefined,
         children: (
           <>
-            <span className="absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/[0.06]" />
+            <span className="absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/6" />
             <ButtonContent
               isLoading={isLoading}
               leftIcon={leftIcon}

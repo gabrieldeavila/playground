@@ -107,7 +107,7 @@ export const JsonCodeEditor = memo(function JsonCodeEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-md border border-(--color-border) bg-(--color-background)",
+        "overflow-hidden rounded-md border border-border bg-(--color-background)",
         className,
       )}
     >
@@ -181,7 +181,7 @@ export const BodyEditor = memo(function BodyEditor({
       {body.type === "json" && (
         <div className="flex min-h-0 flex-1 flex-col gap-2">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs text-(--color-text-muted)">JSON body</span>
+            <span className="text-xs text-text-muted">JSON body</span>
             <Button
               variant="ghost"
               size="sm"
@@ -199,7 +199,7 @@ export const BodyEditor = memo(function BodyEditor({
             onChange={handleBodyChange}
           />
           {formatError && (
-            <p role="alert" className="text-xs text-(--color-danger)">
+            <p role="alert" className="text-xs text-danger">
               {formatError}
             </p>
           )}

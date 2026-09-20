@@ -24,26 +24,26 @@ export const EmptyState = memo(
       role={role}
       className={cn(
         "flex w-full flex-col items-center justify-center text-center",
-        "rounded-[var(--radius-lg)] border border-[var(--color-border)]",
-        "bg-[var(--color-surface)] px-6 py-10",
+        "rounded-lg border border-border",
+        "bg-surface px-6 py-10",
         className,
       )}
     >
       {icon && (
         <div
           aria-hidden="true"
-          className="mb-4 inline-flex text-4xl text-[var(--color-text-muted)]"
+          className="mb-4 inline-flex text-4xl text-text-muted"
         >
           {icon}
         </div>
       )}
 
-      <h2 className="text-lg font-semibold text-[var(--color-text)]">
+      <h2 className="text-lg font-semibold text-text">
         {title}
       </h2>
 
       {description && (
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--color-text-muted)]">
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-text-muted">
           {description}
         </p>
       )}

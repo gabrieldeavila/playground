@@ -52,7 +52,7 @@ export const Textarea = memo(
             aria-describedby={describedBy || undefined}
             aria-invalid={error ? true : undefined}
             className={cn(
-              "min-h-28 w-full resize-y rounded-(--radius-md) border border-border-strong bg-surface",
+              "min-h-28 w-full resize-y rounded-md border border-border-strong bg-surface",
               "px-3.5 py-3 text-sm text-text outline-none transition-[border-color,box-shadow,background-color] duration-(--transition-base)",
               "placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary-glow",
               "disabled:cursor-not-allowed disabled:opacity-50",

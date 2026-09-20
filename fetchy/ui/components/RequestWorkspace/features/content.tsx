@@ -110,9 +110,9 @@ const RequestWorkspaceContent = memo(() => {
 
   return (
     <>
-      <main className="h-dvh min-h-0 overflow-hidden bg-(--color-bg)">
-        <div className="pointer-events-none fixed inset-0 opacity-70 [background-image:radial-gradient(circle_at_78%_4%,rgba(94,168,255,0.13),transparent_28%),radial-gradient(circle_at_12%_82%,rgba(126,87,194,0.09),transparent_26%)]" />
-        <div className="relative mx-auto flex h-full min-h-0 flex-col border-x border-(--color-border) bg-(--color-bg)/85 backdrop-blur-xl">
+      <main className="h-dvh min-h-0 overflow-hidden bg-bg">
+        <div className="pointer-events-none fixed inset-0 opacity-70 bg-[radial-gradient(circle_at_78%_4%,rgba(94,168,255,0.13),transparent_28%),radial-gradient(circle_at_12%_82%,rgba(126,87,194,0.09),transparent_26%)]" />
+        <div className="relative mx-auto flex h-full min-h-0 flex-col border-x border-border bg-bg/85 backdrop-blur-xl">
           <WorkspaceHeader />
           <div className="grid min-h-0 flex-1 lg:grid-cols-[238px_minmax(0,1fr)]">
             <WorkspaceSidebar
@@ -170,7 +170,7 @@ const RequestWorkspaceContent = memo(() => {
                         />
                       </div>
                     ) : (
-                      <div className="grid min-h-0 flex-1 place-items-center rounded-lg border border-dashed border-(--color-border) text-sm text-(--color-text-muted)">
+                      <div className="grid min-h-0 flex-1 place-items-center rounded-lg border border-dashed border-border text-sm text-text-muted">
                         Select a request from Open requests to open it.
                       </div>
                     )}
@@ -194,9 +194,9 @@ const RequestWorkspaceContent = memo(() => {
         saveLabel="Delete"
         size="sm"
       >
-        <p className="text-sm leading-6 text-(--color-text-muted)">
+        <p className="text-sm leading-6 text-text-muted">
           Are you sure you want to delete the request{" "}
-          <strong className="text-(--color-text)">
+          <strong className="text-text">
             {pendingDeleteRequest?.label ?? "selected request"}
           </strong>
           ? This action cannot be undone.

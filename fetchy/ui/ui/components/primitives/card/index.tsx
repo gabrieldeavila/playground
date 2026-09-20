@@ -11,8 +11,8 @@ const CardRoot = forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-(--radius-lg) border border-(--color-border)",
-        "bg-(--color-surface) text-(--color-text) shadow-(--shadow-sm)",
+        "rounded-lg border border-border",
+        "bg-surface text-text shadow-(--shadow-sm)",
         className,
       )}
       {...props}
@@ -66,7 +66,7 @@ const CardFooter = memo(
       <div
         ref={ref}
         className={cn(
-          "flex items-center gap-3 border-t border-[var(--color-border)] px-5 py-4",
+          "flex items-center gap-3 border-t border-border px-5 py-4",
           className,
         )}
         {...props}

@@ -55,7 +55,7 @@ const Trigger = memo(
         aria-haspopup="menu"
         aria-expanded={context?.open}
         className={cn(
-          "inline-flex items-center gap-2 rounded-(--radius-md) border border-border-strong bg-surface px-3.5 py-2.5 text-sm font-medium text-text transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+          "inline-flex items-center gap-2 rounded-md border border-border-strong bg-surface px-3.5 py-2.5 text-sm font-medium text-text transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
           className,
         )}
         onClick={(event) => {
@@ -93,7 +93,7 @@ const Content = memo(
         role="menu"
         {...props}
         className={cn(
-          "absolute top-[calc(100%+0.5rem)] z-50 min-w-48 rounded-(--radius-md) border border-border-strong bg-bg-elevated p-1.5 text-text shadow-(--shadow-lg)",
+          "absolute top-[calc(100%+0.5rem)] z-50 min-w-48 rounded-md border border-border-strong bg-bg-elevated p-1.5 text-text shadow-(--shadow-lg)",
           align === "end" ? "right-0" : "left-0",
           className,
         )}
@@ -119,7 +119,7 @@ const Item = memo(
         role="menuitem"
         disabled={disabled}
         className={cn(
-          "flex w-full items-center rounded-(--radius-sm) px-3 py-2 text-left text-sm text-text transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full items-center rounded-sm px-3 py-2 text-left text-sm text-text transition-colors hover:bg-white/6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
         onClick={(event) => {
@@ -152,7 +152,7 @@ const SubTrigger = memo(
       type="button"
       role="menuitem"
       className={cn(
-        "flex w-full items-center justify-between rounded-(--radius-sm) px-3 py-2 text-left text-sm text-text hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-sm text-text hover:bg-white/6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         className,
       )}
     >

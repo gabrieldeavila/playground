@@ -24,18 +24,18 @@ export const Stat = memo(
       <div
         ref={ref}
         className={cn(
-          "relative space-y-3 overflow-hidden rounded-(--radius-lg)",
-          "border border-(--color-border) bg-(--color-surface)",
+          "relative space-y-3 overflow-hidden rounded-lg",
+          "border border-border bg-surface",
           "p-5 shadow-(--shadow-sm) transition-shadow",
           "hover:shadow-(--shadow-md)",
           className,
         )}
         {...props}
       >
-        <div className="text-sm font-medium text-(--color-text-muted)">
+        <div className="text-sm font-medium text-text-muted">
           {label}
         </div>
-        <div className="text-3xl font-semibold tracking-tight text-(--color-text)">
+        <div className="text-3xl font-semibold tracking-tight text-text">
           {value}
         </div>
         {trend ? (

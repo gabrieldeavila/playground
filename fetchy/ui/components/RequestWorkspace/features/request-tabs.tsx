@@ -21,7 +21,7 @@ const RequestTabs = memo(
     onCreateRequest,
     onCloseTab,
   }: RequestTabsProps) => (
-    <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-b border-(--color-border) px-3 pt-3 lg:px-5">
+    <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-b border-border px-3 pt-3 lg:px-5">
       {requestTabs.map((tab) => (
         <div
           key={tab.id}
@@ -35,13 +35,13 @@ const RequestTabs = memo(
               onSelectTab(tab.id);
             }
           }}
-          className="group flex min-w-36 cursor-pointer items-center gap-2 rounded-t-lg border border-b-0 border-(--color-border) px-3 py-2.5 text-xs data-[active=true]:bg-(--color-surface) data-[active=true]:text-(--color-text) data-[active=true]:shadow-[inset_0_-2px_0_var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--color-primary)"
+          className="group flex min-w-36 cursor-pointer items-center gap-2 rounded-t-lg border border-b-0 border-border px-3 py-2.5 text-xs data-[active=true]:bg-surface data-[active=true]:text-text data-[active=true]:shadow-[inset_0_-2px_0_var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--color-primary)"
           data-active={tab.id === activeTab}
         >
           <span className={`shrink-0 ${getRequestMethodColor(tab.method)}`}>
             {tab.method}
           </span>
-          <span className="min-w-0 flex-1 truncate text-(--color-text-muted)">
+          <span className="min-w-0 flex-1 truncate text-text-muted">
             {tab.label}
           </span>
           <IconButton
@@ -53,7 +53,7 @@ const RequestTabs = memo(
               event.stopPropagation();
               onCloseTab(tab.id);
             }}
-            className="size-6 rounded-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100 w-2.5 h-2.5"
+            className="size-6 rounded-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
           />
         </div>
       ))}
@@ -61,7 +61,7 @@ const RequestTabs = memo(
         type="button"
         aria-label="Create new request"
         onClick={onCreateRequest}
-        className="grid size-8 shrink-0 place-items-center rounded-lg text-(--color-text-muted) hover:bg-white/5"
+        className="grid size-8 shrink-0 place-items-center rounded-lg text-text-muted hover:bg-white/5"
       >
         <FiPlus aria-hidden="true" />
       </button>

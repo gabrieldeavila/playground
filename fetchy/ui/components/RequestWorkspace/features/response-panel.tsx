@@ -25,11 +25,11 @@ const ResponsePanel = memo(
     const isExternalError = hasResponse && response.status >= 400;
 
     return (
-      <Card className="flex h-full min-h-0 flex-col overflow-hidden border-white/10 bg-(--color-surface)/80 pb-8">
-        <Card.Header className="border-b border-(--color-border) p-4 sm:p-5">
+      <Card className="flex h-full min-h-0 flex-col overflow-hidden border-white/10 bg-surface/80 pb-8">
+        <Card.Header className="border-b border-border p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
                 Response
               </p>
               <Card.Title className="mt-2 text-xl">
@@ -50,7 +50,7 @@ const ResponsePanel = memo(
             )}
           </div>
           {hasResponse && (
-            <p className="mt-3 flex items-center gap-2 text-xs text-(--color-text-muted)">
+            <p className="mt-3 flex items-center gap-2 text-xs text-text-muted">
               <FiActivity aria-hidden="true" />
               {response.duration} ms
             </p>
@@ -63,7 +63,7 @@ const ResponsePanel = memo(
         ) : hasResponse ? (
           <Card.Body className="min-h-0 flex-1 overflow-hidden p-0 pb-8">
             <Tabs defaultValue="Body" className="flex h-full min-h-0 flex-col">
-              <Tabs.List className="w-full shrink-0 rounded-none border-0 border-b border-(--color-border) bg-transparent p-2">
+              <Tabs.List className="w-full shrink-0 rounded-none border-0 border-b border-border bg-transparent p-2">
                 <Tabs.Trigger value="Body">Body</Tabs.Trigger>
                 <Tabs.Trigger value="Headers">Headers</Tabs.Trigger>
                 <Tabs.Trigger value="Received">Received request</Tabs.Trigger>

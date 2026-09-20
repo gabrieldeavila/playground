@@ -60,7 +60,7 @@ const ModalRoot = memo(
         <button
           type="button"
           aria-label="Fechar modal"
-          className="absolute inset-0 cursor-default bg-black/65 backdrop-blur-[2px] transition-opacity duration-[var(--transition-base)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-inset"
+          className="absolute inset-0 cursor-default bg-black/65 backdrop-blur-[2px] transition-opacity duration-(--transition-base) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-primary) focus-visible:ring-inset"
           onClick={() => {
             if (closeOnBackdropClick) onOpenChange(false);
           }}
@@ -81,9 +81,9 @@ const ModalContent = memo(
       aria-modal="true"
       className={cn(
         "mx-auto flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden",
-        "rounded-[var(--radius-lg)] border border-[var(--color-border-strong)]",
+        "rounded-lg border border-border-strong",
         "bg-[linear-gradient(180deg,var(--color-bg-elevated),var(--color-surface))]",
-        "text-[var(--color-text)] shadow-[var(--shadow-lg)]",
+        "text-text shadow-(--shadow-lg)",
         "outline-none",
         contentSizeClasses[size],
         className,
@@ -97,7 +97,7 @@ const ModalContent = memo(
 const ModalHeader = memo(({ className, ...props }: ModalHeaderProps) => (
   <div
     className={cn(
-      "flex shrink-0 items-center justify-between gap-4 border-b border-[var(--color-border)] px-6 py-5",
+      "flex shrink-0 items-center justify-between gap-4 border-b border-border px-6 py-5",
       className,
     )}
     {...props}
@@ -106,7 +106,7 @@ const ModalHeader = memo(({ className, ...props }: ModalHeaderProps) => (
 
 const ModalBody = memo(({ className, ...props }: ModalBodyProps) => (
   <div
-    className={cn("min-h-0 flex-1 overflow-y-auto px-6 py-6", className)}
+    className={cn("min-h-0 flex-1 overflow-y-auto p-6", className)}
     {...props}
   />
 ));
@@ -114,7 +114,7 @@ const ModalBody = memo(({ className, ...props }: ModalBodyProps) => (
 const ModalFooter = memo(({ className, ...props }: ModalFooterProps) => (
   <div
     className={cn(
-      "flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-[var(--color-border)] px-6 py-4",
+      "flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-border px-6 py-4",
       className,
     )}
     {...props}
@@ -144,10 +144,10 @@ const ModalCloseButton = memo(
         type={type}
         aria-label="Fechar modal"
         className={cn(
-          "inline-flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)]",
-          "text-[var(--color-text-muted)] transition-[background-color,color,transform] duration-[var(--transition-fast)]",
-          "hover:bg-white/[0.06] hover:text-[var(--color-text)] active:scale-95",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]",
+          "inline-flex size-9 shrink-0 items-center justify-center rounded-sm",
+          "text-text-muted transition-[background-color,color,transform] duration-(--transition-fast)",
+          "hover:bg-white/6 hover:text-text active:scale-95",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-primary)",
           className,
         )}
         onClick={handleClick}

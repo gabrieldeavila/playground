@@ -31,7 +31,7 @@ export const Checkbox = memo(
         />
         <span
           aria-hidden="true"
-          className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-(--radius-xs) border border-border-strong bg-surface text-transparent transition-[background-color,border-color,color] peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-primary-glow"
+          className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-xs border border-border-strong bg-surface text-transparent transition-[background-color,border-color,color] peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-primary-glow"
         >
           ✓
         </span>

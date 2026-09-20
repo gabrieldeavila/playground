@@ -49,7 +49,7 @@ const TabsList = memo(
     <div
       role="tablist"
       className={cn(
-        "inline-flex flex-wrap gap-1 rounded-(--radius-md) border border-border bg-surface p-1",
+        "inline-flex flex-wrap gap-1 rounded-md border border-border bg-surface p-1",
         className,
       )}
       {...props}
@@ -72,7 +72,7 @@ const TabsTrigger = memo(
         aria-selected={selected}
         tabIndex={selected ? 0 : -1}
         className={cn(
-          "rounded-(--radius-sm) px-3.5 py-2 text-sm font-medium text-text-muted transition-[background-color,color] duration-(--transition-fast) hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+          "rounded-sm px-3.5 py-2 text-sm font-medium text-text-muted transition-[background-color,color] duration-(--transition-fast) hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
           selected && "bg-surface-3 text-text shadow-(--shadow-sm)",
           className,
         )}

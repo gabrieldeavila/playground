@@ -100,9 +100,9 @@ export const Toast = memo(
         role={variant === "error" ? "alert" : "status"}
         aria-live={variant === "error" ? "assertive" : "polite"}
         className={cn(
-          "relative isolate flex w-full max-w-md overflow-hidden rounded-(--radius-lg) border",
+          "relative isolate flex w-full max-w-md overflow-hidden rounded-lg border",
           "border-border-strong bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-surface-2)_94%,transparent),var(--color-bg-elevated))]",
-          "text-text shadow-[var(--shadow-lg)] backdrop-blur-xl",
+          "text-text shadow-(--shadow-lg) backdrop-blur-xl",
           "before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-0.75 before:bg-(--toast-accent)",
           "motion-safe:animate-[toast-enter_var(--transition-base)_ease-out]",
           className,
@@ -120,7 +120,7 @@ export const Toast = memo(
           className="pointer-events-none absolute -left-8 -top-10 -z-10 size-28 rounded-full bg-(--toast-glow) blur-3xl"
         />
 
-        <div className="flex min-w-0 flex-1 gap-3 px-4 py-4">
+        <div className="flex min-w-0 flex-1 gap-3 p-4">
           <span
             aria-hidden="true"
             className={cn(
@@ -147,7 +147,7 @@ export const Toast = memo(
                   type="button"
                   aria-label={closeLabel}
                   className={cn(
-                    "-mr-1 -mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-(--radius-sm)",
+                    "-mr-1 -mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-sm",
                     "text-text-muted transition-[background-color,color,transform] duration-(--transition-fast)",
                     "hover:bg-white/[0.07] hover:text-text active:scale-95",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",

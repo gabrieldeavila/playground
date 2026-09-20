@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/gabrieldeavila/react-quickie#readme",
   "devDependencies": {
-    "concurrently": "^10.0.5"
+    "concurrently": "^10.0.5",
+    "eslint-plugin-tailwindcss": "^4.4.0"
   }
 }

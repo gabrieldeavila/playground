@@ -67,7 +67,7 @@ export const Alert = memo(
         role={role}
         className={cn(
           "flex items-start gap-(--space-3) rounded-md border",
-          "pl-(--space-10) pr-(--space-10) py-(--space-3) font-sans text-sm leading-relaxed",
+          "py-(--space-3) font-sans text-sm leading-relaxed px-(--space-10)",
           "shadow-(--shadow-sm)",
           variantClasses[variant],
           className,

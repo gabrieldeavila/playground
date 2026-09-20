@@ -52,7 +52,7 @@ const Trigger = memo(
         type="button"
         aria-expanded={context?.open}
         className={cn(
-          "inline-flex items-center rounded-(--radius-md) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+          "inline-flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
           className,
         )}
         onClick={(event) => {
@@ -93,7 +93,7 @@ const Content = memo(
         ref={ref}
         {...props}
         className={cn(
-          "absolute z-50 min-w-56 rounded-(--radius-md) border border-border-strong bg-bg-elevated p-4 text-text shadow-(--shadow-lg)",
+          "absolute z-50 min-w-56 rounded-md border border-border-strong bg-bg-elevated p-4 text-text shadow-(--shadow-lg)",
           side === "top"
             ? "bottom-[calc(100%+0.5rem)]"
             : "top-[calc(100%+0.5rem)]",

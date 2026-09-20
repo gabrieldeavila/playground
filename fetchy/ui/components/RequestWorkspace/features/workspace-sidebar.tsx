@@ -58,9 +58,9 @@ const WorkspaceSidebar = memo(
     };
 
     return (
-      <aside className="hidden border-r border-(--color-border) bg-(--color-surface)/35 lg:flex lg:flex-col">
+      <aside className="hidden border-r border-border bg-surface/35 lg:flex lg:flex-col">
         <div className="flex items-center justify-between px-4 pb-3 pt-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
             Workspace
           </p>
           <Button
@@ -75,19 +75,19 @@ const WorkspaceSidebar = memo(
         <nav className="space-y-1 px-3" aria-label="Workspace navigation">
           <button
             aria-current={workspaceSection === "requests" ? "page" : undefined}
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium ${workspaceSection === "requests" ? "bg-(--color-primary)/10 text-(--color-primary)" : "text-(--color-text-muted) hover:bg-white/5"}`}
+            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium ${workspaceSection === "requests" ? "bg-(--color-primary)/10 text-(--color-primary)" : "text-text-muted hover:bg-white/5"}`}
             onClick={() => onWorkspaceSectionChange("requests")}
             type="button"
           >
             <FiFileText aria-hidden="true" />
             Requests
-            <span className="ml-auto text-xs text-(--color-text-muted)">
+            <span className="ml-auto text-xs text-text-muted">
               {requestTabs.length}
             </span>
           </button>
           <button
             aria-current={workspaceSection === "history" ? "page" : undefined}
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm ${workspaceSection === "history" ? "bg-(--color-primary)/10 font-medium text-(--color-primary)" : "text-(--color-text-muted) hover:bg-white/5"}`}
+            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm ${workspaceSection === "history" ? "bg-(--color-primary)/10 font-medium text-(--color-primary)" : "text-text-muted hover:bg-white/5"}`}
             onClick={() => onWorkspaceSectionChange("history")}
             type="button"
           >
@@ -96,7 +96,7 @@ const WorkspaceSidebar = memo(
           </button>
         </nav>
         <div className="mt-8 px-4">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-text-muted)">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
             Open requests
           </p>
           <div className="space-y-1">
@@ -131,7 +131,7 @@ const WorkspaceSidebar = memo(
                     <span className={getRequestMethodColor(tab.method)}>
                       {tab.method}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-(--color-text-muted)">
+                    <span className="min-w-0 flex-1 truncate text-text-muted">
                       {tab.label}
                     </span>
                     {tab.id === activeTab && (
@@ -141,17 +141,17 @@ const WorkspaceSidebar = memo(
                   <DropdownMenu>
                     <DropdownMenu.Trigger
                       aria-label={`Actions for ${tab.label}`}
-                      className="size-8 justify-center border-0 bg-transparent p-0 text-(--color-text-muted)"
+                      className="size-8 justify-center border-0 bg-transparent p-0 text-text-muted"
                     >
                       <FiMoreVertical
                         aria-hidden="true"
-                        className="shrink-0 text-(--color-text-muted)"
+                        className="shrink-0 text-text-muted"
                         size={18}
                       />
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Content align="end">
                       <DropdownMenu.Item
-                        className="text-(--color-danger)"
+                        className="text-danger"
                         onClick={() => onDeleteRequest(tab.id)}
                       >
                         <FiTrash2 aria-hidden="true" className="mr-2" />
@@ -164,8 +164,8 @@ const WorkspaceSidebar = memo(
             })}
           </div>
         </div>
-        <div className="mt-auto border-t border-(--color-border) p-4">
-          <p className="text-xs text-(--color-text-muted)">Environment</p>
+        <div className="mt-auto border-t border-border p-4">
+          <p className="text-xs text-text-muted">Environment</p>
           <p className="mt-1 flex items-center gap-2 text-sm">
             <span className="size-2 rounded-full bg-(--color-success)" />
             Local
