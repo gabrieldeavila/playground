@@ -57,7 +57,7 @@ const StockChartContent = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="stock-chart h-80 w-full"
+      className="stock-chart h-[100dvh] w-full"
       aria-label="Gráfico de candles da ação NEXA"
     />
   );
