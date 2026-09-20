@@ -16,6 +16,7 @@ import { Button } from "@/ui/components/primitives/button";
 import { Card } from "@/ui/components/primitives/card";
 import { Select } from "@/ui/components/primitives/select";
 import { Stat } from "@/ui/components/primitives/stat";
+import StockChart from "../../components/StockChart";
 import { changeLanguage, type SupportedLanguage } from "../../i18n";
 
 const featureIcons = [FiZap, FiLayers, FiBarChart2];
@@ -294,6 +295,32 @@ const Home = memo(() => {
             </Card>
           ))}
         </div>
+      </section>
+
+      <section
+        id="stocks"
+        className="relative z-10 mx-6 mb-20 overflow-hidden rounded-(--radius-xl) border border-white/10 bg-(--color-surface-2)/80 p-6 shadow-(--shadow-lg) backdrop-blur-xl sm:p-8 lg:mx-auto lg:max-w-7xl"
+      >
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--color-primary)">
+              Mercado em foco
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-(--color-text) sm:text-4xl">
+              NEXA / USD
+            </h2>
+            <p className="mt-2 text-sm text-(--color-text-muted)">
+              Dados simulados para validação do gráfico financeiro
+            </p>
+          </div>
+          <div className="text-left sm:text-right">
+            <p className="text-2xl font-semibold tracking-[-0.04em] text-(--color-text)">
+              $246.80
+            </p>
+            <p className="text-sm font-medium text-(--color-success)">+3.72% hoje</p>
+          </div>
+        </div>
+        <StockChart />
       </section>
 
       <section

@@ -1,0 +1,7 @@
+.stock-chart {
+  min-height: 20rem;
+}
+
+.stock-chart canvas {
+  outline: none;
+}
