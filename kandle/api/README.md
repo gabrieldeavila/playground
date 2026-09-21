@@ -44,6 +44,37 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
+## Dados de mercado para gráficos
+
+A API expõe candles OHLCV do Yahoo Finance em um formato pronto para consumo por uma UI de gráficos como TradingView ou Lightweight Charts:
+
+```http
+GET /market-data/AAPL?range=1d&interval=5m
+```
+
+Parâmetros aceitos:
+
+- `range`: `1d`, `5d`, `1mo`, `3mo`, `6mo`, `1y`, `2y`, `5y`, `10y`, `max`
+- `interval`: `1m`, `2m`, `5m`, `15m`, `30m`, `60m`, `90m`, `1h`, `1d`, `5d`, `1wk`, `1mo`, `3mo`
+
+Resposta resumida:
+
+```json
+{
+  "symbol": "AAPL",
+  "exchange": "NMS",
+  "currency": "USD",
+  "timezone": "America/New_York",
+  "range": "1d",
+  "interval": "5m",
+  "candles": [
+    { "time": 1710181800, "open": 172.5, "high": 173, "low": 172.2, "close": 172.8, "volume": 123456 }
+  ]
+}
+```
+
+O campo `time` é um Unix timestamp em segundos, formato aceito diretamente pelo Lightweight Charts. A fonte de dados é o endpoint de chart do Yahoo Finance; os limites de período/intervalo são os impostos pelo próprio provedor.
+
 ## Run tests
 
 ```bash
