@@ -41,6 +41,23 @@ const intervals: MarketInterval[] = [
 export class MarketDataController {
   constructor(private readonly marketDataUseCase: MarketDataUseCase) {}
 
+  @Get('search')
+  searchTickers(@Query('q') query?: string) {
+    const normalizedQuery = query?.trim();
+
+    if (!normalizedQuery) {
+      throw new BadRequestException('Informe o parâmetro q.');
+    }
+
+    if (normalizedQuery.length > 50) {
+      throw new BadRequestException(
+        'O parâmetro q deve ter no máximo 50 caracteres.',
+      );
+    }
+
+    return this.marketDataUseCase.searchTickers(normalizedQuery);
+  }
+
   @Get(':ticker')
   getCandles(
     @Param('ticker') ticker: string,

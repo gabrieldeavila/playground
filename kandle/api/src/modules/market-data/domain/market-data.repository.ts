@@ -41,4 +41,6 @@ export interface MarketDataRepository {
     range: MarketRange,
     interval: MarketInterval,
   ): Promise<MarketData>;
+
+  searchTickers(query: string): Promise<string[]>;
 }

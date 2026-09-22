@@ -8,6 +8,16 @@ import {
 export class MarketDataUseCase {
   constructor(private readonly repository: MarketDataRepository) {}
 
+  searchTickers(query: string): Promise<string[]> {
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery.length < 1 || normalizedQuery.length > 50) {
+      throw new Error('Busca inválida.');
+    }
+
+    return this.repository.searchTickers(normalizedQuery);
+  }
+
   execute(
     symbol: string,
     range: MarketRange,

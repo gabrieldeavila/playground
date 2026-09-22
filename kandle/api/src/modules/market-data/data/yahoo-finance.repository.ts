@@ -7,6 +7,13 @@ import {
   MarketRange,
 } from '../domain/market-data.repository';
 
+interface YahooSearchResponse {
+  quotes?: Array<{
+    shortname?: string;
+    longname?: string;
+  }>;
+}
+
 interface YahooChartResponse {
   chart?: {
     result?: YahooChartResult[] | null;
@@ -35,6 +42,42 @@ interface YahooChartResult {
 
 @Injectable()
 export class YahooFinanceRepository implements MarketDataRepository {
+  async searchTickers(query: string): Promise<string[]> {
+    const params = new URLSearchParams({
+      q: query,
+      quotesCount: '10',
+      newsCount: '0',
+    });
+
+    try {
+      const response = await fetch(
+        `https://query1.finance.yahoo.com/v1/finance/search?${params.toString()}`,
+        { headers: { Accept: 'application/json' } },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Yahoo Finance respondeu com HTTP ${response.status}.`);
+      }
+
+      const payload = (await response.json()) as YahooSearchResponse;
+      const names = (payload.quotes ?? [])
+        .map((quote) => quote.longname ?? quote.shortname)
+        .filter((name): name is string => Boolean(name?.trim()));
+
+      return [
+        ...new Map(names.map((name) => [name.toLowerCase(), name])).values(),
+      ];
+    } catch (error) {
+      if (error instanceof ServiceUnavailableException) {
+        throw error;
+      }
+
+      throw new ServiceUnavailableException(
+        'Não foi possível buscar tickers no Yahoo Finance.',
+      );
+    }
+  }
+
   async getCandles(
     symbol: string,
     range: MarketRange,
