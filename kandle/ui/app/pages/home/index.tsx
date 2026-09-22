@@ -1,11 +1,11 @@
 import { memo } from "react";
 
-import StockChart from "../../components/StockChart";
+import TicketWorkspace from "../../components/TicketWorkspace";
 
 const Home = memo(() => {
   return (
     <main className="min-h-[100dvh] overflow-hidden bg-(--color-bg)">
-      <StockChart />
+      <TicketWorkspace />
     </main>
   );
 });

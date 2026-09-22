@@ -1,6 +1,5 @@
 import {
   cloneElement,
-  isValidElement,
   memo,
   useId,
   type HTMLAttributes,
@@ -31,25 +30,32 @@ export const FormField = memo(
     ...props
   }: FormFieldProps) => {
     const generatedId = useId();
-    const childId = children.props.id ?? id ?? generatedId;
+    // React 19 types expose props as unknown on an untyped ReactElement.
+    // FormField only injects standard field attributes, so keep that contract
+    // explicit without weakening the public component API.
+    type FieldChildProps = {
+      id?: string;
+      "aria-describedby"?: string;
+      "aria-invalid"?: boolean | "grammar" | "spelling" | "true" | "false";
+    };
+    const child = children as ReactElement<FieldChildProps>;
+    const childId = child.props.id ?? id ?? generatedId;
     const descriptionId =
       childId && description ? `${childId}-description` : undefined;
     const errorId = childId && error ? `${childId}-error` : undefined;
     const describedBy = [
-      children.props["aria-describedby"],
+      child.props["aria-describedby"],
       descriptionId,
       errorId,
     ]
       .filter(Boolean)
       .join(" ");
 
-    const enhancedChild = isValidElement(children)
-      ? cloneElement(children, {
-          id: childId,
-          "aria-describedby": describedBy || undefined,
-          "aria-invalid": error ? true : children.props["aria-invalid"],
-        })
-      : children;
+    const enhancedChild = cloneElement(child, {
+      id: childId,
+      "aria-describedby": describedBy || undefined,
+      "aria-invalid": error ? true : child.props["aria-invalid"],
+    });
 
     return (
       <div className={cn("grid gap-(--space-2)", className)} {...props}>

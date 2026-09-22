@@ -18,7 +18,8 @@ export type ToastPosition =
   | "bottom-center"
   | "bottom-right";
 
-export interface ToastProps extends HTMLAttributes<HTMLDivElement> {
+export interface ToastProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   variant?: ToastVariant;
   title: ReactNode;
   description?: ReactNode;

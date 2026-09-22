@@ -1,4 +1,6 @@
 import { memo, useEffect, useRef } from "react";
+
+import { useTicketWorkspaceContext } from "../../../TicketWorkspace/context/context";
 import {
   CandlestickSeries,
   ColorType,
@@ -10,6 +12,7 @@ import {
 import { MOCK_STOCK_DATA } from "@/types/consts/mock-stock-data.const";
 
 const StockChartContent = memo(() => {
+  const { ticketQuery, timeRange } = useTicketWorkspaceContext();
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
 
@@ -57,8 +60,8 @@ const StockChartContent = memo(() => {
   return (
     <div
       ref={containerRef}
-      className="stock-chart h-[100dvh] w-full"
-      aria-label="Gráfico de candles da ação NEXA"
+      className="stock-chart h-full w-full"
+      aria-label={`Visualização de tickets ${timeRange}${ticketQuery ? ` para ${ticketQuery}` : ""}`}
     />
   );
 });
