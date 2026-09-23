@@ -12,7 +12,7 @@ import {
 import { MOCK_STOCK_DATA } from "@/types/consts/mock-stock-data.const";
 
 const StockChartContent = memo(() => {
-  const { ticketQuery, timeRange } = useTicketWorkspaceContext();
+  const { ticketQuery, timeRange, marketData } = useTicketWorkspaceContext();
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
 
@@ -47,7 +47,10 @@ const StockChartContent = memo(() => {
       wickDownColor: "#f4778b",
     });
 
-    series.setData(MOCK_STOCK_DATA);
+    const chartData = marketData.length > 0 ? marketData : MOCK_STOCK_DATA;
+    series.setData(
+      chartData as Parameters<typeof series.setData>[0],
+    );
     chart.timeScale().fitContent();
     chartRef.current = chart;
 
@@ -55,7 +58,7 @@ const StockChartContent = memo(() => {
       chart.remove();
       chartRef.current = null;
     };
-  }, []);
+  }, [marketData]);
 
   return (
     <div

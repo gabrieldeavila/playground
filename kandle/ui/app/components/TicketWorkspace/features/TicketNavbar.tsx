@@ -9,7 +9,7 @@ import { useTickerSuggestions } from "./useTickerSuggestions";
 import { useTicketWorkspaceContext } from "../context/context";
 
 const TicketNavbar = memo(() => {
-  const { ticketQuery, timeRange, setTicketQuery, setTimeRange } =
+  const { ticketQuery, timeRange, setTicketQuery, setTimeRange, setMarketData } =
     useTicketWorkspaceContext();
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const [isSuggestionSearchEnabled, setIsSuggestionSearchEnabled] =
@@ -93,7 +93,9 @@ const TicketNavbar = memo(() => {
                         setIsSuggestionSearchEnabled(false);
                         setTicketQuery(option.label);
                         setIsSuggestionsOpen(false);
-                        void fetchMarketData(option.value);
+                        void fetchMarketData(option.value).then((candles) => {
+                          if (candles.length > 0) setMarketData(candles);
+                        });
                       }}
                       type="button"
                     >
