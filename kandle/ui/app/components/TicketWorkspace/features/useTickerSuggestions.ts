@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
+import type { TickerSuggestion } from "@/types/interface/ticker-suggestion.interface";
+
 const SEARCH_DEBOUNCE_MS = 300;
 
 export function useTickerSuggestions(query: string, enabled = true) {
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<TickerSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export function useTickerSuggestions(query: string, enabled = true) {
 
       try {
         const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
-        const { data } = await axios.get<string[]>(
+        const { data } = await axios.get<TickerSuggestion[]>(
           `${apiUrl}/market-data/search`,
           {
             params: { q: normalizedQuery },

@@ -16,6 +16,11 @@ export type MarketInterval =
   | '1mo'
   | '3mo';
 
+export interface TickerSuggestion {
+  label: string;
+  value: string;
+}
+
 export interface MarketCandle {
   time: number;
   open: number;
@@ -42,5 +47,5 @@ export interface MarketDataRepository {
     interval: MarketInterval,
   ): Promise<MarketData>;
 
-  searchTickers(query: string): Promise<string[]>;
+  searchTickers(query: string): Promise<TickerSuggestion[]>;
 }

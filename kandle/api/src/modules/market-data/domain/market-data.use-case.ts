@@ -1,6 +1,7 @@
 import {
   MarketData,
   MarketDataRepository,
+  TickerSuggestion,
   MarketInterval,
   MarketRange,
 } from './market-data.repository';
@@ -8,7 +9,7 @@ import {
 export class MarketDataUseCase {
   constructor(private readonly repository: MarketDataRepository) {}
 
-  searchTickers(query: string): Promise<string[]> {
+  searchTickers(query: string): Promise<TickerSuggestion[]> {
     const normalizedQuery = query.trim();
 
     if (normalizedQuery.length < 1 || normalizedQuery.length > 50) {

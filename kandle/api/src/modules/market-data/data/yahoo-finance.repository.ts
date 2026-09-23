@@ -5,10 +5,12 @@ import {
   MarketDataRepository,
   MarketInterval,
   MarketRange,
+  TickerSuggestion,
 } from '../domain/market-data.repository';
 
 interface YahooSearchResponse {
   quotes?: Array<{
+    symbol?: string;
     shortname?: string;
     longname?: string;
   }>;
@@ -42,7 +44,7 @@ interface YahooChartResult {
 
 @Injectable()
 export class YahooFinanceRepository implements MarketDataRepository {
-  async searchTickers(query: string): Promise<string[]> {
+  async searchTickers(query: string): Promise<TickerSuggestion[]> {
     const params = new URLSearchParams({
       q: query,
       quotesCount: '10',
@@ -60,12 +62,26 @@ export class YahooFinanceRepository implements MarketDataRepository {
       }
 
       const payload = (await response.json()) as YahooSearchResponse;
-      const names = (payload.quotes ?? [])
-        .map((quote) => quote.longname ?? quote.shortname)
-        .filter((name): name is string => Boolean(name?.trim()));
+      const suggestions = (payload.quotes ?? [])
+        .map((quote) => {
+          const label = quote.longname ?? quote.shortname;
+          const value = quote.symbol;
+
+          if (!label?.trim() || !value?.trim()) return null;
+
+          return { label: label.trim(), value: value.trim() };
+        })
+        .filter(
+          (suggestion): suggestion is TickerSuggestion => suggestion !== null,
+        );
 
       return [
-        ...new Map(names.map((name) => [name.toLowerCase(), name])).values(),
+        ...new Map(
+          suggestions.map((suggestion) => [
+            suggestion.value.toLowerCase(),
+            suggestion,
+          ]),
+        ).values(),
       ];
     } catch (error) {
       if (error instanceof ServiceUnavailableException) {

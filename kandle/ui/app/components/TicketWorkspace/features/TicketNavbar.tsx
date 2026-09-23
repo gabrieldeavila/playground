@@ -4,6 +4,7 @@ import { FiSearch } from "react-icons/fi";
 import { Input } from "@/ui/components/primitives/input";
 import { Select } from "@/ui/components/primitives/select";
 import { TICKET_TIME_RANGE_OPTIONS } from "@/types/consts/ticket-time-range-options.const";
+import { useMarketData } from "./useMarketData";
 import { useTickerSuggestions } from "./useTickerSuggestions";
 import { useTicketWorkspaceContext } from "../context/context";
 
@@ -18,6 +19,7 @@ const TicketNavbar = memo(() => {
     ticketQuery,
     isSuggestionSearchEnabled,
   );
+  const { fetchMarketData } = useMarketData();
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -81,20 +83,21 @@ const TicketNavbar = memo(() => {
               ) : (
                 options.map((option) => (
                   <li
-                    key={option}
+                    key={option.value}
                     role="option"
-                    aria-selected={option === ticketQuery}
+                    aria-selected={option.label === ticketQuery}
                   >
                     <button
                       className="w-full rounded-(--radius-sm) px-3 py-2 text-left text-sm text-text transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       onClick={() => {
                         setIsSuggestionSearchEnabled(false);
-                        setTicketQuery(option);
+                        setTicketQuery(option.label);
                         setIsSuggestionsOpen(false);
+                        void fetchMarketData(option.value);
                       }}
                       type="button"
                     >
-                      {option}
+                      {option.label}
                     </button>
                   </li>
                 ))
