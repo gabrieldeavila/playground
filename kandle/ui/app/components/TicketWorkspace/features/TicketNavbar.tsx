@@ -4,12 +4,11 @@ import { FiSearch } from "react-icons/fi";
 import { Input } from "@/ui/components/primitives/input";
 import { Select } from "@/ui/components/primitives/select";
 import { TICKET_TIME_RANGE_OPTIONS } from "@/types/consts/ticket-time-range-options.const";
-import { useMarketData } from "./useMarketData";
 import { useTickerSuggestions } from "./useTickerSuggestions";
 import { useTicketWorkspaceContext } from "../context/context";
 
 const TicketNavbar = memo(() => {
-  const { ticketQuery, timeRange, setTicketQuery, setTimeRange, setMarketData } =
+  const { ticketQuery, timeRange, setTicketQuery, setTimeRange, loadTicker } =
     useTicketWorkspaceContext();
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const [isSuggestionSearchEnabled, setIsSuggestionSearchEnabled] =
@@ -19,7 +18,6 @@ const TicketNavbar = memo(() => {
     ticketQuery,
     isSuggestionSearchEnabled,
   );
-  const { fetchMarketData } = useMarketData();
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -93,9 +91,7 @@ const TicketNavbar = memo(() => {
                         setIsSuggestionSearchEnabled(false);
                         setTicketQuery(option.label);
                         setIsSuggestionsOpen(false);
-                        void fetchMarketData(option.value).then((candles) => {
-                          if (candles.length > 0) setMarketData(candles);
-                        });
+                        void loadTicker(option.value);
                       }}
                       type="button"
                     >

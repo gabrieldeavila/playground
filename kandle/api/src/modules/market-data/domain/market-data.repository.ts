@@ -22,6 +22,7 @@ export interface TickerSuggestion {
 }
 
 export interface MarketCandle {
+  /** Unix timestamp em segundos. */
   time: number;
   open: number;
   high: number;
@@ -30,20 +31,27 @@ export interface MarketCandle {
   volume: number;
 }
 
+export type MarketDataPeriod =
+  | { range: MarketRange; from?: never; to?: never }
+  | { range?: never; from: Date; to: Date };
+
 export interface MarketData {
   symbol: string;
   exchange: string | null;
   currency: string | null;
   timezone: string | null;
-  range: MarketRange;
+  /** null quando a consulta foi feita usando from/to. */
+  range: MarketRange | null;
   interval: MarketInterval;
+  from?: string;
+  to?: string;
   candles: MarketCandle[];
 }
 
 export interface MarketDataRepository {
   getCandles(
     symbol: string,
-    range: MarketRange,
+    period: MarketDataPeriod,
     interval: MarketInterval,
   ): Promise<MarketData>;
 

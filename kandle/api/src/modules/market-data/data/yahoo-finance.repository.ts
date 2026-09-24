@@ -1,10 +1,15 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  ServiceUnavailableException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import {
   MarketCandle,
   MarketData,
+  MarketDataPeriod,
   MarketDataRepository,
   MarketInterval,
-  MarketRange,
   TickerSuggestion,
 } from '../domain/market-data.repository';
 
@@ -84,10 +89,7 @@ export class YahooFinanceRepository implements MarketDataRepository {
         ).values(),
       ];
     } catch (error) {
-      if (error instanceof ServiceUnavailableException) {
-        throw error;
-      }
-
+      if (error instanceof HttpException) throw error;
       throw new ServiceUnavailableException(
         'Não foi possível buscar tickers no Yahoo Finance.',
       );
@@ -96,14 +98,26 @@ export class YahooFinanceRepository implements MarketDataRepository {
 
   async getCandles(
     symbol: string,
-    range: MarketRange,
+    period: MarketDataPeriod,
     interval: MarketInterval,
   ): Promise<MarketData> {
+    const isDatePeriod = 'from' in period && 'to' in period;
+    const datePeriod = isDatePeriod
+      ? (period as { from: Date; to: Date })
+      : null;
     const params = new URLSearchParams({
-      range,
       interval,
       events: 'div,splits',
       includePrePost: 'false',
+      ...(isDatePeriod
+        ? {
+            period1: Math.floor(datePeriod!.from.getTime() / 1000).toString(),
+            // Yahoo trata period2 como exclusivo; somamos 1 segundo para incluir o limite informado.
+            period2: (
+              Math.floor(datePeriod!.to.getTime() / 1000) + 1
+            ).toString(),
+          }
+        : { range: period.range }),
       ...(interval === '1d' || interval === '1wk' || interval === '1mo'
         ? {}
         : { includeTimestamps: 'true' }),
@@ -122,8 +136,8 @@ export class YahooFinanceRepository implements MarketDataRepository {
       const payload = (await response.json()) as YahooChartResponse;
       const result = payload.chart?.result?.[0];
       if (!result) {
-        throw new Error(
-          payload.chart?.error?.description ?? 'Ticker não encontrado.',
+        throw new UnprocessableEntityException(
+          'O período ou ticker solicitado não está disponível no Yahoo Finance.',
         );
       }
 
@@ -142,23 +156,30 @@ export class YahooFinanceRepository implements MarketDataRepository {
             candle.open !== null &&
             candle.high !== null &&
             candle.low !== null &&
-            candle.close !== null,
-        );
+            candle.close !== null &&
+            (!isDatePeriod ||
+              (candle.time * 1000 >= datePeriod!.from.getTime() &&
+                candle.time * 1000 <= datePeriod!.to.getTime())),
+        )
+        .sort((a, b) => a.time - b.time);
 
       return {
         symbol: result.meta?.symbol ?? symbol,
         exchange: result.meta?.exchangeName ?? null,
         currency: result.meta?.currency ?? null,
         timezone: result.meta?.exchangeTimezoneName ?? null,
-        range,
+        range: isDatePeriod ? null : period.range,
         interval,
+        ...(isDatePeriod
+          ? {
+              from: datePeriod!.from.toISOString(),
+              to: datePeriod!.to.toISOString(),
+            }
+          : {}),
         candles,
       };
     } catch (error) {
-      if (error instanceof ServiceUnavailableException) {
-        throw error;
-      }
-
+      if (error instanceof HttpException) throw error;
       throw new ServiceUnavailableException(
         `Não foi possível obter dados de ${symbol} no Yahoo Finance.`,
       );

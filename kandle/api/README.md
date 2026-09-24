@@ -46,16 +46,25 @@ $ pnpm run start:prod
 
 ## Dados de mercado para gráficos
 
-A API expõe candles OHLCV do Yahoo Finance em um formato pronto para consumo por uma UI de gráficos como TradingView ou Lightweight Charts:
+A API expõe candles OHLCV do Yahoo Finance em um formato pronto para consumo por uma UI de gráficos como TradingView ou Lightweight Charts. A consulta legada continua disponível:
 
 ```http
 GET /market-data/AAPL?range=1d&interval=5m
 ```
 
+Para solicitar um período específico, informe `from` e `to` juntos (data `YYYY-MM-DD` ou timestamp ISO 8601 com fuso horário):
+
+```http
+GET /market-data/AAPL?from=2024-03-11&to=2024-03-15&interval=15m
+```
+
+`range` não pode ser combinado com `from`/`to`. Se nenhum parâmetro de período for enviado, os defaults continuam sendo `range=1d` e `interval=5m`.
+
 Parâmetros aceitos:
 
-- `range`: `1d`, `5d`, `1mo`, `3mo`, `6mo`, `1y`, `2y`, `5y`, `10y`, `max`
+- `range`: `1d`, `5d`, `1mo`, `3mo`, `6mo`, `1y`, `2y`, `5y`, `10y`, `max` (compatibilidade)
 - `interval`: `1m`, `2m`, `5m`, `15m`, `30m`, `60m`, `90m`, `1h`, `1d`, `5d`, `1wk`, `1mo`, `3mo`
+- No máximo 10.000 candles estimados por consulta. O Yahoo Finance limita dados intraday a 7 dias para `1m` e 60 dias para outros intervals intraday suportados.
 
 Resposta resumida:
 
@@ -68,12 +77,21 @@ Resposta resumida:
   "range": "1d",
   "interval": "5m",
   "candles": [
-    { "time": 1710181800, "open": 172.5, "high": 173, "low": 172.2, "close": 172.8, "volume": 123456 }
+    {
+      "time": 1710181800,
+      "open": 172.5,
+      "high": 173,
+      "low": 172.2,
+      "close": 172.8,
+      "volume": 123456
+    }
   ]
 }
 ```
 
-O campo `time` é um Unix timestamp em segundos, formato aceito diretamente pelo Lightweight Charts. A fonte de dados é o endpoint de chart do Yahoo Finance; os limites de período/intervalo são os impostos pelo próprio provedor.
+O campo `time` é um Unix timestamp em segundos, formato aceito diretamente pelo Lightweight Charts. Para consultas por datas, a resposta informa `range: null` e ecoa `from`/`to` em ISO 8601; candles são filtrados para esse intervalo e ordenados cronologicamente. Datas sem horário seguem UTC (`from` no início do dia e `to` no fim do dia).
+
+Erros: `400` para parâmetros inválidos ou limite máximo de 10.000 candles excedido; `422` para período fora da janela histórica do Yahoo Finance; `404` quando a consulta não retorna candles; `503` quando o provedor está indisponível. A fonte é o endpoint de chart do Yahoo Finance.
 
 ## Run tests
 

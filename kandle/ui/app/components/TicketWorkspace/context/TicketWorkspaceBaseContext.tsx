@@ -1,8 +1,7 @@
 import { type ReactNode, useMemo, useState } from "react";
 
-import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
-
 import { TicketTimeRange } from "@/types/enum/ticket-time-range.enum";
+import { useMarketData } from "../features/useMarketData";
 import { TicketWorkspaceBaseContext } from "./context";
 
 export function TicketWorkspaceBaseProvider({
@@ -12,7 +11,16 @@ export function TicketWorkspaceBaseProvider({
 }) {
   const [ticketQuery, setTicketQuery] = useState("");
   const [timeRange, setTimeRange] = useState(TicketTimeRange.SevenDays);
-  const [marketData, setMarketData] = useState<MarketDataCandle[]>([]);
+  const {
+    marketData,
+    ticker: selectedTicker,
+    dataTicker,
+    isLoading: isMarketDataLoading,
+    error: marketDataError,
+    loadTicker,
+    loadMore: loadMoreMarketData,
+    retry: retryMarketData,
+  } = useMarketData();
 
   const value = useMemo(
     () => ({
@@ -21,9 +29,26 @@ export function TicketWorkspaceBaseProvider({
       setTicketQuery,
       setTimeRange,
       marketData,
-      setMarketData,
+      selectedTicker,
+      dataTicker,
+      isMarketDataLoading,
+      marketDataError,
+      loadTicker,
+      loadMoreMarketData,
+      retryMarketData,
     }),
-    [ticketQuery, timeRange, marketData],
+    [
+      ticketQuery,
+      timeRange,
+      marketData,
+      selectedTicker,
+      dataTicker,
+      isMarketDataLoading,
+      marketDataError,
+      loadTicker,
+      loadMoreMarketData,
+      retryMarketData,
+    ],
   );
 
   return (

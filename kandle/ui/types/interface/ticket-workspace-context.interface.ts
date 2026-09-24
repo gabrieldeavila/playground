@@ -9,5 +9,11 @@ export type TicketWorkspaceBaseContextValue = {
   setTicketQuery: Dispatch<SetStateAction<string>>;
   setTimeRange: Dispatch<SetStateAction<TicketTimeRange>>;
   marketData: MarketDataCandle[];
-  setMarketData: Dispatch<SetStateAction<MarketDataCandle[]>>;
+  selectedTicker: string;
+  dataTicker: string;
+  isMarketDataLoading: boolean;
+  marketDataError: string | null;
+  loadTicker: (ticker: string) => Promise<void>;
+  loadMoreMarketData: (direction: "older" | "newer") => void;
+  retryMarketData: () => void;
 };
