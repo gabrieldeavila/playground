@@ -6,6 +6,7 @@ import type {
   MarketDataRecord,
   MarketDataResponse,
 } from "@/types/interface/market-data-candle.interface";
+import type { TicketWorkspacePersistence } from "@/types/interface/ticket-workspace-persistence.interface";
 
 export type MarketDataDirection = "older" | "newer";
 type MarketDataRequest = {
@@ -119,13 +120,15 @@ const makeRequest = (
   };
 };
 
-export function useMarketData() {
-  const [marketData, setMarketData] = useState<MarketDataCandle[]>([]);
-  const [ticker, setTicker] = useState("");
-  const [dataTicker, setDataTicker] = useState("");
+export function useMarketData(initialState?: TicketWorkspacePersistence) {
+  const [marketData, setMarketData] = useState<MarketDataCandle[]>(
+    initialState?.marketData ?? [],
+  );
+  const [ticker, setTicker] = useState(initialState?.selectedTicker ?? "");
+  const [dataTicker, setDataTicker] = useState(initialState?.dataTicker ?? "");
   const [loadingCount, setLoadingCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const activeTickerRef = useRef("");
+  const activeTickerRef = useRef(initialState?.selectedTicker ?? "");
   const generationRef = useRef(0);
   const requestsRef = useRef(new Map<string, AbortController>());
   // Successful ranges (including ranges with no trading data) are remembered

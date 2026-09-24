@@ -14,11 +14,23 @@ import { Spinner } from "@/ui/components/primitives/spinner";
 import { MOCK_STOCK_DATA } from "@/types/consts/mock-stock-data.const";
 import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
 
+const INITIAL_VISIBLE_CANDLES = 80;
+
 const toTimestamp = (time: string | number) => {
   if (typeof time === "number")
     return time > 10_000_000_000 ? time / 1000 : time;
   const timestamp = Date.parse(time);
   return Number.isNaN(timestamp) ? 0 : timestamp / 1000;
+};
+
+const setInitialVisibleRange = (chart: IChartApi, candleCount: number) => {
+  if (candleCount === 0) return;
+
+  const lastIndex = candleCount - 1;
+  chart.timeScale().setVisibleLogicalRange({
+    from: Math.max(0, lastIndex - INITIAL_VISIBLE_CANDLES + 1),
+    to: lastIndex,
+  });
 };
 
 const StockChartContent = memo(() => {
@@ -77,7 +89,7 @@ const StockChartContent = memo(() => {
       wickDownColor: "#f4778b",
     });
     series.setData(MOCK_STOCK_DATA as Parameters<typeof series.setData>[0]);
-    chart.timeScale().fitContent();
+    setInitialVisibleRange(chart, MOCK_STOCK_DATA.length);
     chartRef.current = chart;
 
     updateChartDataRef.current = (data) => {
@@ -138,8 +150,8 @@ const StockChartContent = memo(() => {
 
     updateChartData(marketData);
     if (isNewTicker) {
-      // Fit once for a newly selected symbol; incremental updates preserve the user's view.
-      chart.timeScale().fitContent();
+      // Show only the latest candles initially, keeping the full history available for pan/zoom.
+      setInitialVisibleRange(chart, marketData.length);
       renderedTickerRef.current = dataTicker;
     } else if (visibleRange) {
       chart.timeScale().setVisibleLogicalRange({

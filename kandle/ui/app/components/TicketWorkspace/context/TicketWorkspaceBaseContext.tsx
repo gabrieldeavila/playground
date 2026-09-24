@@ -1,6 +1,7 @@
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 
 import { TicketTimeRange } from "@/types/enum/ticket-time-range.enum";
+import { readTicketWorkspaceStorage, writeTicketWorkspaceStorage } from "../features/ticketWorkspaceStorage";
 import { useMarketData } from "../features/useMarketData";
 import { TicketWorkspaceBaseContext } from "./context";
 
@@ -9,7 +10,10 @@ export function TicketWorkspaceBaseProvider({
 }: {
   children: ReactNode;
 }) {
-  const [ticketQuery, setTicketQuery] = useState("");
+  const [persistedState] = useState(readTicketWorkspaceStorage);
+  const [ticketQuery, setTicketQuery] = useState(
+    persistedState?.ticketQuery ?? "",
+  );
   const [timeRange, setTimeRange] = useState(TicketTimeRange.SevenDays);
   const {
     marketData,
@@ -20,7 +24,16 @@ export function TicketWorkspaceBaseProvider({
     loadTicker,
     loadMore: loadMoreMarketData,
     retry: retryMarketData,
-  } = useMarketData();
+  } = useMarketData(persistedState ?? undefined);
+
+  useEffect(() => {
+    writeTicketWorkspaceStorage({
+      ticketQuery,
+      selectedTicker,
+      dataTicker,
+      marketData,
+    });
+  }, [dataTicker, marketData, selectedTicker, ticketQuery]);
 
   const value = useMemo(
     () => ({
