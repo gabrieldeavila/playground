@@ -4,4 +4,5 @@ export interface HoveredCandle {
   high: number;
   low: number;
   close: number;
+  changePercent?: number;
 }

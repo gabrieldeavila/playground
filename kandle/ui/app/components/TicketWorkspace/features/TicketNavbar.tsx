@@ -3,6 +3,7 @@ import { FiSearch } from "react-icons/fi";
 
 import { Input } from "@/ui/components/primitives/input";
 import { Select } from "@/ui/components/primitives/select";
+import { cn } from "@/ui/helpers/cn";
 import { TICKET_TIME_RANGE_OPTIONS } from "@/types/consts/ticket-time-range-options.const";
 import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import { useTickerSuggestions } from "./useTickerSuggestions";
@@ -54,12 +55,30 @@ const TicketNavbar = memo(() => {
 
   const showSuggestions =
     isSuggestionsOpen && (isLoading || options.length > 0);
+  const changePercent = hoveredCandle?.changePercent;
+  const formattedChange =
+    changePercent === undefined
+      ? "—"
+      : `${changePercent > 0 ? "+" : ""}${new Intl.NumberFormat("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(changePercent)}%`;
   const candleValues = [
-    { label: "Data", value: hoveredCandle ? formatCandleTime(hoveredCandle.time) : "—" },
-    { label: "Abert.", value: hoveredCandle ? formatPrice(hoveredCandle.open) : "—" },
-    { label: "Fech.", value: hoveredCandle ? formatPrice(hoveredCandle.close) : "—" },
-    { label: "Máx.", value: hoveredCandle ? formatPrice(hoveredCandle.high) : "—" },
-    { label: "Mín.", value: hoveredCandle ? formatPrice(hoveredCandle.low) : "—" },
+    { label: "Data", value: hoveredCandle ? formatCandleTime(hoveredCandle.time) : "—", valueClassName: "text-text" },
+    { label: "Abert.", value: hoveredCandle ? formatPrice(hoveredCandle.open) : "—", valueClassName: "text-text" },
+    { label: "Fech.", value: hoveredCandle ? formatPrice(hoveredCandle.close) : "—", valueClassName: "text-text" },
+    { label: "Máx.", value: hoveredCandle ? formatPrice(hoveredCandle.high) : "—", valueClassName: "text-text" },
+    { label: "Mín.", value: hoveredCandle ? formatPrice(hoveredCandle.low) : "—", valueClassName: "text-text" },
+    {
+      label: "% ant.",
+      value: formattedChange,
+      valueClassName:
+        changePercent === undefined || changePercent === 0
+          ? "text-text-muted"
+          : changePercent > 0
+            ? "text-success"
+            : "text-danger",
+    },
   ];
 
   return (
@@ -75,19 +94,24 @@ const TicketNavbar = memo(() => {
 
       <dl
         aria-label="Dados do candle selecionado"
-        className="grid w-full grid-cols-5 items-center rounded-(--radius-md) border border-border bg-bg/50 px-2 py-2 text-center lg:w-[640px] lg:px-4"
+        className="grid w-full grid-cols-6 items-center rounded-(--radius-md) border border-border bg-bg/50 px-2 py-2 text-center lg:w-[760px] lg:px-4"
       >
         {!hoveredCandle && (
           <span className="sr-only">
             Passe o cursor sobre um candle para ver os preços
           </span>
         )}
-        {candleValues.map(({ label, value }) => (
+        {candleValues.map(({ label, value, valueClassName }) => (
           <div key={label} className="min-w-0">
             <dt className="text-[10px] leading-4 text-text-muted sm:text-xs">
               {label}
             </dt>
-            <dd className="whitespace-nowrap font-semibold tabular-nums text-text text-xs sm:text-sm">
+            <dd
+              className={cn(
+                "whitespace-nowrap text-xs font-semibold tabular-nums sm:text-sm",
+                valueClassName,
+              )}
+            >
               {value}
             </dd>
           </div>

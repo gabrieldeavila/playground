@@ -24,6 +24,13 @@ import type { MarketDataCandle } from "@/types/interface/market-data-candle.inte
 
 const INITIAL_VISIBLE_CANDLES = 80;
 const EMA_PERIODS = [9, 20, 50, 100, 200] as const;
+
+const getCandleTimeKey = (time: HoveredCandle["time"]) =>
+  typeof time === "object"
+    ? `${String(time.year).padStart(4, "0")}-${String(time.month).padStart(2, "0")}-${String(time.day).padStart(2, "0")}`
+    : typeof time === "string"
+      ? time.slice(0, 10)
+      : String(time);
 const EMA_COLORS: Record<(typeof EMA_PERIODS)[number], string> = {
   9: "#72c9ff",
   20: "#a88bff",
@@ -103,6 +110,7 @@ const StockChartContent = memo(() => {
   );
   const loadMoreRef = useRef(loadMoreMarketData);
   const dataLengthRef = useRef(marketData.length);
+  const candleDataRef = useRef<HoveredCandle[]>(MOCK_STOCK_DATA);
   const previousDataRef = useRef<MarketDataCandle[]>([]);
   const renderedTickerRef = useRef("");
   const [isMeasuring, setIsMeasuring] = useState(false);
@@ -114,6 +122,10 @@ const StockChartContent = memo(() => {
 
   loadMoreRef.current = loadMoreMarketData;
   dataLengthRef.current = marketData.length;
+  candleDataRef.current =
+    dataTicker === selectedTicker && marketData.length > 0
+      ? marketData
+      : MOCK_STOCK_DATA;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -158,7 +170,18 @@ const StockChartContent = memo(() => {
 
       const candle = param.seriesData.get(series);
       if (candle && "open" in candle) {
-        setHoveredCandle(candle as HoveredCandle);
+        const hovered = candle as HoveredCandle;
+        const candleIndex = candleDataRef.current.findIndex(
+          (item) => getCandleTimeKey(item.time) === getCandleTimeKey(hovered.time),
+        );
+        const previousClose =
+          candleIndex > 0 ? candleDataRef.current[candleIndex - 1].close : null;
+        const changePercent =
+          previousClose !== null && previousClose !== 0
+            ? ((hovered.close - previousClose) / previousClose) * 100
+            : undefined;
+
+        setHoveredCandle({ ...hovered, changePercent });
       } else {
         setHoveredCandle(null);
       }
