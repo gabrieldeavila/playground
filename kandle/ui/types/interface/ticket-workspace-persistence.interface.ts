@@ -5,4 +5,5 @@ export interface TicketWorkspacePersistence {
   selectedTicker: string;
   dataTicker: string;
   marketData: MarketDataCandle[];
+  selectedEmaPeriods: number[];
 }

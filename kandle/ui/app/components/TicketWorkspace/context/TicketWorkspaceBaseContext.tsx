@@ -19,6 +19,9 @@ export function TicketWorkspaceBaseProvider({
     persistedState?.ticketQuery ?? "",
   );
   const [timeRange, setTimeRange] = useState(TicketTimeRange.SevenDays);
+  const [selectedEmaPeriods, setSelectedEmaPeriods] = useState<number[]>(
+    persistedState?.selectedEmaPeriods ?? [50],
+  );
   const [hoveredCandle, setHoveredCandle] = useState<HoveredCandle | null>(
     null,
   );
@@ -39,8 +42,9 @@ export function TicketWorkspaceBaseProvider({
       selectedTicker,
       dataTicker,
       marketData,
+      selectedEmaPeriods,
     });
-  }, [dataTicker, marketData, selectedTicker, ticketQuery]);
+  }, [dataTicker, marketData, selectedEmaPeriods, selectedTicker, ticketQuery]);
 
   const value = useMemo(
     () => ({
@@ -50,6 +54,8 @@ export function TicketWorkspaceBaseProvider({
       setTimeRange,
       hoveredCandle,
       setHoveredCandle,
+      selectedEmaPeriods,
+      setSelectedEmaPeriods,
       marketData,
       selectedTicker,
       dataTicker,
@@ -63,6 +69,7 @@ export function TicketWorkspaceBaseProvider({
       ticketQuery,
       timeRange,
       hoveredCandle,
+      selectedEmaPeriods,
       marketData,
       selectedTicker,
       dataTicker,

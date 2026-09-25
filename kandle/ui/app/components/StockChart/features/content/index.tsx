@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 
 import { useTicketWorkspaceContext } from "../../../TicketWorkspace/context/context";
 import {
@@ -16,6 +16,7 @@ import {
 
 import { Button } from "@/ui/components/primitives/button";
 import { Checkbox } from "@/ui/components/primitives/checkbox";
+import { FiCrosshair, FiX } from "react-icons/fi";
 import { Spinner } from "@/ui/components/primitives/spinner";
 import { MOCK_STOCK_DATA } from "@/types/consts/mock-stock-data.const";
 import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
@@ -33,6 +34,7 @@ const EMA_COLORS: Record<(typeof EMA_PERIODS)[number], string> = {
 
 type EmaPeriod = (typeof EMA_PERIODS)[number];
 type EmaPoint = { time: Time; value: number };
+type PriceMeasurementPoint = { time: Time; price: number };
 type EmaCache = {
   ticker: string;
   period: EmaPeriod;
@@ -82,6 +84,8 @@ const StockChartContent = memo(() => {
     hoveredCandle,
     setHoveredCandle,
     marketData,
+    selectedEmaPeriods,
+    setSelectedEmaPeriods,
     selectedTicker,
     dataTicker,
     isMarketDataLoading,
@@ -89,8 +93,6 @@ const StockChartContent = memo(() => {
     loadMoreMarketData,
     retryMarketData,
   } = useTicketWorkspaceContext();
-  const [selectedEmaPeriods, setSelectedEmaPeriods] =
-    useState<EmaPeriod[]>([50]);
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -103,6 +105,12 @@ const StockChartContent = memo(() => {
   const dataLengthRef = useRef(marketData.length);
   const previousDataRef = useRef<MarketDataCandle[]>([]);
   const renderedTickerRef = useRef("");
+  const [isMeasuring, setIsMeasuring] = useState(false);
+  const [measurementStart, setMeasurementStart] =
+    useState<PriceMeasurementPoint | null>(null);
+  const [measurementEnd, setMeasurementEnd] =
+    useState<PriceMeasurementPoint | null>(null);
+  const [, setMeasureRevision] = useState(0);
 
   loadMoreRef.current = loadMoreMarketData;
   dataLengthRef.current = marketData.length;
@@ -158,6 +166,7 @@ const StockChartContent = memo(() => {
     chart.subscribeCrosshairMove(handleCrosshairMove);
 
     const handleVisibleRangeChange = () => {
+      setMeasureRevision((revision) => revision + 1);
       const visibleRange = chart.timeScale().getVisibleLogicalRange();
       if (!visibleRange || dataLengthRef.current === 0) return;
 
@@ -364,9 +373,169 @@ const StockChartContent = memo(() => {
     );
   };
 
+  const getMeasurementPoint = (
+    clientX: number,
+    clientY: number,
+  ): PriceMeasurementPoint | null => {
+    const chart = chartRef.current;
+    const candleSeries = candleSeriesRef.current;
+    const container = containerRef.current;
+    if (!chart || !candleSeries || !container) return null;
+
+    const bounds = container.getBoundingClientRect();
+    const x = clientX - bounds.left - chart.priceScale("right").width();
+    const y = clientY - bounds.top;
+    const paneSize = chart.paneSize();
+    if (x < 0 || x > paneSize.width || y < 0 || y > paneSize.height) {
+      return null;
+    }
+
+    const time = chart.timeScale().coordinateToTime(x);
+    const price = candleSeries.coordinateToPrice(y);
+    if (time === null || price === null) return null;
+    return { time, price };
+  };
+
+  const handleMeasurementClick = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (!isMeasuring) return;
+    const point = getMeasurementPoint(event.clientX, event.clientY);
+    if (!point) return;
+
+    if (!measurementStart) {
+      setMeasurementStart(point);
+      setMeasurementEnd(point);
+      return;
+    }
+
+    setMeasurementEnd(point);
+    setIsMeasuring(false);
+  };
+
+  const handleMeasurementMove = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (!isMeasuring || !measurementStart) return;
+    const point = getMeasurementPoint(event.clientX, event.clientY);
+    if (point) setMeasurementEnd(point);
+  };
+
+  const toggleMeasuring = () => {
+    if (!isMeasuring) {
+      setMeasurementStart(null);
+      setMeasurementEnd(null);
+      setIsMeasuring(true);
+      return;
+    }
+    setIsMeasuring(false);
+  };
+
+  const chart = chartRef.current;
+  const candleSeries = candleSeriesRef.current;
+  const scaleWidth = chart?.priceScale("right").width() ?? 0;
+  const startX = measurementStart && chart
+    ? chart.timeScale().timeToCoordinate(measurementStart.time)
+    : null;
+  const startY = measurementStart && candleSeries
+    ? candleSeries.priceToCoordinate(measurementStart.price)
+    : null;
+  const endX = measurementEnd && chart
+    ? chart.timeScale().timeToCoordinate(measurementEnd.time)
+    : null;
+  const endY = measurementEnd && candleSeries
+    ? candleSeries.priceToCoordinate(measurementEnd.price)
+    : null;
+  const hasMeasurementCoordinates =
+    startX !== null && startX !== undefined &&
+    startY !== null && startY !== undefined &&
+    endX !== null && endX !== undefined &&
+    endY !== null && endY !== undefined;
+  const priceDifference =
+    measurementStart && measurementEnd
+      ? measurementEnd.price - measurementStart.price
+      : 0;
+  const percentageDifference = measurementStart
+    ? (priceDifference / measurementStart.price) * 100
+    : 0;
+  const numberFormat = new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  });
+
   return (
     <div className="relative h-full w-full">
-      <fieldset className="absolute right-4 top-4 z-10 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-(--radius-md) border border-border bg-bg-elevated/95 px-3 py-2 shadow-(--shadow-md)">
+      <div className="absolute left-4 top-4 z-20 flex items-center gap-2">
+        <Button
+          size="sm"
+          variant={isMeasuring ? "primary" : "secondary"}
+          aria-pressed={isMeasuring}
+          onClick={toggleMeasuring}
+          leftIcon={<FiCrosshair />}
+        >
+          {isMeasuring ? "Medindo…" : "Medir variação"}
+        </Button>
+        {measurementStart && (
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label="Limpar medição de preço"
+            onClick={() => {
+              setMeasurementStart(null);
+              setMeasurementEnd(null);
+              setIsMeasuring(false);
+            }}
+            leftIcon={<FiX />}
+          >
+            Limpar
+          </Button>
+        )}
+      </div>
+
+      {isMeasuring && (
+        <div
+          className="absolute inset-0 z-10 cursor-crosshair"
+          aria-label={
+            measurementStart
+              ? "Escolha o ponto final da medição"
+              : "Escolha o ponto inicial da medição"
+          }
+          onClick={handleMeasurementClick}
+          onMouseMove={handleMeasurementMove}
+        />
+      )}
+
+      {hasMeasurementCoordinates && measurementStart && measurementEnd && (
+        <svg
+          className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible"
+          aria-hidden="true"
+        >
+          <line
+            x1={startX + scaleWidth}
+            y1={startY}
+            x2={endX + scaleWidth}
+            y2={endY}
+            stroke="var(--color-primary)"
+            strokeWidth="2"
+            strokeDasharray={isMeasuring ? "5 4" : undefined}
+          />
+          <circle cx={startX + scaleWidth} cy={startY} r="4" fill="var(--color-primary)" />
+          <circle cx={endX + scaleWidth} cy={endY} r="4" fill="var(--color-primary)" />
+          <foreignObject
+            x={(startX + endX) / 2 + scaleWidth + 12}
+            y={(startY + endY) / 2 - 30}
+            width="180"
+            height="60"
+          >
+            <div className="rounded-(--radius-md) border border-border bg-bg-elevated/95 px-3 py-2 text-xs text-text shadow-(--shadow-md)">
+              <div className="font-semibold">
+                {priceDifference >= 0 ? "+" : ""}{numberFormat.format(priceDifference)}
+              </div>
+              <div className="text-text-muted">
+                {percentageDifference >= 0 ? "+" : ""}{numberFormat.format(percentageDifference)}%
+              </div>
+            </div>
+          </foreignObject>
+        </svg>
+      )}
+
+      <fieldset className="absolute right-4 top-4 z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-(--radius-md) border border-border bg-bg-elevated/95 px-3 py-2 shadow-(--shadow-md)">
         <legend className="sr-only">Médias móveis exponenciais</legend>
         <span className="text-sm font-medium text-text-muted">EMA</span>
         {EMA_PERIODS.map((period) => (
@@ -389,7 +558,7 @@ const StockChartContent = memo(() => {
 
       {isMarketDataLoading && (
         <div
-          className="pointer-events-none absolute left-4 top-4 flex items-center gap-2 rounded-(--radius-md) border border-border bg-bg-elevated/90 px-3 py-2 text-sm text-text-muted shadow-(--shadow-md)"
+          className="pointer-events-none absolute left-4 top-16 flex items-center gap-2 rounded-(--radius-md) border border-border bg-bg-elevated/90 px-3 py-2 text-sm text-text-muted shadow-(--shadow-md)"
           role="status"
           aria-live="polite"
         >

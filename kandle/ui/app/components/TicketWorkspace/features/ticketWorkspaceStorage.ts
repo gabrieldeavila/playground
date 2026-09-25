@@ -40,11 +40,25 @@ export const readTicketWorkspaceStorage =
         return null;
       }
 
+      const validEmaPeriods = [9, 20, 50, 100, 200];
+      const selectedEmaPeriods = Array.isArray(persisted.selectedEmaPeriods)
+        ? [
+            ...new Set(
+              persisted.selectedEmaPeriods.filter(
+                (period): period is number =>
+                  typeof period === "number" &&
+                  validEmaPeriods.includes(period),
+              ),
+            ),
+          ].sort((left, right) => left - right)
+        : [50];
+
       return {
         ticketQuery: persisted.ticketQuery,
         selectedTicker: persisted.selectedTicker,
         dataTicker: persisted.dataTicker,
         marketData: persisted.marketData,
+        selectedEmaPeriods,
       };
     } catch {
       return null;

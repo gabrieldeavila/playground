@@ -12,6 +12,8 @@ export type TicketWorkspaceBaseContextValue = {
   hoveredCandle: HoveredCandle | null;
   setHoveredCandle: Dispatch<SetStateAction<HoveredCandle | null>>;
   marketData: MarketDataCandle[];
+  selectedEmaPeriods: number[];
+  setSelectedEmaPeriods: Dispatch<SetStateAction<number[]>>;
   selectedTicker: string;
   dataTicker: string;
   isMarketDataLoading: boolean;
