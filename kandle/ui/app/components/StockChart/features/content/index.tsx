@@ -10,12 +10,15 @@ import {
   type IChartApi,
   type ISeriesApi,
   type Time,
+  type CandlestickData,
+  type MouseEventParams,
 } from "lightweight-charts";
 
 import { Button } from "@/ui/components/primitives/button";
 import { Checkbox } from "@/ui/components/primitives/checkbox";
 import { Spinner } from "@/ui/components/primitives/spinner";
 import { MOCK_STOCK_DATA } from "@/types/consts/mock-stock-data.const";
+import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
 
 const INITIAL_VISIBLE_CANDLES = 80;
@@ -76,6 +79,8 @@ const StockChartContent = memo(() => {
   const {
     ticketQuery,
     timeRange,
+    hoveredCandle,
+    setHoveredCandle,
     marketData,
     selectedTicker,
     dataTicker,
@@ -137,6 +142,21 @@ const StockChartContent = memo(() => {
     setInitialVisibleRange(chart, MOCK_STOCK_DATA.length);
     chartRef.current = chart;
 
+    const handleCrosshairMove = (param: MouseEventParams<Time>) => {
+      if (!param.time) {
+        setHoveredCandle(null);
+        return;
+      }
+
+      const candle = param.seriesData.get(series);
+      if (candle && "open" in candle) {
+        setHoveredCandle(candle as HoveredCandle);
+      } else {
+        setHoveredCandle(null);
+      }
+    };
+    chart.subscribeCrosshairMove(handleCrosshairMove);
+
     const handleVisibleRangeChange = () => {
       const visibleRange = chart.timeScale().getVisibleLogicalRange();
       if (!visibleRange || dataLengthRef.current === 0) return;
@@ -158,6 +178,7 @@ const StockChartContent = memo(() => {
       chart
         .timeScale()
         .unsubscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
+      chart.unsubscribeCrosshairMove(handleCrosshairMove);
       candleSeriesRef.current = null;
       emaSeriesRef.current.clear();
       emaCacheRef.current.clear();

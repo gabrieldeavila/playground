@@ -4,12 +4,34 @@ import { FiSearch } from "react-icons/fi";
 import { Input } from "@/ui/components/primitives/input";
 import { Select } from "@/ui/components/primitives/select";
 import { TICKET_TIME_RANGE_OPTIONS } from "@/types/consts/ticket-time-range-options.const";
+import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import { useTickerSuggestions } from "./useTickerSuggestions";
 import { useTicketWorkspaceContext } from "../context/context";
 
+const formatCandleTime = (time: HoveredCandle["time"]) => {
+  if (typeof time === "number") {
+    return new Date(time * 1000).toLocaleDateString();
+  }
+
+  if (typeof time === "string") {
+    return new Date(`${time}T00:00:00`).toLocaleDateString();
+  }
+
+  return `${String(time.year).padStart(4, "0")}-${String(time.month).padStart(2, "0")}-${String(time.day).padStart(2, "0")}`;
+};
+
+const formatPrice = (value: number) =>
+  new Intl.NumberFormat(undefined, { maximumFractionDigits: 4 }).format(value);
+
 const TicketNavbar = memo(() => {
-  const { ticketQuery, timeRange, setTicketQuery, setTimeRange, loadTicker } =
-    useTicketWorkspaceContext();
+  const {
+    ticketQuery,
+    timeRange,
+    hoveredCandle,
+    setTicketQuery,
+    setTimeRange,
+    loadTicker,
+  } = useTicketWorkspaceContext();
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const [isSuggestionSearchEnabled, setIsSuggestionSearchEnabled] =
     useState(true);
@@ -32,11 +54,18 @@ const TicketNavbar = memo(() => {
 
   const showSuggestions =
     isSuggestionsOpen && (isLoading || options.length > 0);
+  const candleValues = [
+    { label: "Data", value: hoveredCandle ? formatCandleTime(hoveredCandle.time) : "—" },
+    { label: "Abert.", value: hoveredCandle ? formatPrice(hoveredCandle.open) : "—" },
+    { label: "Fech.", value: hoveredCandle ? formatPrice(hoveredCandle.close) : "—" },
+    { label: "Máx.", value: hoveredCandle ? formatPrice(hoveredCandle.high) : "—" },
+    { label: "Mín.", value: hoveredCandle ? formatPrice(hoveredCandle.low) : "—" },
+  ];
 
   return (
     <nav
       aria-label="Filtros de tickets"
-      className="relative z-10 flex flex-col gap-4 border-b border-border bg-bg-elevated/90 px-5 py-4 backdrop-blur-xl sm:flex-row sm:items-end sm:justify-between sm:px-8"
+      className="relative z-10 grid grid-cols-1 gap-4 border-b border-border bg-bg-elevated/90 px-5 py-4 backdrop-blur-xl sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center"
     >
       <div>
         <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-primary">
@@ -44,7 +73,28 @@ const TicketNavbar = memo(() => {
         </p>
       </div>
 
-      <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-end">
+      <dl
+        aria-label="Dados do candle selecionado"
+        className="grid w-full grid-cols-5 items-center rounded-(--radius-md) border border-border bg-bg/50 px-2 py-2 text-center lg:w-[640px] lg:px-4"
+      >
+        {!hoveredCandle && (
+          <span className="sr-only">
+            Passe o cursor sobre um candle para ver os preços
+          </span>
+        )}
+        {candleValues.map(({ label, value }) => (
+          <div key={label} className="min-w-0">
+            <dt className="text-[10px] leading-4 text-text-muted sm:text-xs">
+              {label}
+            </dt>
+            <dd className="whitespace-nowrap font-semibold tabular-nums text-text text-xs sm:text-sm">
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end lg:justify-self-end">
         <div ref={searchRef} className="relative min-w-0 sm:w-72">
           <Input
             aria-label="Pesquisar tickets"

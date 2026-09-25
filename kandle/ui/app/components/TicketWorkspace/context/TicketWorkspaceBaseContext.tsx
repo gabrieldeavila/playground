@@ -1,7 +1,11 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 
+import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import { TicketTimeRange } from "@/types/enum/ticket-time-range.enum";
-import { readTicketWorkspaceStorage, writeTicketWorkspaceStorage } from "../features/ticketWorkspaceStorage";
+import {
+  readTicketWorkspaceStorage,
+  writeTicketWorkspaceStorage,
+} from "../features/ticketWorkspaceStorage";
 import { useMarketData } from "../features/useMarketData";
 import { TicketWorkspaceBaseContext } from "./context";
 
@@ -15,6 +19,9 @@ export function TicketWorkspaceBaseProvider({
     persistedState?.ticketQuery ?? "",
   );
   const [timeRange, setTimeRange] = useState(TicketTimeRange.SevenDays);
+  const [hoveredCandle, setHoveredCandle] = useState<HoveredCandle | null>(
+    null,
+  );
   const {
     marketData,
     ticker: selectedTicker,
@@ -41,6 +48,8 @@ export function TicketWorkspaceBaseProvider({
       timeRange,
       setTicketQuery,
       setTimeRange,
+      hoveredCandle,
+      setHoveredCandle,
       marketData,
       selectedTicker,
       dataTicker,
@@ -53,6 +62,7 @@ export function TicketWorkspaceBaseProvider({
     [
       ticketQuery,
       timeRange,
+      hoveredCandle,
       marketData,
       selectedTicker,
       dataTicker,
