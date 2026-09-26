@@ -169,7 +169,7 @@ const TicketNavbar = memo(() => {
                       }}
                       type="button"
                     >
-                      {option.label}
+                      {option.value} ({option.label})
                     </button>
                   </li>
                 ))

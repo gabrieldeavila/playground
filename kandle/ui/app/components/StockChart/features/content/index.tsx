@@ -7,6 +7,7 @@ import {
   LineSeries,
   CrosshairMode,
   createChart,
+  createSeriesMarkers,
   type IChartApi,
   type ISeriesApi,
   type Time,
@@ -21,6 +22,10 @@ import { Spinner } from "@/ui/components/primitives/spinner";
 import { MOCK_STOCK_DATA } from "@/types/consts/mock-stock-data.const";
 import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
+import {
+  getHistoricalBuySignals,
+  getMarketTrend,
+} from "../trend/marketTrend";
 
 const INITIAL_VISIBLE_CANDLES = 80;
 const RIGHT_MARGIN_CANDLES = 5;
@@ -104,6 +109,7 @@ const StockChartContent = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const buyMarkersRef = useRef<ReturnType<typeof createSeriesMarkers<Time>> | null>(null);
   const emaSeriesRef = useRef(new Map<EmaPeriod, ISeriesApi<"Line">>());
   const emaCacheRef = useRef(new Map<EmaPeriod, EmaCache>());
   const renderedEmaRef = useRef(
@@ -160,6 +166,7 @@ const StockChartContent = memo(() => {
     });
     series.setData(MOCK_STOCK_DATA as Parameters<typeof series.setData>[0]);
     candleSeriesRef.current = series;
+    buyMarkersRef.current = createSeriesMarkers<Time>(series, []);
     setInitialVisibleRange(chart, MOCK_STOCK_DATA.length);
     chartRef.current = chart;
 
@@ -215,6 +222,8 @@ const StockChartContent = memo(() => {
         .timeScale()
         .unsubscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
       chart.unsubscribeCrosshairMove(handleCrosshairMove);
+      buyMarkersRef.current?.detach();
+      buyMarkersRef.current = null;
       candleSeriesRef.current = null;
       emaSeriesRef.current.clear();
       emaCacheRef.current.clear();
@@ -289,6 +298,29 @@ const StockChartContent = memo(() => {
 
     previousDataRef.current = marketData;
   }, [dataTicker, marketData, selectedInterval, selectedTicker]);
+
+  useEffect(() => {
+    const markerPlugin = buyMarkersRef.current;
+    const hasSelectedTickerData =
+      dataTicker !== "" &&
+      dataTicker === selectedTicker &&
+      marketData.length > 0;
+
+    if (!markerPlugin || !hasSelectedTickerData) {
+      markerPlugin?.setMarkers([]);
+      return;
+    }
+
+    const markers = getHistoricalBuySignals(marketData, selectedEmaPeriods).map((candle) => ({
+      time: candle.time as Time,
+      position: "belowBar" as const,
+      shape: "arrowUp" as const,
+      color: "#61d6a3",
+      text: "COMPRA",
+      size: 1,
+    }));
+    markerPlugin.setMarkers(markers);
+  }, [dataTicker, marketData, selectedEmaPeriods, selectedTicker]);
 
   useEffect(() => {
     const hasSelectedTickerData =
@@ -494,6 +526,17 @@ const StockChartContent = memo(() => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
   });
+  const hasCurrentTickerData =
+    dataTicker === selectedTicker && marketData.length > 0;
+  const marketTrend = hasCurrentTickerData
+    ? getMarketTrend(marketData, selectedInterval)
+    : null;
+  const trendColor =
+    marketTrend?.kind === "up"
+      ? "#61d6a3"
+      : marketTrend?.kind === "down"
+        ? "#f4778b"
+        : "#8d96a8";
 
   return (
     <div className="relative h-full w-full">
@@ -586,6 +629,23 @@ const StockChartContent = memo(() => {
           />
         ))}
       </fieldset>
+
+      {marketTrend && (
+        <div
+          className="absolute right-4 top-16 z-20 flex items-center gap-2 rounded-(--radius-md) border border-border bg-bg-elevated/95 px-3 py-2 text-sm text-text shadow-(--shadow-md)"
+          title={marketTrend.description}
+          aria-label={`${marketTrend.label}. ${marketTrend.description}`}
+          role="status"
+        >
+          <span
+            className="h-2.5 w-2.5 shrink-0 rounded-full"
+            style={{ backgroundColor: trendColor }}
+            aria-hidden="true"
+          />
+          <span className="font-medium">{marketTrend.label}</span>
+          <span className="text-xs text-text-muted">({marketTrend.timeframe})</span>
+        </div>
+      )}
 
       <div
         ref={containerRef}
