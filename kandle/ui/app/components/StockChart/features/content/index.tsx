@@ -23,6 +23,7 @@ import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
 
 const INITIAL_VISIBLE_CANDLES = 80;
+const RIGHT_MARGIN_CANDLES = 5;
 const EMA_PERIODS = [9, 20, 50, 100, 200] as const;
 
 const getCandleTimeKey = (time: HoveredCandle["time"]) =>
@@ -80,14 +81,14 @@ const setInitialVisibleRange = (chart: IChartApi, candleCount: number) => {
   const lastIndex = candleCount - 1;
   chart.timeScale().setVisibleLogicalRange({
     from: Math.max(0, lastIndex - INITIAL_VISIBLE_CANDLES + 1),
-    to: lastIndex,
+    to: lastIndex + RIGHT_MARGIN_CANDLES,
   });
 };
 
 const StockChartContent = memo(() => {
   const {
     ticketQuery,
-    timeRange,
+    selectedInterval,
     hoveredCandle,
     setHoveredCandle,
     marketData,
@@ -197,7 +198,10 @@ const StockChartContent = memo(() => {
       if (visibleRange.from <= edgeThreshold) {
         loadMoreRef.current("older");
       }
-      if (visibleRange.to >= dataLengthRef.current - 1 - edgeThreshold) {
+      if (
+        visibleRange.to <= dataLengthRef.current - 1 &&
+        visibleRange.to >= dataLengthRef.current - 1 - edgeThreshold
+      ) {
         loadMoreRef.current("newer");
       }
     };
@@ -221,20 +225,27 @@ const StockChartContent = memo(() => {
   }, []);
 
   useEffect(() => {
-    if (
-      !dataTicker ||
-      dataTicker !== selectedTicker ||
-      marketData.length === 0
-    ) {
-      return;
-    }
-
     const chart = chartRef.current;
     const candleSeries = candleSeriesRef.current;
     if (!chart || !candleSeries) return;
 
+    if (selectedTicker && (dataTicker !== selectedTicker || marketData.length === 0)) {
+      candleSeries.setData([]);
+      previousDataRef.current = [];
+      renderedTickerRef.current = "";
+      emaCacheRef.current.clear();
+      renderedEmaRef.current.clear();
+      emaSeriesRef.current.forEach((series) => series.setData([]));
+      return;
+    }
+
+    if (!dataTicker || dataTicker !== selectedTicker || marketData.length === 0) {
+      return;
+    }
+
     const previousData = previousDataRef.current;
-    const isNewTicker = renderedTickerRef.current !== dataTicker;
+    const dataSetKey = `${dataTicker}:${selectedInterval}`;
+    const isNewTicker = renderedTickerRef.current !== dataSetKey;
     const isAppend =
       !isNewTicker &&
       previousData.length > 0 &&
@@ -247,8 +258,9 @@ const StockChartContent = memo(() => {
       candleSeries.setData(
         marketData as Parameters<typeof candleSeries.setData>[0],
       );
+      candleSeries.priceScale().applyOptions({ autoScale: true });
       setInitialVisibleRange(chart, marketData.length);
-      renderedTickerRef.current = dataTicker;
+      renderedTickerRef.current = dataSetKey;
       emaCacheRef.current.clear();
       renderedEmaRef.current.clear();
     } else if (isAppend) {
@@ -276,7 +288,7 @@ const StockChartContent = memo(() => {
     }
 
     previousDataRef.current = marketData;
-  }, [dataTicker, marketData, selectedTicker]);
+  }, [dataTicker, marketData, selectedInterval, selectedTicker]);
 
   useEffect(() => {
     const hasSelectedTickerData =
@@ -292,6 +304,7 @@ const StockChartContent = memo(() => {
     const chart = chartRef.current;
     if (!chart) return;
 
+    const dataSetKey = `${selectedTicker}:${selectedInterval}`;
     const selectedPeriods = new Set(selectedEmaPeriods);
     EMA_PERIODS.forEach((period) => {
       let series = emaSeriesRef.current.get(period);
@@ -315,7 +328,7 @@ const StockChartContent = memo(() => {
 
       const cached = emaCacheRef.current.get(period);
       const cacheMatches =
-        cached?.ticker === selectedTicker && cached.period === period;
+        cached?.ticker === dataSetKey && cached.period === period;
       const isCachedPrefix =
         cacheMatches &&
         cached.candles.length <= marketData.length &&
@@ -577,7 +590,7 @@ const StockChartContent = memo(() => {
       <div
         ref={containerRef}
         className="stock-chart h-full w-full"
-        aria-label={`Visualização de tickets ${timeRange}${ticketQuery ? ` para ${ticketQuery}` : ""}`}
+        aria-label={`Gráfico de candles ${selectedInterval}${ticketQuery ? ` para ${ticketQuery}` : ""}`}
       />
 
       {isMarketDataLoading && (

@@ -1,4 +1,5 @@
 import { TICKET_WORKSPACE_STORAGE_KEY } from "@/types/consts/ticket-workspace-storage-key.const";
+import { MarketDataInterval } from "@/types/enum/market-data-interval.enum";
 import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
 import type { TicketWorkspacePersistence } from "@/types/interface/ticket-workspace-persistence.interface";
 
@@ -40,6 +41,12 @@ export const readTicketWorkspaceStorage =
         return null;
       }
 
+      const validIntervals = Object.values(MarketDataInterval);
+      const interval = validIntervals.includes(
+        persisted.interval as MarketDataInterval,
+      )
+        ? (persisted.interval as MarketDataInterval)
+        : MarketDataInterval.Weekly;
       const validEmaPeriods = [9, 20, 50, 100, 200];
       const selectedEmaPeriods = Array.isArray(persisted.selectedEmaPeriods)
         ? [
@@ -54,6 +61,7 @@ export const readTicketWorkspaceStorage =
         : [50];
 
       return {
+        interval,
         ticketQuery: persisted.ticketQuery,
         selectedTicker: persisted.selectedTicker,
         dataTicker: persisted.dataTicker,

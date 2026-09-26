@@ -6,6 +6,7 @@ import type {
   MarketDataRecord,
   MarketDataResponse,
 } from "@/types/interface/market-data-candle.interface";
+import { MarketDataInterval } from "@/types/enum/market-data-interval.enum";
 import type { TicketWorkspacePersistence } from "@/types/interface/ticket-workspace-persistence.interface";
 
 export type MarketDataDirection = "older" | "newer";
@@ -15,10 +16,11 @@ type MarketDataRequest = {
   to: string;
   key: string;
   generation: number;
+  interval: MarketDataInterval;
 };
 
-const INTERVAL = "1wk";
-const INITIAL_RANGE_YEARS = 1;
+const INITIAL_RANGE_YEARS = 6;
+const MONTHLY_INITIAL_RANGE_YEARS = 20;
 const EXTENSION_YEARS = 1;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -108,6 +110,7 @@ const makeRequest = (
   from: Date,
   to: Date,
   generation: number,
+  interval: MarketDataInterval,
 ): MarketDataRequest => {
   const fromDate = formatDate(from);
   const toDateValue = formatDate(to);
@@ -115,8 +118,9 @@ const makeRequest = (
     ticker,
     from: fromDate,
     to: toDateValue,
-    key: `${ticker}:${fromDate}:${toDateValue}:${INTERVAL}`,
+    key: `${ticker}:${fromDate}:${toDateValue}:${interval}`,
     generation,
+    interval,
   };
 };
 
@@ -125,10 +129,16 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
     initialState?.marketData ?? [],
   );
   const [ticker, setTicker] = useState(initialState?.selectedTicker ?? "");
+  const [interval, setInterval] = useState(
+    initialState?.interval ?? MarketDataInterval.Weekly,
+  );
   const [dataTicker, setDataTicker] = useState(initialState?.dataTicker ?? "");
   const [loadingCount, setLoadingCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const activeTickerRef = useRef(initialState?.selectedTicker ?? "");
+  const activeIntervalRef = useRef(
+    initialState?.interval ?? MarketDataInterval.Weekly,
+  );
   const generationRef = useRef(0);
   const requestsRef = useRef(new Map<string, AbortController>());
   // Successful ranges (including ranges with no trading data) are remembered
@@ -199,7 +209,7 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
           params: {
             from: request.from,
             to: request.to,
-            interval: INTERVAL,
+            interval: request.interval,
           },
           signal: controller.signal,
         },
@@ -277,8 +287,47 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
       setError(null);
 
       const to = new Date();
-      const from = shiftYears(to, -INITIAL_RANGE_YEARS);
-      await requestRange(makeRequest(normalizedTicker, from, to, generation));
+      const historyYears =
+        activeIntervalRef.current === MarketDataInterval.Monthly
+          ? MONTHLY_INITIAL_RANGE_YEARS
+          : INITIAL_RANGE_YEARS;
+      const from = shiftYears(to, -historyYears);
+      await requestRange(
+        makeRequest(normalizedTicker, from, to, generation, activeIntervalRef.current),
+      );
+    },
+    [requestRange],
+  );
+
+  const changeInterval = useCallback(
+    async (nextInterval: MarketDataInterval) => {
+      if (nextInterval === activeIntervalRef.current) return;
+
+      activeIntervalRef.current = nextInterval;
+      setInterval(nextInterval);
+      requestedRangesRef.current.clear();
+      completedRangesRef.current = [];
+      failedRequestRef.current = null;
+      const generation = ++generationRef.current;
+      requestsRef.current.forEach((controller) => controller.abort());
+      requestsRef.current.clear();
+      setDataTicker("");
+      setMarketData([]);
+      setLoadingCount(0);
+      setError(null);
+
+      const activeTicker = activeTickerRef.current;
+      if (!activeTicker) return;
+
+      const to = new Date();
+      const historyYears =
+        nextInterval === MarketDataInterval.Monthly
+          ? MONTHLY_INITIAL_RANGE_YEARS
+          : INITIAL_RANGE_YEARS;
+      const from = shiftYears(to, -historyYears);
+      await requestRange(
+        makeRequest(activeTicker, from, to, generation, nextInterval),
+      );
     },
     [requestRange],
   );
@@ -305,7 +354,13 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
       }
 
       void requestRange(
-        makeRequest(ticker, from, to, generationRef.current),
+        makeRequest(
+          ticker,
+          from,
+          to,
+          generationRef.current,
+          activeIntervalRef.current,
+        ),
       );
     },
     [marketData, requestRange, ticker],
@@ -345,10 +400,12 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
   return {
     marketData,
     ticker,
+    interval,
     dataTicker,
     isLoading: loadingCount > 0,
     error,
     loadTicker,
+    changeInterval,
     loadMore,
     retry,
   };

@@ -1,14 +1,14 @@
 import type { Dispatch, SetStateAction } from "react";
 
-import { TicketTimeRange } from "@/types/enum/ticket-time-range.enum";
+import { MarketDataInterval } from "@/types/enum/market-data-interval.enum";
 import type { HoveredCandle } from "./hovered-candle.interface";
 import type { MarketDataCandle } from "./market-data-candle.interface";
 
 export type TicketWorkspaceBaseContextValue = {
   ticketQuery: string;
-  timeRange: TicketTimeRange;
+  selectedInterval: MarketDataInterval;
   setTicketQuery: Dispatch<SetStateAction<string>>;
-  setTimeRange: Dispatch<SetStateAction<TicketTimeRange>>;
+  setSelectedInterval: (interval: MarketDataInterval) => void;
   hoveredCandle: HoveredCandle | null;
   setHoveredCandle: Dispatch<SetStateAction<HoveredCandle | null>>;
   marketData: MarketDataCandle[];

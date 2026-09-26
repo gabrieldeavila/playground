@@ -1,7 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 
 import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
-import { TicketTimeRange } from "@/types/enum/ticket-time-range.enum";
 import {
   readTicketWorkspaceStorage,
   writeTicketWorkspaceStorage,
@@ -18,7 +17,6 @@ export function TicketWorkspaceBaseProvider({
   const [ticketQuery, setTicketQuery] = useState(
     persistedState?.ticketQuery ?? "",
   );
-  const [timeRange, setTimeRange] = useState(TicketTimeRange.SevenDays);
   const [selectedEmaPeriods, setSelectedEmaPeriods] = useState<number[]>(
     persistedState?.selectedEmaPeriods ?? [50],
   );
@@ -28,10 +26,12 @@ export function TicketWorkspaceBaseProvider({
   const {
     marketData,
     ticker: selectedTicker,
+    interval: selectedInterval,
     dataTicker,
     isLoading: isMarketDataLoading,
     error: marketDataError,
     loadTicker,
+    changeInterval: setSelectedInterval,
     loadMore: loadMoreMarketData,
     retry: retryMarketData,
   } = useMarketData(persistedState ?? undefined);
@@ -40,18 +40,26 @@ export function TicketWorkspaceBaseProvider({
     writeTicketWorkspaceStorage({
       ticketQuery,
       selectedTicker,
+      interval: selectedInterval,
       dataTicker,
       marketData,
       selectedEmaPeriods,
     });
-  }, [dataTicker, marketData, selectedEmaPeriods, selectedTicker, ticketQuery]);
+  }, [
+    dataTicker,
+    marketData,
+    selectedEmaPeriods,
+    selectedInterval,
+    selectedTicker,
+    ticketQuery,
+  ]);
 
   const value = useMemo(
     () => ({
       ticketQuery,
-      timeRange,
+      selectedInterval,
       setTicketQuery,
-      setTimeRange,
+      setSelectedInterval,
       hoveredCandle,
       setHoveredCandle,
       selectedEmaPeriods,
@@ -67,7 +75,7 @@ export function TicketWorkspaceBaseProvider({
     }),
     [
       ticketQuery,
-      timeRange,
+      selectedInterval,
       hoveredCandle,
       selectedEmaPeriods,
       marketData,

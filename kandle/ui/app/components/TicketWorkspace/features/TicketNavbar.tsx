@@ -4,7 +4,7 @@ import { FiSearch } from "react-icons/fi";
 import { Input } from "@/ui/components/primitives/input";
 import { Select } from "@/ui/components/primitives/select";
 import { cn } from "@/ui/helpers/cn";
-import { TICKET_TIME_RANGE_OPTIONS } from "@/types/consts/ticket-time-range-options.const";
+import { MARKET_DATA_INTERVAL_OPTIONS } from "@/types/consts/market-data-interval-options.const";
 import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import { useTickerSuggestions } from "./useTickerSuggestions";
 import { useTicketWorkspaceContext } from "../context/context";
@@ -27,10 +27,10 @@ const formatPrice = (value: number) =>
 const TicketNavbar = memo(() => {
   const {
     ticketQuery,
-    timeRange,
+    selectedInterval,
     hoveredCandle,
     setTicketQuery,
-    setTimeRange,
+    setSelectedInterval,
     loadTicker,
   } = useTicketWorkspaceContext();
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
@@ -178,14 +178,14 @@ const TicketNavbar = memo(() => {
           )}
         </div>
         <Select
-          aria-label="Tempo de visualização dos tickets"
+          aria-label="Intervalo dos candles"
           className="sm:w-36"
           onChange={(event) =>
-            setTimeRange(event.target.value as typeof timeRange)
+            setSelectedInterval(event.target.value as typeof selectedInterval)
           }
-          value={timeRange}
+          value={selectedInterval}
         >
-          {TICKET_TIME_RANGE_OPTIONS.map((option) => (
+          {MARKET_DATA_INTERVAL_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
