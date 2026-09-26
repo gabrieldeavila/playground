@@ -567,8 +567,9 @@ const StockChartContent = memo(() => {
             label={String(period)}
             aria-label={`Exibir EMA de ${period} períodos`}
             checked={selectedEmaPeriods.includes(period)}
+            checkedColor={EMA_COLORS[period]}
             onChange={(event) => toggleEmaPeriod(period, event.target.checked)}
-            className="items-center gap-1.5 text-xs"
+            className="items-center gap-1 text-xs"
           />
         ))}
       </fieldset>
