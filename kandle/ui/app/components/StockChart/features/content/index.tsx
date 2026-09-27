@@ -22,10 +22,8 @@ import { Spinner } from "@/ui/components/primitives/spinner";
 import { MOCK_STOCK_DATA } from "@/types/consts/mock-stock-data.const";
 import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
-import {
-  getHistoricalBuySignals,
-  getMarketTrend,
-} from "../trend/marketTrend";
+import { getHistoricalBuySignals } from "@/app/shared/historicalBuySignals";
+import { getMarketTrend } from "../trend/marketTrend";
 
 const INITIAL_VISIBLE_CANDLES = 80;
 const RIGHT_MARGIN_CANDLES = 5;

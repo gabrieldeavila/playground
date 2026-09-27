@@ -4,7 +4,7 @@ import type {
   MarketDataRecord,
   MarketDataResponse,
 } from "@/types/interface/market-data-candle.interface";
-import { getHistoricalBuySignals } from "@/app/components/StockChart/features/trend/marketTrend";
+import { getHistoricalBuySignals } from "@/app/shared/historicalBuySignals";
 
 export const WATCHLIST_STORAGE_KEY = "kandle:watchlist:v1";
 export const MINIMUM_SIGNAL_CANDLES = 205;

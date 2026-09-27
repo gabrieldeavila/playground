@@ -11,6 +11,7 @@ import {
 
 import { Button } from "@/ui/components/primitives/button";
 import { MarketDataInterval } from "@/types/enum/market-data-interval.enum";
+import { readTicketWorkspaceStorage } from "@/app/components/TicketWorkspace/features/ticketWorkspaceStorage";
 import type { TickerSuggestion } from "@/types/interface/ticker-suggestion.interface";
 import {
   readWatchlistAssets,
@@ -22,6 +23,11 @@ import {
   type OpportunityKind,
 } from "./opportunities";
 import {
+  readOpportunitiesPreferences,
+  writeOpportunitiesPreferences,
+} from "./opportunitiesStorage";
+import {
+  getOpportunityStateKey,
   useHistoricalOpportunityValidation,
   useOpportunities,
 } from "./useOpportunities";
@@ -94,10 +100,16 @@ export default function OpportunitiesPage() {
   const [assets, setAssets] = useState<TickerSuggestion[]>([]);
   const [isReady, setIsReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
+  const [selectedEmaPeriods, setSelectedEmaPeriods] = useState<number[]>([50]);
   const [interval, setInterval] = useState<
     typeof MarketDataInterval.Daily | typeof MarketDataInterval.Weekly
   >(MarketDataInterval.Weekly);
-  const { states, retry } = useOpportunities(assets, isReady, interval);
+  const { states, retry } = useOpportunities(
+    assets,
+    isReady,
+    interval,
+    selectedEmaPeriods,
+  );
   const [backtestTicker, setBacktestTicker] = useState("");
   const [backtestFrom, setBacktestFrom] = useState(getDefaultBacktestStart);
   const [backtestTo, setBacktestTo] = useState(getUtcToday);
@@ -117,10 +129,34 @@ export default function OpportunitiesPage() {
 
   useEffect(() => {
     const storedAssets = readWatchlistAssets();
+    const workspacePreferences = readTicketWorkspaceStorage();
+    const opportunityPreferences = readOpportunitiesPreferences();
+    setSelectedEmaPeriods(workspacePreferences?.selectedEmaPeriods ?? [50]);
     setAssets(storedAssets);
-    setBacktestTicker(storedAssets[0]?.value ?? "");
+    setInterval(opportunityPreferences.interval ?? MarketDataInterval.Weekly);
+    setBacktestTicker(
+      storedAssets.some(
+        ({ value }) => value.toUpperCase() === opportunityPreferences.backtestTicker,
+      )
+        ? opportunityPreferences.backtestTicker ?? ""
+        : storedAssets[0]?.value ?? "",
+    );
+    setBacktestFrom(opportunityPreferences.backtestFrom ?? getDefaultBacktestStart());
+    setBacktestTo(opportunityPreferences.backtestTo ?? getUtcToday());
+    setCriteria(opportunityPreferences.criteria ?? DEFAULT_OPPORTUNITY_CRITERIA);
     setIsReady(true);
   }, []);
+
+  useEffect(() => {
+    if (!isReady) return;
+    writeOpportunitiesPreferences({
+      interval,
+      backtestTicker,
+      backtestFrom,
+      backtestTo,
+      criteria,
+    });
+  }, [isReady, interval, backtestTicker, backtestFrom, backtestTo, criteria]);
 
   const addToWatchlist = (asset: TickerSuggestion) => {
     const storedAssets = readWatchlistAssets();
@@ -135,13 +171,15 @@ export default function OpportunitiesPage() {
       STATUS_ORDER.map((kind) => [kind, 0]),
     ) as Record<OpportunityKind, number>;
     assets.forEach(({ value }) => {
-      const state = states[`${value.toUpperCase()}:${interval}`];
+      const state = states[
+        getOpportunityStateKey(value, interval, selectedEmaPeriods)
+      ];
       if (state?.status === "success" && state.result) {
         result[state.result.kind] += 1;
       }
     });
     return result;
-  }, [assets, interval, states]);
+  }, [assets, interval, selectedEmaPeriods, states]);
 
   return (
     <main className="min-h-[100dvh] bg-bg px-4 py-6 text-text sm:px-8 sm:py-10">
@@ -463,7 +501,13 @@ export default function OpportunitiesPage() {
           ) : (
             <ul className="divide-y divide-border rounded-(--radius-lg) border border-border bg-bg-elevated">
               {assets.map((asset) => {
-                const state = states[`${asset.value.toUpperCase()}:${interval}`];
+                const state = states[
+                  getOpportunityStateKey(
+                    asset.value,
+                    interval,
+                    selectedEmaPeriods,
+                  )
+                ];
                 const kind =
                   state?.status === "success" ? state.result?.kind ?? null : null;
                 const isInWatchlist = assets.some(
@@ -556,6 +600,39 @@ export default function OpportunitiesPage() {
                         </dd>
                       </div>
                     </dl>
+
+                    {state?.status === "success" && result && (
+                      <div className="rounded-(--radius-md) border border-border bg-bg/40 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                          Última entrada COMPRA pelo critério do gráfico
+                        </p>
+                        {result.latestChartBuySignal ? (
+                          <p className="mt-1 text-sm">
+                            <span className="font-semibold text-success">
+                              {formatDate(result.latestChartBuySignal.time)}
+                            </span>
+                            <span className="text-text-muted">
+                              {" "}· fechamento {formatPrice(result.latestChartBuySignal.close)}
+                            </span>
+                          </p>
+                        ) : selectedEmaPeriods.length < 2 ? (
+                          <p className="mt-1 text-sm text-text-muted">
+                            Habilite pelo menos duas EMAs no gráfico para identificar entradas COMPRA.
+                          </p>
+                        ) : result.hasEnoughChartBuySignalHistory ? (
+                          <p className="mt-1 text-sm text-text-muted">
+                            Nenhuma entrada COMPRA encontrada nos candles carregados para esta seleção de EMAs.
+                          </p>
+                        ) : (
+                          <p className="mt-1 text-sm text-text-muted">
+                            Histórico insuficiente para avaliar a EMA mais longa selecionada.
+                          </p>
+                        )}
+                        <p className="mt-1 text-xs leading-5 text-text-muted">
+                          Critério do gráfico usando {selectedEmaPeriods.map((period) => `EMA ${period}`).join(", ") || "nenhuma EMA"}; o sinal histórico não significa que a entrada ainda esteja ativa.
+                        </p>
+                      </div>
+                    )}
 
                     {state?.status === "success" && result && (
                       <>

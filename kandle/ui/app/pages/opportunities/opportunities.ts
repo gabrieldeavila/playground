@@ -1,5 +1,6 @@
 import { MarketDataInterval } from "@/types/enum/market-data-interval.enum";
 import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
+import { getHistoricalBuySignals } from "@/app/shared/historicalBuySignals";
 import { getClosedCandles } from "../watchlist/watchlist";
 
 export type OpportunityKind =
@@ -17,10 +18,14 @@ export type Opportunity = {
   time: string | number;
   drawdownPercent: number;
   enteredAt: string | number;
+  latestChartBuySignal: { time: string | number; close: number } | null;
+  hasEnoughChartBuySignalHistory: boolean;
   criteria: OpportunityCriterion[];
 };
 
 const EMA_PERIOD = 9;
+const DEFAULT_CHART_BUY_EMA_PERIODS = [9, 20, 50, 100, 200] as const;
+const CHART_BUY_SLOPE_LOOKBACK = 5;
 const LOWS_LOOKBACK = 3;
 const BREAKOUT_LOOKBACK = 4;
 export const OPPORTUNITY_HISTORY_YEARS = 6;
@@ -121,6 +126,7 @@ export const classifyOpportunity = (
     | typeof MarketDataInterval.Weekly = MarketDataInterval.Weekly,
   now = new Date(),
   criteria: OpportunityCriteria = DEFAULT_OPPORTUNITY_CRITERIA,
+  selectedEmaPeriods: readonly number[] = DEFAULT_CHART_BUY_EMA_PERIODS,
 ): Opportunity | null => {
   const candles = getClosedCandles(inputCandles, interval, now);
   const periodLabel =
@@ -128,6 +134,12 @@ export const classifyOpportunity = (
   if (candles.length < MINIMUM_OPPORTUNITY_CANDLES) return null;
 
   const ema9 = getEmaSeries(candles, EMA_PERIOD);
+  const normalizedEmaPeriods = [...new Set(selectedEmaPeriods)]
+    .filter((period) => DEFAULT_CHART_BUY_EMA_PERIODS.includes(period as (typeof DEFAULT_CHART_BUY_EMA_PERIODS)[number]))
+    .sort((left, right) => left - right);
+  const chartBuySignals = getHistoricalBuySignals(candles, normalizedEmaPeriods);
+  const latestChartBuySignal = chartBuySignals.at(-1);
+  const longestSelectedEma = normalizedEmaPeriods.at(-1);
   const latest = candles.length - 1;
   const close = candles[latest].close;
   const { kind, drawdownPercent } = classifyAt(candles, ema9, latest, criteria);
@@ -188,6 +200,13 @@ export const classifyOpportunity = (
     time: candles[latest].time,
     drawdownPercent,
     enteredAt: candles[enteredAtIndex].time,
+    latestChartBuySignal: latestChartBuySignal
+      ? { time: latestChartBuySignal.time, close: latestChartBuySignal.close }
+      : null,
+    hasEnoughChartBuySignalHistory:
+      normalizedEmaPeriods.length >= 2 &&
+      longestSelectedEma !== undefined &&
+      candles.length >= longestSelectedEma + CHART_BUY_SLOPE_LOOKBACK,
     criteria: criteriaDetails,
   };
 };

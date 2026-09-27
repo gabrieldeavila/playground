@@ -20,7 +20,7 @@ export type OpportunityState =
   | { status: "success"; result: Opportunity | null }
   | { status: "error" };
 
-const CACHE_KEY = "kandle:opportunities:v4";
+const CACHE_KEY = "kandle:opportunities:v6";
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const BATCH_SIZE = 3;
 
@@ -49,18 +49,31 @@ const readCache = (): Record<string, CachedOpportunity> => {
   }
 };
 
-const cacheEntryKey = (ticker: string, interval: string) =>
-  `${ticker}:${interval}`;
+export const getOpportunityStateKey = (
+  ticker: string,
+  interval: string,
+  selectedEmaPeriods: readonly number[],
+) => `${ticker.toUpperCase()}:${interval}:${[...selectedEmaPeriods].sort((a, b) => a - b).join(",") || "none"}`;
+
+const cacheEntryKey = (
+  ticker: string,
+  interval: string,
+  selectedEmaPeriods: readonly number[],
+) => getOpportunityStateKey(ticker, interval, selectedEmaPeriods);
 
 const writeCache = (
   ticker: string,
   interval: string,
+  selectedEmaPeriods: readonly number[],
   result: Opportunity | null,
 ) => {
   if (typeof window === "undefined") return;
   try {
     const cache = readCache();
-    cache[cacheEntryKey(ticker, interval)] = { checkedAt: Date.now(), result };
+    cache[cacheEntryKey(ticker, interval, selectedEmaPeriods)] = {
+      checkedAt: Date.now(),
+      result,
+    };
     window.sessionStorage.setItem(CACHE_KEY, JSON.stringify(cache));
   } catch {
     // Mantém o resultado no estado da tela se o armazenamento não estiver disponível.
@@ -70,6 +83,7 @@ const writeCache = (
 async function fetchOpportunity(
   ticker: string,
   interval: typeof MarketDataInterval.Daily | typeof MarketDataInterval.Weekly,
+  selectedEmaPeriods: readonly number[],
   signal: AbortSignal,
 ) {
   const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "");
@@ -79,13 +93,20 @@ async function fetchOpportunity(
     `${apiUrl}/market-data/${encodeURIComponent(ticker)}`,
     { params: { from, to, interval }, signal },
   );
-  return classifyOpportunity(normalizeMarketCandles(data), interval);
+  return classifyOpportunity(
+    normalizeMarketCandles(data),
+    interval,
+    new Date(),
+    undefined,
+    selectedEmaPeriods,
+  );
 }
 
 export function useOpportunities(
   assets: TickerSuggestion[],
   enabled: boolean,
   interval: typeof MarketDataInterval.Daily | typeof MarketDataInterval.Weekly,
+  selectedEmaPeriods: readonly number[],
 ) {
   const [states, setStates] = useState<Record<string, OpportunityState>>({});
   const [retryVersion, setRetryVersion] = useState(0);
@@ -99,7 +120,7 @@ export function useOpportunities(
     setStates((current) => {
       const next = { ...current };
       tickers.forEach((ticker) => {
-        const key = cacheEntryKey(ticker, interval);
+        const key = cacheEntryKey(ticker, interval, selectedEmaPeriods);
         const cached = readCache()[key];
         next[key] = cached
           ? { status: "success", result: cached.result }
@@ -112,26 +133,35 @@ export function useOpportunities(
       for (let index = 0; index < tickers.length; index += BATCH_SIZE) {
         const batch = tickers
           .slice(index, index + BATCH_SIZE)
-          .filter((ticker) => !readCache()[cacheEntryKey(ticker, interval)]);
+          .filter(
+            (ticker) =>
+              !readCache()[cacheEntryKey(ticker, interval, selectedEmaPeriods)],
+          );
         await Promise.all(
           batch.map(async (ticker) => {
             try {
               const result = await fetchOpportunity(
                 ticker,
                 interval,
+                selectedEmaPeriods,
                 controller.signal,
               );
-              writeCache(ticker, interval, result);
+              writeCache(ticker, interval, selectedEmaPeriods, result);
               if (active)
                 setStates((current) => ({
                   ...current,
-                  [cacheEntryKey(ticker, interval)]: { status: "success", result },
+                  [cacheEntryKey(ticker, interval, selectedEmaPeriods)]: {
+                    status: "success",
+                    result,
+                  },
                 }));
             } catch {
               if (active && !controller.signal.aborted) {
                 setStates((current) => ({
                   ...current,
-                  [cacheEntryKey(ticker, interval)]: { status: "error" },
+                  [cacheEntryKey(ticker, interval, selectedEmaPeriods)]: {
+                    status: "error",
+                  },
                 }));
               }
             }
@@ -144,11 +174,11 @@ export function useOpportunities(
       active = false;
       controller.abort();
     };
-  }, [assets, enabled, interval, retryVersion]);
+  }, [assets, enabled, interval, retryVersion, selectedEmaPeriods]);
 
   const retry = (ticker: string) => {
     const normalized = ticker.toUpperCase();
-    const key = cacheEntryKey(normalized, interval);
+    const key = cacheEntryKey(normalized, interval, selectedEmaPeriods);
     try {
       const cache = readCache();
       delete cache[key];
