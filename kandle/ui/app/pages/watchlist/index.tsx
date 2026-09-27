@@ -111,13 +111,18 @@ export default function WatchlistPage() {
               você escolher.
             </p>
           </div>
-          <Link
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-            to="/"
-          >
-            <FiArrowLeft aria-hidden="true" />
-            Voltar ao gráfico
-          </Link>
+          <nav aria-label="Navegação da watchlist" className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
+            <Link
+              className="inline-flex items-center gap-2 text-primary hover:underline"
+              to="/"
+            >
+              <FiArrowLeft aria-hidden="true" />
+              Voltar ao gráfico
+            </Link>
+            <Link className="text-primary hover:underline" to="/opportunities">
+              Oportunidades
+            </Link>
+          </nav>
         </header>
 
         <section
@@ -247,63 +252,66 @@ export default function WatchlistPage() {
             </div>
           ) : (
             <ul className="divide-y divide-border rounded-(--radius-lg) border border-border bg-bg-elevated">
-              {assets.map((asset) => (
-                <li
-                  className="flex items-center justify-between gap-4 px-4 py-4 sm:px-5"
-                  key={asset.value}
-                >
-                  <div className="min-w-0">
-                    <p className="font-semibold">{asset.value}</p>
-                    <p className="mt-1 text-sm text-text-muted">{asset.label}</p>
-                    {signals[asset.value]?.status === "loading" && (
-                      <p className="mt-2 text-sm text-text-muted" role="status">
-                        Calculando último sinal de compra...
-                      </p>
-                    )}
-                    {signals[asset.value]?.status === "success" && (
-                      <p className="mt-2 text-sm">
-                        Último sinal de compra: {!signals[asset.value].result.hasEnoughHistory ? (
-                          <span className="text-text-muted">
-                            dados insuficientes para avaliar
-                          </span>
-                        ) : signals[asset.value].result.signalTime === null ? (
-                          <span className="text-text-muted">
-                            nenhum nos últimos 6 anos
-                          </span>
-                        ) : (
-                          <span className="font-medium">
-                            {formatSignalDate(signals[asset.value].result.signalTime)}
-                            {" "}(há {getDaysSince(signals[asset.value].result.signalTime)} dias)
-                          </span>
-                        )}
-                      </p>
-                    )}
-                    {signals[asset.value]?.status === "error" && (
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <p className="text-sm text-danger" role="alert">
-                          {signals[asset.value].message}
-                        </p>
-                        <Button
-                          onClick={() => retrySignal(asset.value)}
-                          size="sm"
-                          variant="ghost"
-                        >
-                          Tentar novamente
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    aria-label={`Remover ${asset.value} da watchlist`}
-                    onClick={() => removeAsset(asset.value)}
-                    size="sm"
-                    variant="ghost"
+              {assets.map((asset) => {
+                const signal = signals[asset.value.toUpperCase()];
+                return (
+                  <li
+                    className="flex items-center justify-between gap-4 px-4 py-4 sm:px-5"
+                    key={asset.value}
                   >
-                    <FiTrash2 aria-hidden="true" />
-                    Remover
-                  </Button>
-                </li>
-              ))}
+                    <div className="min-w-0">
+                      <p className="font-semibold">{asset.value}</p>
+                      <p className="mt-1 text-sm text-text-muted">{asset.label}</p>
+                      {signal?.status === "loading" && (
+                        <p className="mt-2 text-sm text-text-muted" role="status">
+                          Calculando último sinal de compra...
+                        </p>
+                      )}
+                      {signal?.status === "success" && (
+                        <p className="mt-2 text-sm">
+                          Último sinal de compra: {!signal.result.hasEnoughHistory ? (
+                            <span className="text-text-muted">
+                              dados insuficientes para avaliar
+                            </span>
+                          ) : signal.result.signalTime === null ? (
+                            <span className="text-text-muted">
+                              nenhum nos últimos 6 anos
+                            </span>
+                          ) : (
+                            <span className="font-medium">
+                              {formatSignalDate(signal.result.signalTime)}
+                              {" "}(há {getDaysSince(signal.result.signalTime)} dias)
+                            </span>
+                          )}
+                        </p>
+                      )}
+                      {signal?.status === "error" && (
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <p className="text-sm text-danger" role="alert">
+                            {signal.message}
+                          </p>
+                          <Button
+                            onClick={() => retrySignal(asset.value)}
+                            size="sm"
+                            variant="ghost"
+                          >
+                            Tentar novamente
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      aria-label={`Remover ${asset.value} da watchlist`}
+                      onClick={() => removeAsset(asset.value)}
+                      size="sm"
+                      variant="ghost"
+                    >
+                      <FiTrash2 aria-hidden="true" />
+                      Remover
+                    </Button>
+                  </li>
+                );
+              })}
             </ul>
           )}
           {storageError && (

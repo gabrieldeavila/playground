@@ -91,9 +91,14 @@ const TicketNavbar = memo(() => {
         <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-primary">
           Central de tickets
         </p>
-        <Link className="text-xs font-medium text-primary hover:underline" to="/watchlist">
-          Minha watchlist
-        </Link>
+        <div className="flex gap-3">
+          <Link className="text-xs font-medium text-primary hover:underline" to="/watchlist">
+            Minha watchlist
+          </Link>
+          <Link className="text-xs font-medium text-primary hover:underline" to="/opportunities">
+            Oportunidades
+          </Link>
+        </div>
       </div>
 
       <dl

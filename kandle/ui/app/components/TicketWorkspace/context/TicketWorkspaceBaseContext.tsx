@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 
 import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
 import {
@@ -13,6 +14,8 @@ export function TicketWorkspaceBaseProvider({
 }: {
   children: ReactNode;
 }) {
+  const [searchParams] = useSearchParams();
+  const requestedTicker = searchParams.get("ticker")?.trim() ?? "";
   const [persistedState] = useState(readTicketWorkspaceStorage);
   const [ticketQuery, setTicketQuery] = useState(
     persistedState?.ticketQuery ?? "",
@@ -35,6 +38,12 @@ export function TicketWorkspaceBaseProvider({
     loadMore: loadMoreMarketData,
     retry: retryMarketData,
   } = useMarketData(persistedState ?? undefined);
+
+  useEffect(() => {
+    if (!requestedTicker) return;
+    setTicketQuery(requestedTicker);
+    void loadTicker(requestedTicker);
+  }, [loadTicker, requestedTicker]);
 
   useEffect(() => {
     writeTicketWorkspaceStorage({
