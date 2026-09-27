@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 import { FiSearch } from "react-icons/fi";
 
 import { Input } from "@/ui/components/primitives/input";
@@ -86,10 +87,13 @@ const TicketNavbar = memo(() => {
       aria-label="Filtros de tickets"
       className="relative z-10 grid grid-cols-1 gap-4 border-b border-border bg-bg-elevated/90 px-5 py-4 backdrop-blur-xl sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center"
     >
-      <div>
+      <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-start">
         <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-primary">
           Central de tickets
         </p>
+        <Link className="text-xs font-medium text-primary hover:underline" to="/watchlist">
+          Minha watchlist
+        </Link>
       </div>
 
       <dl
