@@ -31,8 +31,7 @@ const getAlignedEmaValue = (
   candleIndex: number,
 ) => emaValues[candleIndex - (period - 1)];
 
-/** Identifies the first confirmed candle of each chart-style buy setup. */
-export const getHistoricalBuySignals = (
+const getSelectedEmaSignalStates = (
   candles: MarketDataCandle[],
   selectedEmaPeriods: readonly number[],
 ) => {
@@ -41,15 +40,14 @@ export const getHistoricalBuySignals = (
       EMA_PERIODS.includes(period as (typeof EMA_PERIODS)[number]),
     )
     .sort((left, right) => left - right);
-  if (buyEmaPeriods.length < 2) return [];
+  const states = Array<boolean>(candles.length).fill(false);
+  if (buyEmaPeriods.length < 2) return states;
 
   const emaValues = buyEmaPeriods.map((period) =>
     getEmaValues(candles, period),
   );
-  const signals: MarketDataCandle[] = [];
   const requiredCandles =
     buyEmaPeriods[buyEmaPeriods.length - 1] + SLOPE_LOOKBACK;
-  let wasBuySignal = false;
 
   for (
     let candleIndex = requiredCandles - 1;
@@ -75,7 +73,7 @@ export const getHistoricalBuySignals = (
     const close = candles[candleIndex].close;
     const spreadRatio =
       close > 0 ? Math.abs(values[0] - values[values.length - 1]) / close : 0;
-    const isBuySignal =
+    states[candleIndex] =
       isOrdered &&
       allSlopesUp &&
       spreadRatio >= MIN_EMA_SPREAD_RATIO &&
@@ -87,10 +85,30 @@ export const getHistoricalBuySignals = (
           (value, index) => index === 0 || heldValues[index - 1] > value,
         );
       }).every(Boolean);
-
-    if (isBuySignal && !wasBuySignal) signals.push(candles[candleIndex]);
-    wasBuySignal = isBuySignal;
   }
 
-  return signals;
+  return states;
 };
+
+/** Evaluates chart-style buy setups and whether the latest candle still qualifies. */
+export const getHistoricalBuySignalAnalysis = (
+  candles: MarketDataCandle[],
+  selectedEmaPeriods: readonly number[],
+) => {
+  const states = getSelectedEmaSignalStates(candles, selectedEmaPeriods);
+  const signals: MarketDataCandle[] = [];
+  let wasBuySignal = false;
+
+  states.forEach((isBuySignal, index) => {
+    if (isBuySignal && !wasBuySignal) signals.push(candles[index]);
+    wasBuySignal = isBuySignal;
+  });
+
+  return { signals, hasCurrentPattern: states.at(-1) ?? false };
+};
+
+/** Identifies the first confirmed candle of each chart-style buy setup. */
+export const getHistoricalBuySignals = (
+  candles: MarketDataCandle[],
+  selectedEmaPeriods: readonly number[],
+) => getHistoricalBuySignalAnalysis(candles, selectedEmaPeriods).signals;

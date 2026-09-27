@@ -98,6 +98,9 @@ const TicketNavbar = memo(() => {
           <Link className="text-xs font-medium text-primary hover:underline" to="/opportunities">
             Oportunidades
           </Link>
+          <Link className="text-xs font-medium text-primary hover:underline" to="/discover">
+            Buscar ações
+          </Link>
         </div>
       </div>
 

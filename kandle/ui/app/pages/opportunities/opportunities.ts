@@ -1,6 +1,6 @@
 import { MarketDataInterval } from "@/types/enum/market-data-interval.enum";
 import type { MarketDataCandle } from "@/types/interface/market-data-candle.interface";
-import { getHistoricalBuySignals } from "@/app/shared/historicalBuySignals";
+import { getHistoricalBuySignalAnalysis } from "@/app/shared/historicalBuySignals";
 import { getClosedCandles } from "../watchlist/watchlist";
 
 export type OpportunityKind =
@@ -20,6 +20,7 @@ export type Opportunity = {
   enteredAt: string | number;
   latestChartBuySignal: { time: string | number; close: number } | null;
   hasEnoughChartBuySignalHistory: boolean;
+  hasCurrentSelectedEmaPattern: boolean;
   criteria: OpportunityCriterion[];
 };
 
@@ -75,6 +76,19 @@ const minimumLow = (candles: MarketDataCandle[]) =>
   Math.min(...candles.map(({ low }) => low));
 const maximumHigh = (candles: MarketDataCandle[]) =>
   Math.max(...candles.map(({ high }) => high));
+const getRecentDrawdown = (
+  candles: MarketDataCandle[],
+  index: number,
+  lookback: number,
+) => {
+  const periodStart = Math.max(0, index - lookback + 1);
+  const periodHigh = maximumHigh(candles.slice(periodStart, index + 1));
+  const close = candles[index].close;
+  return {
+    periodHigh,
+    drawdownPercent: ((periodHigh - close) / periodHigh) * 100,
+  };
+};
 const formatPercent = (value: number) =>
   `${value.toFixed(1).replace(".", ",")}%`;
 
@@ -83,12 +97,13 @@ const classifyAt = (
   ema9: number[],
   index: number,
   criteria: OpportunityCriteria = DEFAULT_OPPORTUNITY_CRITERIA,
-): { kind: OpportunityKind; drawdownPercent: number } => {
+): { kind: OpportunityKind; drawdownPercent: number; recentHigh: number } => {
   const close = candles[index].close;
-  const recentHigh = maximumHigh(
-    candles.slice(index - criteria.recentHighLookback + 1, index + 1),
+  const { periodHigh: recentHigh, drawdownPercent } = getRecentDrawdown(
+    candles,
+    index,
+    criteria.recentHighLookback,
   );
-  const drawdownPercent = ((recentHigh - close) / recentHigh) * 100;
   const significantDrawdown =
     drawdownPercent >= criteria.minimumDrawdownPercent;
   const recentLows = minimumLow(
@@ -107,7 +122,11 @@ const classifyAt = (
   const closedAboveRecentHigh = close > previousRecentHigh;
 
   let kind: OpportunityKind = "no-setup";
-  if (significantDrawdown && closedAboveRecentHigh && ema9Rising) {
+  if (
+    significantDrawdown &&
+    ema9Rising &&
+    (lowsStoppedFalling || closedAboveRecentHigh)
+  ) {
     kind = "possible-reversal";
   } else if (significantDrawdown && lowerLowsContinue && ema9Falling) {
     kind = "falling";
@@ -115,7 +134,7 @@ const classifyAt = (
     kind = "stabilizing";
   }
 
-  return { kind, drawdownPercent };
+  return { kind, drawdownPercent, recentHigh };
 };
 
 /** Classifica candles diários ou semanais encerrados e expõe os testes do estado. */
@@ -137,12 +156,22 @@ export const classifyOpportunity = (
   const normalizedEmaPeriods = [...new Set(selectedEmaPeriods)]
     .filter((period) => DEFAULT_CHART_BUY_EMA_PERIODS.includes(period as (typeof DEFAULT_CHART_BUY_EMA_PERIODS)[number]))
     .sort((left, right) => left - right);
-  const chartBuySignals = getHistoricalBuySignals(candles, normalizedEmaPeriods);
-  const latestChartBuySignal = chartBuySignals.at(-1);
+  const chartBuySignalAnalysis = getHistoricalBuySignalAnalysis(
+    candles,
+    normalizedEmaPeriods,
+  );
+  const latestChartBuySignal = chartBuySignalAnalysis.signals.at(-1);
+  const hasCurrentSelectedEmaPattern =
+    chartBuySignalAnalysis.hasCurrentPattern;
   const longestSelectedEma = normalizedEmaPeriods.at(-1);
   const latest = candles.length - 1;
   const close = candles[latest].close;
-  const { kind, drawdownPercent } = classifyAt(candles, ema9, latest, criteria);
+  const { kind, drawdownPercent, recentHigh } = classifyAt(
+    candles,
+    ema9,
+    latest,
+    criteria,
+  );
   const significantDrawdown =
     drawdownPercent >= criteria.minimumDrawdownPercent;
   const recentLows = minimumLow(
@@ -170,7 +199,7 @@ export const classifyOpportunity = (
     {
       label: "Queda a partir da máxima recente",
       met: significantDrawdown,
-      detail: `Fechamento ${formatPercent(drawdownPercent)} abaixo da máxima dos últimos ${criteria.recentHighLookback} ${periodLabel} (limiar: ${criteria.minimumDrawdownPercent}%).`,
+      detail: `Maior máxima: ${recentHigh}; fechamento atual: ${close}. Queda calculada como (máxima − fechamento) / máxima = ${formatPercent(drawdownPercent)} (mínimo: ${criteria.minimumDrawdownPercent}%).`,
     },
     {
       label: "Mínimas pararam de cair",
@@ -186,6 +215,23 @@ export const classifyOpportunity = (
       label: "EMA 9 ascendente",
       met: ema9Rising,
       detail: `EMA 9 atual ${ema9[latest].toFixed(2)} vs. EMA 9 de ${criteria.emaSlopeLookback} ${periodLabel} atrás ${ema9[latest - criteria.emaSlopeLookback].toFixed(2)}.`,
+    },
+    {
+      label: "EMAs selecionadas alinhadas e ascendentes",
+      met: hasCurrentSelectedEmaPattern,
+      detail:
+        normalizedEmaPeriods.length < 2
+          ? "Selecione ao menos duas EMAs. As selecionadas devem estar em ordem decrescente de período (as rápidas acima das lentas), ascendentes em 5 candles, com alinhamento mantido por 3 candles e spread mínimo de 0,5% do fechamento."
+          : `EMAs ${normalizedEmaPeriods.join(", ")} avaliadas: exige ordem rápida-acima-lenta por 3 candles, todas ascendentes em 5 candles e spread mínimo de 0,5% do fechamento.`,
+    },
+    {
+      label: "Sinal inicial de reversão",
+      met:
+        significantDrawdown &&
+        ema9Rising &&
+        (lowsStoppedFalling || closedAboveRecentHigh),
+      detail:
+        "Requer queda significativa, EMA 9 ascendente e mínimas estabilizadas ou fechamento acima das máximas recentes.",
     },
     {
       label: "Pressão de queda persistente",
@@ -207,6 +253,7 @@ export const classifyOpportunity = (
       normalizedEmaPeriods.length >= 2 &&
       longestSelectedEma !== undefined &&
       candles.length >= longestSelectedEma + CHART_BUY_SLOPE_LOOKBACK,
+    hasCurrentSelectedEmaPattern,
     criteria: criteriaDetails,
   };
 };

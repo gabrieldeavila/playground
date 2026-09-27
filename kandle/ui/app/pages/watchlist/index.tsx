@@ -122,6 +122,9 @@ export default function WatchlistPage() {
             <Link className="text-primary hover:underline" to="/opportunities">
               Oportunidades
             </Link>
+            <Link className="text-primary hover:underline" to="/discover">
+              Buscar ações
+            </Link>
           </nav>
         </header>
 

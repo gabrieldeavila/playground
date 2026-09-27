@@ -4,4 +4,5 @@ export default [
   index("pages/home/index.tsx"),
   route("watchlist", "pages/watchlist/index.tsx"),
   route("opportunities", "pages/opportunities/index.tsx"),
+  route("discover", "pages/discover/index.tsx"),
 ] satisfies RouteConfig;
