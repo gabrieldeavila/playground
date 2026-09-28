@@ -40,6 +40,12 @@ export function TicketWorkspaceBaseProvider({
   } = useMarketData(persistedState ?? undefined);
 
   useEffect(() => {
+    document.title = selectedTicker
+      ? `Kandle - (${selectedTicker}) Gráfico de ações`
+      : "Kandle - Gráfico de ações";
+  }, [selectedTicker]);
+
+  useEffect(() => {
     if (!requestedTicker) return;
     setTicketQuery(requestedTicker);
     void loadTicker(requestedTicker);

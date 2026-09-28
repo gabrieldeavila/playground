@@ -32,6 +32,8 @@ import {
   useOpportunities,
 } from "./useOpportunities";
 
+export const meta = () => [{ title: "Kandle — Oportunidades" }];
+
 const STATUS: Record<
   OpportunityKind,
   { label: string; detail: string; color: string }

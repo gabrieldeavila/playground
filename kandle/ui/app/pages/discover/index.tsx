@@ -19,6 +19,8 @@ import {
   type DiscoveryMarket,
 } from "./discoverStorage";
 
+export const meta = () => [{ title: "Kandle — Buscar ações" }];
+
 const EMA_PERIODS = [9, 20, 50, 100, 200] as const;
 const formatPrice = (value: number) =>
   new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(value);

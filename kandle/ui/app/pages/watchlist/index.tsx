@@ -15,6 +15,8 @@ import {
 } from "./watchlist";
 import { useWatchlistSignals } from "./useWatchlistSignals";
 
+export const meta = () => [{ title: "Kandle — Minha watchlist" }];
+
 const formatSignalDate = (time: string | number) =>
   new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
