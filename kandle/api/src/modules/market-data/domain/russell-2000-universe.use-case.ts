@@ -1,12 +1,14 @@
 import type {
-  Russell2000Universe,
-  Russell2000UniverseRepository,
-} from './russell-2000-universe.repository';
+  MarketUniverse,
+  MarketUniverseRepository,
+} from './market-universe.repository';
 
 export class Russell2000UniverseUseCase {
-  constructor(private readonly repository: Russell2000UniverseRepository) {}
+  constructor(private readonly repository: MarketUniverseRepository) {}
 
-  execute(): Promise<Russell2000Universe> {
+  execute(): Promise<MarketUniverse> {
     return this.repository.getUniverse();
   }
 }
+
+export class Sp500UniverseUseCase extends Russell2000UniverseUseCase {}

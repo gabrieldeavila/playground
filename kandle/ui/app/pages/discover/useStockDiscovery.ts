@@ -8,6 +8,7 @@ import { normalizeMarketCandles } from "../watchlist/watchlist";
 import {
   readSavedDiscovery,
   writeSavedDiscovery,
+  type DiscoveryMarket,
   type SavedDiscovery,
 } from "./discoverStorage";
 import {
@@ -68,6 +69,7 @@ type DiscoveryState = {
   recentHighLookback?: number;
   minimumDrawdownPercent?: number;
   selectedEmaPeriods?: number[];
+  market?: DiscoveryMarket;
   source?: string;
   updatedAt?: string;
   message?: string;
@@ -221,6 +223,7 @@ export function useStockDiscovery() {
 
   const scan = useCallback(
     async (options: {
+      market: DiscoveryMarket;
       limit: number;
       companyName: string;
       interval: DiscoveryInterval;
@@ -244,13 +247,14 @@ export function useStockDiscovery() {
         recentHighLookback: options.recentHighLookback,
         minimumDrawdownPercent: options.minimumDrawdownPercent,
         selectedEmaPeriods: options.selectedEmaPeriods,
+        market: options.market,
       });
 
       try {
         const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "");
         if (!apiUrl) throw new Error("A URL da API não está configurada.");
         const response = await axios.get<unknown>(
-          `${apiUrl}/market-data/universe/russell-2000`,
+          `${apiUrl}/market-data/universe/${options.market}`,
           {
             signal: controller.signal,
           },
@@ -265,6 +269,7 @@ export function useStockDiscovery() {
 
         if (candidates.length === 0) {
           const completedDiscovery: SavedDiscovery = {
+            market: options.market,
             results: [],
             completed: 0,
             total: 0,
@@ -316,6 +321,7 @@ export function useStockDiscovery() {
           recentHighLookback: options.recentHighLookback,
           minimumDrawdownPercent: options.minimumDrawdownPercent,
           selectedEmaPeriods: options.selectedEmaPeriods,
+          market: options.market,
           source: universe.source,
           updatedAt: universe.updatedAt,
         });
@@ -387,6 +393,7 @@ export function useStockDiscovery() {
         if (!controller.signal.aborted)
           setState((current) => {
             const completed: SavedDiscovery = {
+              market: current.market ?? options.market,
               results: current.results.filter(matchesFilters).slice(0, options.limit),
               completed: current.completed,
               total: current.total,
@@ -413,6 +420,7 @@ export function useStockDiscovery() {
             total: 0,
             interval: options.interval,
             recentHighLookback: options.recentHighLookback,
+            market: options.market,
             message:
               "Não foi possível carregar o universo de ações. Tente novamente mais tarde.",
           });

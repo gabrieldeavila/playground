@@ -16,6 +16,7 @@ import {
   clearSavedDiscovery,
   readDiscoverFilters,
   writeDiscoverFilters,
+  type DiscoveryMarket,
 } from "./discoverStorage";
 
 const EMA_PERIODS = [9, 20, 50, 100, 200] as const;
@@ -33,7 +34,7 @@ const formatDate = (value?: string) => {
 };
 
 export default function DiscoverStocksPage() {
-  const [market, setMarket] = useState("russell-2000");
+  const [market, setMarket] = useState<DiscoveryMarket>("russell-2000");
   const [limit, setLimit] = useState(25);
   const [dropLookback, setDropLookback] = useState("26");
   const [minimumDrawdown, setMinimumDrawdown] = useState("10");
@@ -57,6 +58,7 @@ export default function DiscoverStocksPage() {
   useEffect(() => {
     const saved = readDiscoverFilters();
     if (saved) {
+      setMarket(saved.market);
       setLimit(saved.limit);
       setDropLookback(saved.dropLookback);
       setMinimumDrawdown(saved.minimumDrawdown);
@@ -73,6 +75,7 @@ export default function DiscoverStocksPage() {
   useEffect(() => {
     if (!filtersReady) return;
     writeDiscoverFilters({
+      market,
       limit,
       dropLookback,
       minimumDrawdown,
@@ -85,6 +88,7 @@ export default function DiscoverStocksPage() {
     });
   }, [
     filtersReady,
+    market,
     limit,
     dropLookback,
     minimumDrawdown,
@@ -224,6 +228,7 @@ export default function DiscoverStocksPage() {
               event.preventDefault();
               if (!validPriceRange || !validDropLookback || !validMinimumDrawdown || scanning) return;
               void scan({
+                market,
                 limit,
                 companyName,
                 interval,
@@ -248,15 +253,18 @@ export default function DiscoverStocksPage() {
               <select
                 className="min-h-10 rounded-(--radius-md) border border-border bg-bg px-3 text-text"
                 disabled={scanning}
-                onChange={(event) => setMarket(event.target.value)}
+                onChange={(event) =>
+                  setMarket(event.target.value as DiscoveryMarket)
+                }
                 value={market}
               >
                 <option value="russell-2000">
                   Russell 2000 · referência iShares IWM
                 </option>
+                <option value="sp-500">S&amp;P 500 · referência iShares IVV</option>
               </select>
               <span className="text-xs text-text-muted">
-                Outros mercados poderão ser adicionados depois.
+                Escolha o universo que será analisado; a busca e os resultados ficam separados por mercado.
               </span>
             </label>
             <label className="grid gap-1 text-sm">
@@ -326,7 +334,7 @@ export default function DiscoverStocksPage() {
                 ))}
               </select>
               <span className="text-xs text-text-muted">
-                Meta de resultados; a busca continua no Russell 2000 até encontrar essa quantidade ou esgotar as ações disponíveis. Consulta em lotes de até 3.
+                Meta de resultados; a busca continua no {market === "sp-500" ? "S&P 500" : "Russell 2000"} até encontrar essa quantidade ou esgotar as ações disponíveis. Consulta em lotes de até 3.
               </span>
             </label>
             <label className="grid gap-1 text-sm">

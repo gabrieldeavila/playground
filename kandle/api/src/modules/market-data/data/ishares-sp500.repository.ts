@@ -6,12 +6,13 @@ import type {
 import { parseIsharesHoldings } from './ishares-holdings-parser';
 
 const HOLDINGS_URL =
-  'https://www.ishares.com/us/products/239710/ishares-russell-2000-etf/latest-holdings.csv';
+  'https://www.ishares.com/us/products/239726/ishares-core-sp-500-etf/latest-holdings.csv';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const MINIMUM_ASSETS = 400;
 
 type CachedUniverse = { expiresAt: number; value: MarketUniverse };
 
-export class IsharesRussell2000Repository implements MarketUniverseRepository {
+export class IsharesSp500Repository implements MarketUniverseRepository {
   private cache: CachedUniverse | null = null;
 
   async getUniverse(): Promise<MarketUniverse> {
@@ -29,12 +30,12 @@ export class IsharesRussell2000Repository implements MarketUniverseRepository {
       }
 
       const assets = parseIsharesHoldings(await response.text());
-      if (assets.length < 1_000) {
+      if (assets.length < MINIMUM_ASSETS) {
         throw new Error('A lista de ativos recebida está incompleta.');
       }
 
       const value: MarketUniverse = {
-        source: 'iShares Russell 2000 ETF holdings',
+        source: 'iShares Core S&P 500 ETF (IVV) holdings',
         updatedAt: new Date().toISOString(),
         assets,
       };
@@ -42,7 +43,7 @@ export class IsharesRussell2000Repository implements MarketUniverseRepository {
       return value;
     } catch {
       throw new ServiceUnavailableException(
-        'Não foi possível carregar a composição de referência do Russell 2000.',
+        'Não foi possível carregar a composição de referência do S&P 500.',
       );
     }
   }

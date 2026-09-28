@@ -4,7 +4,10 @@ import type { DiscoveryResult } from "./useStockDiscovery";
 export const DISCOVER_FILTERS_KEY = "kandle:discover:filters:v1";
 export const DISCOVER_RESULTS_KEY = "kandle:discover:results:v1";
 
+export type DiscoveryMarket = "russell-2000" | "sp-500";
+
 export type DiscoverFilters = {
+  market: DiscoveryMarket;
   limit: number;
   dropLookback: string;
   minimumDrawdown: string;
@@ -17,6 +20,7 @@ export type DiscoverFilters = {
 };
 
 export type SavedDiscovery = {
+  market: DiscoveryMarket;
   results: DiscoveryResult[];
   completed: number;
   total: number;
@@ -57,6 +61,9 @@ const isDiscoveryResult = (value: unknown): value is DiscoveryResult => {
   );
 };
 
+const isMarket = (value: unknown): value is DiscoveryMarket =>
+  value === "russell-2000" || value === "sp-500";
+
 const isInterval = (value: unknown): value is SavedDiscovery["interval"] =>
   value === MarketDataInterval.Daily || value === MarketDataInterval.Weekly;
 
@@ -68,6 +75,7 @@ export const readDiscoverFilters = (): DiscoverFilters | null => {
     );
     if (!isRecord(value)) return null;
     return {
+      market: isMarket(value.market) ? value.market : "russell-2000",
       limit: [10, 25, 50].includes(Number(value.limit))
         ? Number(value.limit)
         : 25,
@@ -124,7 +132,10 @@ export const readSavedDiscovery = (): SavedDiscovery | null => {
       !value.selectedEmaPeriods.every((period) => typeof period === "number")
     )
       return null;
-    return value as unknown as SavedDiscovery;
+    return {
+      ...(value as unknown as SavedDiscovery),
+      market: isMarket(value.market) ? value.market : "russell-2000",
+    };
   } catch {
     return null;
   }

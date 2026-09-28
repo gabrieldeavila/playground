@@ -1,17 +1,22 @@
 import { Module } from '@nestjs/common';
 import { IsharesRussell2000Repository } from './data/ishares-russell-2000.repository';
+import { IsharesSp500Repository } from './data/ishares-sp500.repository';
 import { YahooCompanyProfileRepository } from './data/yahoo-company-profile.repository';
 import { YahooFinanceRepository } from './data/yahoo-finance.repository';
 import { MarketDataController } from './delivery/market-data.controller';
 import { CompanyProfileUseCase } from './domain/company-profile.use-case';
 import { MarketDataUseCase } from './domain/market-data.use-case';
-import { Russell2000UniverseUseCase } from './domain/russell-2000-universe.use-case';
+import {
+  Russell2000UniverseUseCase,
+  Sp500UniverseUseCase,
+} from './domain/russell-2000-universe.use-case';
 
 @Module({
   controllers: [MarketDataController],
   providers: [
     YahooFinanceRepository,
     IsharesRussell2000Repository,
+    IsharesSp500Repository,
     YahooCompanyProfileRepository,
     {
       provide: MarketDataUseCase,
@@ -24,6 +29,12 @@ import { Russell2000UniverseUseCase } from './domain/russell-2000-universe.use-c
       useFactory: (repository: IsharesRussell2000Repository) =>
         new Russell2000UniverseUseCase(repository),
       inject: [IsharesRussell2000Repository],
+    },
+    {
+      provide: Sp500UniverseUseCase,
+      useFactory: (repository: IsharesSp500Repository) =>
+        new Sp500UniverseUseCase(repository),
+      inject: [IsharesSp500Repository],
     },
     {
       provide: CompanyProfileUseCase,

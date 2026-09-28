@@ -1,14 +1,9 @@
-export interface Russell2000Asset {
-  label: string;
-  value: string;
-}
+import type {
+  MarketUniverse,
+  MarketUniverseAsset,
+  MarketUniverseRepository,
+} from './market-universe.repository';
 
-export interface Russell2000Universe {
-  source: 'iShares Russell 2000 ETF holdings';
-  updatedAt: string;
-  assets: Russell2000Asset[];
-}
-
-export interface Russell2000UniverseRepository {
-  getUniverse(): Promise<Russell2000Universe>;
-}
+export type Russell2000Asset = MarketUniverseAsset;
+export type Russell2000Universe = MarketUniverse;
+export type Russell2000UniverseRepository = MarketUniverseRepository;

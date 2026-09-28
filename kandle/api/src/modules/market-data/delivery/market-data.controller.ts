@@ -7,13 +7,17 @@ import {
 } from '@nestjs/common';
 import { MarketDataUseCase } from '../domain/market-data.use-case';
 import { CompanyProfileUseCase } from '../domain/company-profile.use-case';
-import { Russell2000UniverseUseCase } from '../domain/russell-2000-universe.use-case';
+import {
+  Russell2000UniverseUseCase,
+  Sp500UniverseUseCase,
+} from '../domain/russell-2000-universe.use-case';
 
 @Controller('market-data')
 export class MarketDataController {
   constructor(
     private readonly marketDataUseCase: MarketDataUseCase,
     private readonly russell2000UniverseUseCase: Russell2000UniverseUseCase,
+    private readonly sp500UniverseUseCase: Sp500UniverseUseCase,
     private readonly companyProfileUseCase: CompanyProfileUseCase,
   ) {}
 
@@ -29,6 +33,11 @@ export class MarketDataController {
   @Get('universe/russell-2000')
   getRussell2000Universe() {
     return this.russell2000UniverseUseCase.execute();
+  }
+
+  @Get('universe/sp-500')
+  getSp500Universe() {
+    return this.sp500UniverseUseCase.execute();
   }
 
   @Get('search')
