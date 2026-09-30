@@ -27,7 +27,15 @@ import { getMarketTrend } from "../trend/marketTrend";
 
 const INITIAL_VISIBLE_CANDLES = 80;
 const RIGHT_MARGIN_CANDLES = 5;
+const USER_NAVIGATION_WINDOW_MS = 1000;
 const EMA_PERIODS = [9, 20, 50, 100, 200] as const;
+
+const getCandleTimestamp = (time: string | number) =>
+  typeof time === "number"
+    ? time > 10_000_000_000
+      ? time
+      : time * 1000
+    : Date.parse(time);
 
 const getCandleTimeKey = (time: HoveredCandle["time"]) =>
   typeof time === "object"
@@ -118,6 +126,7 @@ const StockChartContent = memo(() => {
   const candleDataRef = useRef<HoveredCandle[]>(MOCK_STOCK_DATA);
   const previousDataRef = useRef<MarketDataCandle[]>([]);
   const renderedTickerRef = useRef("");
+  const lastUserNavigationAtRef = useRef(0);
   const [isMeasuring, setIsMeasuring] = useState(false);
   const [measurementStart, setMeasurementStart] =
     useState<PriceMeasurementPoint | null>(null);
@@ -194,19 +203,38 @@ const StockChartContent = memo(() => {
     };
     chart.subscribeCrosshairMove(handleCrosshairMove);
 
+    const markUserNavigation = () => {
+      lastUserNavigationAtRef.current = Date.now();
+    };
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.buttons > 0) markUserNavigation();
+    };
+    const container = containerRef.current;
+    container?.addEventListener("wheel", markUserNavigation, { passive: true });
+    container?.addEventListener("pointerdown", markUserNavigation);
+    container?.addEventListener("pointermove", handlePointerMove);
+    container?.addEventListener("touchstart", markUserNavigation, { passive: true });
+
     const handleVisibleRangeChange = () => {
       setMeasureRevision((revision) => revision + 1);
       const visibleRange = chart.timeScale().getVisibleLogicalRange();
-      if (!visibleRange || dataLengthRef.current === 0) return;
+      // Programmatic initial positioning/data updates must not page history.
+      if (
+        !renderedTickerRef.current ||
+        !visibleRange ||
+        dataLengthRef.current === 0 ||
+        Date.now() - lastUserNavigationAtRef.current > USER_NAVIGATION_WINDOW_MS
+      ) return;
 
       const edgeThreshold = 5;
       if (visibleRange.from <= edgeThreshold) {
+        lastUserNavigationAtRef.current = 0;
         loadMoreRef.current("older");
-      }
-      if (
+      } else if (
         visibleRange.to <= dataLengthRef.current - 1 &&
         visibleRange.to >= dataLengthRef.current - 1 - edgeThreshold
       ) {
+        lastUserNavigationAtRef.current = 0;
         loadMoreRef.current("newer");
       }
     };
@@ -216,6 +244,10 @@ const StockChartContent = memo(() => {
       .subscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
 
     return () => {
+      container?.removeEventListener("wheel", markUserNavigation);
+      container?.removeEventListener("pointerdown", markUserNavigation);
+      container?.removeEventListener("pointermove", handlePointerMove);
+      container?.removeEventListener("touchstart", markUserNavigation);
       chart
         .timeScale()
         .unsubscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
@@ -258,8 +290,23 @@ const StockChartContent = memo(() => {
       previousData.length > 0 &&
       marketData.length > previousData.length &&
       previousData.every((candle, index) => marketData[index] === candle);
+    const previousLatest = previousData.at(-1);
+    const currentLatest = marketData.at(-1);
+    const hasNewerCandles =
+      previousLatest !== undefined &&
+      currentLatest !== undefined &&
+      getCandleTimestamp(currentLatest.time) >
+        getCandleTimestamp(previousLatest.time);
     const visibleRange = chart.timeScale().getVisibleLogicalRange();
-    let prependedCount = 0;
+    const previousFirstTime = previousData[0]
+      ? getCandleTimeKey(previousData[0].time)
+      : null;
+    const previousFirstIndex = previousFirstTime
+      ? marketData.findIndex(
+          (candle) => getCandleTimeKey(candle.time) === previousFirstTime,
+        )
+      : -1;
+    const prependedCount = Math.max(0, previousFirstIndex);
 
     if (isNewTicker) {
       candleSeries.setData(
@@ -281,13 +328,17 @@ const StockChartContent = memo(() => {
         );
       }
     } else if (marketData !== previousData) {
-      prependedCount = Math.max(0, marketData.indexOf(previousData[0]));
       candleSeries.setData(
         marketData as Parameters<typeof candleSeries.setData>[0],
       );
     }
 
-    if (!isNewTicker && !isAppend && visibleRange) {
+    if (
+      hasNewerCandles ||
+      (!isNewTicker && !isAppend && prependedCount === 0)
+    ) {
+      setInitialVisibleRange(chart, marketData.length);
+    } else if (!isNewTicker && !isAppend && visibleRange) {
       chart.timeScale().setVisibleLogicalRange({
         from: visibleRange.from + prependedCount,
         to: visibleRange.to + prependedCount,

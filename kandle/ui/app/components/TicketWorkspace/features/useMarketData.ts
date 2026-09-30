@@ -136,6 +136,10 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
   const [loadingCount, setLoadingCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const activeTickerRef = useRef(initialState?.selectedTicker ?? "");
+  const cachedDataTickerRef = useRef(initialState?.dataTicker ?? "");
+  const hasCachedMarketDataRef = useRef(
+    (initialState?.marketData.length ?? 0) > 0,
+  );
   const activeIntervalRef = useRef(
     initialState?.interval ?? MarketDataInterval.Weekly,
   );
@@ -223,6 +227,9 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
 
       const candles = normalizeCandles(data);
       setMarketData((current) => mergeCandles(current, candles));
+      cachedDataTickerRef.current = request.ticker;
+      hasCachedMarketDataRef.current =
+        hasCachedMarketDataRef.current || candles.length > 0;
       setDataTicker(request.ticker);
       // Remember empty results too: an empty range is still a completed query.
       requestedRangesRef.current.add(request.key);
@@ -265,11 +272,40 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
       const normalizedTicker = nextTicker.trim();
       if (!normalizedTicker) return;
 
-      if (
-        normalizedTicker === activeTickerRef.current &&
-        (requestedRangesRef.current.size > 0 || requestsRef.current.size > 0)
-      ) {
-        return;
+      if (normalizedTicker === activeTickerRef.current) {
+        if (
+          requestedRangesRef.current.size > 0 ||
+          requestsRef.current.size > 0
+        ) {
+          return;
+        }
+
+        if (
+          cachedDataTickerRef.current === normalizedTicker &&
+          hasCachedMarketDataRef.current
+        ) {
+          // Persisted candles are a display cache, not proof that the latest
+          // range is current. Refresh the initial range without clearing them.
+          const generation = ++generationRef.current;
+          completedRangesRef.current = [];
+          failedRequestRef.current = null;
+          const to = new Date();
+          const historyYears =
+            activeIntervalRef.current === MarketDataInterval.Monthly
+              ? MONTHLY_INITIAL_RANGE_YEARS
+              : INITIAL_RANGE_YEARS;
+          const from = shiftYears(to, -historyYears);
+          void requestRange(
+            makeRequest(
+              normalizedTicker,
+              from,
+              to,
+              generation,
+              activeIntervalRef.current,
+            ),
+          );
+          return;
+        }
       }
 
       // Increment first so even a fast response from an aborted query is stale.
@@ -280,6 +316,8 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
       completedRangesRef.current = [];
       failedRequestRef.current = null;
       activeTickerRef.current = normalizedTicker;
+      cachedDataTickerRef.current = "";
+      hasCachedMarketDataRef.current = false;
       setTicker(normalizedTicker);
       setDataTicker("");
       setMarketData([]);
@@ -311,6 +349,8 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
       const generation = ++generationRef.current;
       requestsRef.current.forEach((controller) => controller.abort());
       requestsRef.current.clear();
+      cachedDataTickerRef.current = "";
+      hasCachedMarketDataRef.current = false;
       setDataTicker("");
       setMarketData([]);
       setLoadingCount(0);
