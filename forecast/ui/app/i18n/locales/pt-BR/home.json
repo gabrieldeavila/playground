@@ -1,0 +1,56 @@
+{
+  "brand": {
+    "ariaLabel": "Nexa início"
+  },
+  "hero": {
+    "eyebrow": "A próxima camada do seu trabalho",
+    "titleBefore": "Clareza para criar o que vem",
+    "titleAccent": "depois.",
+    "description": "Nexa é o espaço calmo entre a ideia e a entrega. Conecte times, decisões e progresso em uma experiência feita para dar impulso ao que realmente importa.",
+    "primaryAction": "Começar agora",
+    "secondaryAction": "Ver como funciona",
+    "socialProof": "+2.000 criadores",
+    "socialProofDescription": "já encontraram seu próximo passo."
+  },
+  "dashboard": {
+    "eyebrow": "Painel de foco",
+    "title": "Semana em movimento",
+    "live": "Ao vivo",
+    "progress": "Progresso geral",
+    "deliveries": "Entregas",
+    "inFocus": "Em foco",
+    "today": "Hoje",
+    "impact": "Impacto",
+    "updated": "Última atualização agora",
+    "recoveredTime": "Tempo recuperado"
+  },
+  "features": {
+    "sectionEyebrow": "Feito para o ritmo real",
+    "title": "O simples fica poderoso quando tudo conversa.",
+    "description": "Uma base flexível para transformar intenção em avanço, sem esconder o que precisa da sua atenção.",
+    "items": [
+      {
+        "eyebrow": "Ritmo de trabalho",
+        "title": "Menos ruído. Mais movimento.",
+        "description": "Organize o que importa em um espaço que acompanha o seu ritmo e deixa cada decisão mais clara."
+      },
+      {
+        "eyebrow": "Tudo conectado",
+        "title": "Uma visão para cada camada.",
+        "description": "Do primeiro rascunho ao resultado final, mantenha contexto, pessoas e prioridades no mesmo lugar."
+      },
+      {
+        "eyebrow": "Clareza contínua",
+        "title": "Progresso que dá para sentir.",
+        "description": "Transforme sinais dispersos em uma leitura simples do que está avançando — e do próximo passo."
+      }
+    ]
+  },
+  "cta": {
+    "eyebrow": "Seu próximo capítulo começa aqui",
+    "title": "Faça espaço para o que importa.",
+    "description": "Comece com uma visão mais limpa, reúna seu time e dê ao trabalho a clareza que ele merece.",
+    "action": "Quero conhecer a Nexa"
+  },
+  "footer": "© 2025 Nexa. Feito para seguir em frente."
+}

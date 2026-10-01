@@ -1,0 +1,12 @@
+{
+  "name": "forecast",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -n api,ui \"pnpm --dir api run start:dev\" \"pnpm --dir ui run dev\"",
+    "build": "pnpm --dir api run build && pnpm --dir ui run build",
+    "start": "concurrently -k -n api,ui \"pnpm --dir api run start:prod\" \"pnpm --dir ui run start\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

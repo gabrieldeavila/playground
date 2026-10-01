@@ -1,0 +1,17 @@
+{
+  "language": {
+    "label": "Language",
+    "portuguese": "Portuguese",
+    "english": "English"
+  },
+  "navigation": {
+    "product": "Product",
+    "vision": "Vision",
+    "startNow": "Get started",
+    "signIn": "Sign in"
+  },
+  "actions": {
+    "explore": "Explore",
+    "details": "Details"
+  }
+}
