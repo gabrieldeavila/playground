@@ -44,6 +44,18 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
+## Coleta de preços históricos
+
+`POST /stocks/data` consulta cotações diárias no Yahoo Finance e grava um CSV por ticker em `forecast-ml/data/raw` (caminho padrão relativo à pasta `api`), por exemplo `AAPL.csv` e `MSFT.csv`. Dados com a mesma data no arquivo do ticker são atualizados, não duplicados. Se ainda existir o antigo `stock_prices.csv`, os registros do ticker são importados dele na primeira atualização desse ticker; o arquivo legado não é removido. O Yahoo Finance é uma fonte não oficial; disponibilidade e limites podem variar.
+
+```bash
+curl -X POST http://localhost:5002/stocks/data \
+  -H 'Content-Type: application/json' \
+  -d '{"tickers":["AAPL","MSFT"],"startDate":"2023-01-01","endDate":"2023-12-31"}'
+```
+
+As datas usam `YYYY-MM-DD`; `endDate` é inclusiva. O intervalo é diário e cada requisição aceita até 50 tickers. Defina `STOCK_DATA_DIR` em `.env` para alterar a pasta dos arquivos CSV. A resposta inclui os nomes dos arquivos gravados.
+
 ## Run tests
 
 ```bash
