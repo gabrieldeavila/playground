@@ -4,7 +4,28 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-Stock market forecasting models.
+Stock market forecasting models. The initial training pipeline learns from all historical candles in `data/raw`; it does not consume buy signals from Kandle.
+
+## Historical opportunity model
+
+The baseline creates causal features inspired by Kandle's EMA strategy (EMA 9/20/50/100/200, EMA alignment, five-candle slopes and price/volume changes). It labels each candle as successful when `adjusted_close` reaches the configured target at any point in the following candles. Defaults are a 5% target and 10 candles. In the current daily CSVs, one candle corresponds to one trading session.
+
+Run from this directory after installing dependencies with `uv sync`:
+
+```bash
+uv run python -m forecast_ml.dataset
+uv run python -m forecast_ml.modeling.diagnose --target-pcts 0.05 0.10 0.14 0.02 --horizon-bars 10
+uv run python -m forecast_ml.modeling.train --target-pct 0.05 --horizon-bars 10
+uv run python -m forecast_ml.modeling.predict --threshold 0.5
+uv run pytest
+# or use the Makefile shortcuts
+make train TARGET_PCT=0.05 HORIZON_BARS=10
+make predict THRESHOLD=0.5
+```
+
+CSV input defaults to `data/raw`. Set `STOCK_DATA_DIR` to use another directory. Each CSV must contain `ticker,date,open,high,low,close,adjusted_close,volume`; identical ticker/date rows are deduplicated, while conflicting duplicates are rejected. New files are included the next time training runs; the pipeline rebuilds from all available CSVs rather than doing incremental training.
+
+Training uses a chronological 80/20 split by date and removes a gap equal to the label horizon between train and test. The model and metadata are saved under `models/`. Training intentionally fails if either partition lacks both label classes; with only one year of data and a 200-candle EMA warmup, there may not yet be enough examples to produce a meaningful model. Kandle remains an independent downstream validation strategy.
 
 ## Project Organization
 
@@ -58,4 +79,5 @@ Stock market forecasting models.
 ```
 
 --------
+
 

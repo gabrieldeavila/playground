@@ -17,6 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "ipython",
+    "joblib",
     "jupyterlab",
     "loguru",
     "matplotlib",
@@ -31,7 +32,7 @@ dependencies = [
     "tqdm",
     "typer",
 ]
-requires-python = "~=3.10.0"
+requires-python = ">=3.10,<3.14"
 
 
 [tool.ruff]

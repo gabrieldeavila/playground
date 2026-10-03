@@ -11,7 +11,7 @@ const TICKER_PATTERN = /^[A-Z0-9.^_-]{1,20}$/;
 export class CsvStockPriceRepository implements StockPriceRepository {
   private writeQueue: Promise<void> = Promise.resolve();
   private readonly dataDirectory = resolve(
-    process.env.STOCK_DATA_DIR ?? '../forecast-ml/data/raw',
+    process.env.STOCK_DATA_DIR ?? '../ml/data/raw',
   );
   private readonly legacyFilePath = join(
     this.dataDirectory,

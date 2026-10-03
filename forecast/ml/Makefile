@@ -3,8 +3,11 @@
 #################################################################################
 
 PROJECT_NAME = forecast-ml
-PYTHON_VERSION = 3.10
-PYTHON_INTERPRETER = python
+PYTHON_VERSION = 3.12
+PYTHON_INTERPRETER = uv run python
+TARGET_PCT ?= 0.05
+HORIZON_BARS ?= 10
+THRESHOLD ?= 0.5
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -42,8 +45,23 @@ format:
 
 ## Run tests
 .PHONY: test
-test:
-	python -m pytest tests
+test: requirements
+	uv run pytest tests
+
+## Diagnose whether historical data supports the configured target and horizon
+.PHONY: diagnose
+diagnose: requirements
+	uv run python -m forecast_ml.modeling.diagnose --target-pcts 0.05 0.14 0.10 0.02 --horizon-bars $(HORIZON_BARS)
+
+## Train the historical opportunity model
+.PHONY: train
+train: requirements
+	uv run python -m forecast_ml.modeling.train --target-pct $(TARGET_PCT) --horizon-bars $(HORIZON_BARS)
+
+## Score the latest candle for each ticker using the trained model
+.PHONY: predict
+predict: requirements
+	uv run python -m forecast_ml.modeling.predict --threshold $(THRESHOLD)
 
 
 ## Set up Python interpreter environment
@@ -65,7 +83,7 @@ create_environment:
 ## Make dataset
 .PHONY: data
 data: requirements
-	$(PYTHON_INTERPRETER) forecast_ml/dataset.py
+	uv run python -m forecast_ml.dataset
 
 
 #################################################################################
