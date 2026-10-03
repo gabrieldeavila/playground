@@ -43,6 +43,15 @@ const getCandleTimeKey = (time: HoveredCandle["time"]) =>
     : typeof time === "string"
       ? time.slice(0, 10)
       : String(time);
+const getTimeTimestamp = (time: Time): number | null => {
+  if (typeof time === "number") return time * 1000;
+  if (typeof time === "string") {
+    const timestamp = Date.parse(time);
+    return Number.isNaN(timestamp) ? null : timestamp;
+  }
+
+  return Date.UTC(time.year, time.month - 1, time.day);
+};
 const EMA_COLORS: Record<(typeof EMA_PERIODS)[number], string> = {
   9: "#72c9ff",
   20: "#a88bff",
@@ -571,6 +580,16 @@ const StockChartContent = memo(() => {
   const percentageDifference = measurementStart
     ? (priceDifference / measurementStart.price) * 100
     : 0;
+  const measurementDurationDays =
+    measurementStart && measurementEnd
+      ? (() => {
+          const startTimestamp = getTimeTimestamp(measurementStart.time);
+          const endTimestamp = getTimeTimestamp(measurementEnd.time);
+          return startTimestamp === null || endTimestamp === null
+            ? null
+            : Math.round(Math.abs(endTimestamp - startTimestamp) / 86_400_000);
+        })()
+      : null;
   const numberFormat = new Intl.NumberFormat("pt-BR", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
@@ -649,7 +668,7 @@ const StockChartContent = memo(() => {
             x={(startX + endX) / 2 + scaleWidth + 12}
             y={(startY + endY) / 2 - 30}
             width="180"
-            height="60"
+            height="76"
           >
             <div className="rounded-(--radius-md) border border-border bg-bg-elevated/95 px-3 py-2 text-xs text-text shadow-(--shadow-md)">
               <div className="font-semibold">
@@ -658,6 +677,11 @@ const StockChartContent = memo(() => {
               <div className="text-text-muted">
                 {percentageDifference >= 0 ? "+" : ""}{numberFormat.format(percentageDifference)}%
               </div>
+              {measurementDurationDays !== null && (
+                <div className="text-text-muted">
+                  {measurementDurationDays} {measurementDurationDays === 1 ? "dia" : "dias"}
+                </div>
+              )}
             </div>
           </foreignObject>
         </svg>
