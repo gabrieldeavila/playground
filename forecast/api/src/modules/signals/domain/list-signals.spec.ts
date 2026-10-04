@@ -80,6 +80,16 @@ describe('ListSignals', () => {
     expect(tickers).toHaveLength(4);
   });
 
+  it('lê o snapshot do timeframe pedido', async () => {
+    const read = jest.fn(() => Promise.resolve(snapshot));
+    const weekly = new ListSignals({ read });
+
+    const result = await weekly.execute('weekly');
+
+    expect(read).toHaveBeenCalledWith('weekly');
+    expect(result?.timeframe).toBe('weekly');
+  });
+
   it('retorna null quando o snapshot ainda não existe', async () => {
     const empty = new ListSignals({ read: () => Promise.resolve(null) });
 

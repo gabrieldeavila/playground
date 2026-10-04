@@ -1,6 +1,7 @@
 {
   "title": "Kandle + AI signals",
   "subtitle": "EMA 9/20/50/100 daily COMPRA signals · session {{session}}",
+  "subtitle_weekly": "EMA 9/20/50/100 weekly COMPRA signals · session {{session}}",
   "subtitleEmpty": "Kandle COMPRA signals scored by the model",
   "refresh": "Recompute",
   "refreshWithDownload": "Download data and recompute",
@@ -12,6 +13,7 @@
   "list": {
     "title": "Today's signals and open trades",
     "description": "Trend start: first COMPRA after a base (setup off on 50 of the previous 60 days and EMA 9 opening above EMA 20). Next to the score, the band's real win rate in testing.",
+    "description_weekly": "Trend start: first COMPRA after a base (setup off on 50 of the previous 60 weeks and EMA 9 opening above EMA 20). Next to the score, the band's real win rate in testing.",
     "today": "Today",
     "trendStarts": "Trend starts ({{count}})",
     "all": "All ({{count}})"
@@ -21,6 +23,7 @@
     "signal": "Signal",
     "score": "Score",
     "days": "Days",
+    "days_weekly": "Weeks",
     "result": "Result",
     "stop": "Stop",
     "exit": "Exit"
@@ -43,6 +46,7 @@
     "winRate": "Win rate",
     "meanReturn": "Mean return",
     "medianDays": "Days (median)",
+    "medianDays_weekly": "Weeks (median)",
     "band": "Score band",
     "type": "Signal type",
     "allSignals": "All signals"
@@ -51,5 +55,10 @@
   "type": {
     "trendStart": "Trend start",
     "sideways": "Sideways"
+  },
+  "timeframe": {
+    "label": "Timeframe",
+    "daily": "Daily",
+    "weekly": "Weekly"
   }
 }

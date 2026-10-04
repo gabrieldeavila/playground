@@ -1,3 +1,6 @@
+export const TIMEFRAMES = ['daily', 'weekly'] as const;
+export type Timeframe = (typeof TIMEFRAMES)[number];
+
 export interface SignalTrade {
   signal_date: string;
   exit_date: string | null;
@@ -46,6 +49,7 @@ export interface ScoreBandRow {
 export interface SignalSnapshot {
   generated_at: string;
   session: string;
+  timeframe?: Timeframe;
   model: {
     rules: string;
     train_signals: string;
@@ -57,7 +61,7 @@ export interface SignalSnapshot {
 }
 
 export interface SignalSnapshotRepository {
-  read(): Promise<SignalSnapshot | null>;
+  read(timeframe: Timeframe): Promise<SignalSnapshot | null>;
 }
 
 export interface RefreshStatus {

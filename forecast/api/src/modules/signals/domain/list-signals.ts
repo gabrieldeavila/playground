@@ -3,6 +3,7 @@ import {
   SignalSnapshotRepository,
   SignalTrade,
   TickerSignals,
+  Timeframe,
 } from './signal-snapshot.js';
 
 export interface SignalSummary {
@@ -17,8 +18,8 @@ export class ListSignals {
   constructor(private readonly repository: SignalSnapshotRepository) {}
 
   /** Tickers with a COMPRA today or an open trade: today first, then trend starts, then score. */
-  async execute() {
-    const snapshot = await this.repository.read();
+  async execute(timeframe: Timeframe = 'daily') {
+    const snapshot = await this.repository.read(timeframe);
     if (!snapshot) return null;
 
     const signals: SignalSummary[] = Object.entries(snapshot.tickers)
@@ -41,27 +42,30 @@ export class ListSignals {
           left.ticker.localeCompare(right.ticker),
       );
 
-    return { ...metadata(snapshot), signals };
+    return { ...metadata(snapshot, timeframe), signals };
   }
 
   /** Every ticker in the snapshot with its company name, for search suggestions. */
-  async listTickers() {
-    const snapshot = await this.repository.read();
+  async listTickers(timeframe: Timeframe = 'daily') {
+    const snapshot = await this.repository.read(timeframe);
     if (!snapshot) return null;
     return Object.entries(snapshot.tickers)
       .map(([ticker, { name }]) => ({ ticker, name }))
       .sort((left, right) => left.ticker.localeCompare(right.ticker));
   }
 
-  async findTicker(ticker: string) {
-    const snapshot = await this.repository.read();
+  async findTicker(ticker: string, timeframe: Timeframe = 'daily') {
+    const snapshot = await this.repository.read(timeframe);
     const symbol = ticker.toUpperCase();
     const signals = snapshot?.tickers[symbol];
     if (!snapshot || !signals) return null;
-    return { ...metadata(snapshot), ticker: symbol, ...signals };
+    return { ...metadata(snapshot, timeframe), ticker: symbol, ...signals };
   }
 }
 
-function metadata({ generated_at, session, model }: SignalSnapshot) {
-  return { generated_at, session, model };
+function metadata(
+  { generated_at, session, model }: SignalSnapshot,
+  timeframe: Timeframe,
+) {
+  return { generated_at, session, timeframe, model };
 }

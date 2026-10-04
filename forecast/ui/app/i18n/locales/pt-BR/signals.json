@@ -1,6 +1,7 @@
 {
   "title": "Sinais Kandle + IA",
   "subtitle": "COMPRAs EMA 9/20/50/100 no diário · sessão {{session}}",
+  "subtitle_weekly": "COMPRAs EMA 9/20/50/100 no semanal · sessão {{session}}",
   "subtitleEmpty": "COMPRAs do Kandle com a nota do modelo",
   "refresh": "Recalcular",
   "refreshWithDownload": "Baixar dados e recalcular",
@@ -12,6 +13,7 @@
   "list": {
     "title": "COMPRAs de hoje e trades abertos",
     "description": "Início de tendência: primeira COMPRA depois de uma base (setup desligado em 50 dos 60 dias anteriores e EMA 9 abrindo acima da EMA 20). Ao lado da nota, o acerto real da faixa no teste.",
+    "description_weekly": "Início de tendência: primeira COMPRA depois de uma base (setup desligado em 50 das 60 semanas anteriores e EMA 9 abrindo acima da EMA 20). Ao lado da nota, o acerto real da faixa no teste.",
     "today": "Hoje",
     "trendStarts": "Inícios de tendência ({{count}})",
     "all": "Todas ({{count}})"
@@ -21,6 +23,7 @@
     "signal": "Sinal",
     "score": "Nota",
     "days": "Dias",
+    "days_weekly": "Semanas",
     "result": "Resultado",
     "stop": "Stop",
     "exit": "Saída"
@@ -43,6 +46,7 @@
     "winRate": "Acerto",
     "meanReturn": "Retorno médio",
     "medianDays": "Dias (mediana)",
+    "medianDays_weekly": "Semanas (mediana)",
     "band": "Faixa de nota",
     "type": "Tipo de COMPRA",
     "allSignals": "Todas as COMPRAs"
@@ -51,5 +55,10 @@
   "type": {
     "trendStart": "Início de tendência",
     "sideways": "Lateral"
+  },
+  "timeframe": {
+    "label": "Tempo gráfico",
+    "daily": "Diário",
+    "weekly": "Semanal"
   }
 }

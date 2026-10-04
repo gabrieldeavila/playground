@@ -78,6 +78,41 @@ def load_market_data(data_dir: Path = RAW_DATA_DIR) -> pd.DataFrame:
     return candles.sort_values(key).reset_index(drop=True)
 
 
+def resample_weekly(candles: pd.DataFrame) -> pd.DataFrame:
+    """One candle per ticker and week (Mon–Fri), dated on the week's last session.
+
+    Open/high/low are aggregated in adjusted space and converted back with the last
+    session's adjustment, so a split in the middle of a week cannot fake a huge range.
+    The current week is included while still open, like the weekly chart in Kandle.
+    """
+    adjustment = candles["adjusted_close"] / candles["close"]
+    adjusted = candles.assign(
+        open=candles["open"] * adjustment,
+        high=candles["high"] * adjustment,
+        low=candles["low"] * adjustment,
+        week=candles["date"].dt.to_period("W-FRI"),
+    )
+    weekly = (
+        adjusted.sort_values(["ticker", "date"])
+        .groupby(["ticker", "week"], sort=True)
+        .agg(
+            date=("date", "last"),
+            open=("open", "first"),
+            high=("high", "max"),
+            low=("low", "min"),
+            close=("close", "last"),
+            adjusted_close=("adjusted_close", "last"),
+            volume=("volume", "sum"),
+        )
+        .reset_index(level="ticker")
+        .reset_index(drop=True)
+    )
+    ratio = weekly["adjusted_close"] / weekly["close"]
+    for column in ("open", "high", "low"):
+        weekly[column] = weekly[column] / ratio
+    return weekly[COLUMN_ORDER]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Valida e resume os CSVs de mercado.")
     parser.add_argument("--data-dir", type=Path, default=RAW_DATA_DIR)

@@ -4,32 +4,44 @@ import { resolve } from 'node:path';
 import {
   SignalSnapshot,
   SignalSnapshotRepository,
+  Timeframe,
 } from '../domain/signal-snapshot.js';
 
 export const mlDirectory = () => resolve(process.env.ML_DIR ?? '../ml');
 
+/** Daily keeps the original file name; other timeframes get a suffix. */
+const snapshotFile = (timeframe: Timeframe) =>
+  timeframe === 'daily'
+    ? 'kandle_signals.json'
+    : `kandle_signals_${timeframe}.json`;
+
 @Injectable()
 export class JsonSignalSnapshotRepository implements SignalSnapshotRepository {
-  private readonly filePath = resolve(
-    process.env.SIGNALS_SNAPSHOT_PATH ??
-      `${mlDirectory()}/data/processed/kandle_signals.json`,
+  private readonly directory = resolve(
+    process.env.SIGNALS_SNAPSHOT_DIR ?? `${mlDirectory()}/data/processed`,
   );
-  private cache: { mtimeMs: number; snapshot: SignalSnapshot } | null = null;
+  private readonly cache = new Map<
+    Timeframe,
+    { mtimeMs: number; snapshot: SignalSnapshot }
+  >();
 
-  async read(): Promise<SignalSnapshot | null> {
+  async read(timeframe: Timeframe): Promise<SignalSnapshot | null> {
+    const filePath = resolve(this.directory, snapshotFile(timeframe));
     let mtimeMs: number;
     try {
-      ({ mtimeMs } = await stat(this.filePath));
+      ({ mtimeMs } = await stat(filePath));
     } catch {
       return null;
     }
     // The ML job replaces the file atomically; reparse only when it changed.
-    if (this.cache?.mtimeMs !== mtimeMs) {
+    let cached = this.cache.get(timeframe);
+    if (cached?.mtimeMs !== mtimeMs) {
       const snapshot = JSON.parse(
-        await readFile(this.filePath, 'utf8'),
+        await readFile(filePath, 'utf8'),
       ) as SignalSnapshot;
-      this.cache = { mtimeMs, snapshot };
+      cached = { mtimeMs, snapshot };
+      this.cache.set(timeframe, cached);
     }
-    return this.cache.snapshot;
+    return cached.snapshot;
   }
 }

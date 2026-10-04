@@ -3,10 +3,11 @@ import { spawn } from 'node:child_process';
 import {
   RefreshStatus,
   SignalRefreshRunner,
+  TIMEFRAMES,
 } from '../domain/signal-snapshot.js';
 import { mlDirectory } from './json-signal-snapshot.repository.js';
 
-/** Runs the ML CLI (optional download, then snapshot), one job at a time. */
+/** Runs the ML CLI (optional download, then a snapshot per timeframe), one job at a time. */
 @Injectable()
 export class PythonSignalRefreshRunner implements SignalRefreshRunner {
   private readonly logger = new Logger(PythonSignalRefreshRunner.name);
@@ -31,7 +32,13 @@ export class PythonSignalRefreshRunner implements SignalRefreshRunner {
     };
     const steps = [
       ...(download ? [['-m', 'forecast_ml.download']] : []),
-      ['-m', 'forecast_ml.modeling.kandle_model', 'predict'],
+      ...TIMEFRAMES.map((timeframe) => [
+        '-m',
+        'forecast_ml.modeling.kandle_model',
+        'predict',
+        '--timeframe',
+        timeframe,
+      ]),
     ];
     void steps
       .reduce(

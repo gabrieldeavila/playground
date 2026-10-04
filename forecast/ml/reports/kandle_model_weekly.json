@@ -1,0 +1,66 @@
+{
+  "trained_at": "2026-10-04T18:07:57+00:00",
+  "timeframe": "weekly",
+  "rules": "COMPRA Kandle EMA 9/20/50/100 no semanal; entrada no open seguinte; stop 3xATR no fechamento; sa\u00edda com EMA 9 < EMA 20 por 2 candles; custo 0,1% por lado",
+  "train_signals": "2012-01-06 a 2021-11-19 (7002 trades)",
+  "test_signals": "2022-01-07 a 2026-09-04 (2983 trades)",
+  "test_auc": 0.545,
+  "test_by_type": [
+    {
+      "type": "trend_start",
+      "trades": 591,
+      "win_rate_pct": 38.1,
+      "mean_return_pct": 8.62,
+      "median_days": 21.0
+    },
+    {
+      "type": "all",
+      "trades": 2983,
+      "win_rate_pct": 34.1,
+      "mean_return_pct": 4.64,
+      "median_days": 18.0
+    }
+  ],
+  "test_by_score_band": [
+    {
+      "score_from": 0,
+      "score_to": 30,
+      "trades": 1075,
+      "win_rate_pct": 31.4,
+      "mean_return_pct": 1.58,
+      "median_days": 13.0
+    },
+    {
+      "score_from": 30,
+      "score_to": 50,
+      "trades": 669,
+      "win_rate_pct": 32.4,
+      "mean_return_pct": 2.03,
+      "median_days": 17.0
+    },
+    {
+      "score_from": 50,
+      "score_to": 70,
+      "trades": 703,
+      "win_rate_pct": 35.3,
+      "mean_return_pct": 5.42,
+      "median_days": 21.0
+    },
+    {
+      "score_from": 70,
+      "score_to": 90,
+      "trades": 482,
+      "win_rate_pct": 39.4,
+      "mean_return_pct": 11.73,
+      "median_days": 25.0
+    },
+    {
+      "score_from": 90,
+      "score_to": 100,
+      "trades": 54,
+      "win_rate_pct": 44.4,
+      "mean_return_pct": 24.54,
+      "median_days": 24.0
+    }
+  ]
+}

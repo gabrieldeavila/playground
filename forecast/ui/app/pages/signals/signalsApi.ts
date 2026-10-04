@@ -1,3 +1,5 @@
+export type Timeframe = "daily" | "weekly";
+
 export type SignalTrade = {
   signal_date: string;
   exit_date: string | null;
@@ -60,6 +62,7 @@ export type SignalSummary = {
 export type SignalsResponse = {
   generated_at: string;
   session: string;
+  timeframe: Timeframe;
   model: ModelSummary;
   signals: SignalSummary[];
 };
@@ -96,12 +99,16 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
   return (await response.json()) as T;
 };
 
-export const fetchSignals = () => request<SignalsResponse>("/signals");
+export const fetchSignals = (timeframe: Timeframe) =>
+  request<SignalsResponse>(`/signals?timeframe=${timeframe}`);
 
-export const fetchTickers = () => request<TickerOption[]>("/signals/tickers");
+export const fetchTickers = (timeframe: Timeframe) =>
+  request<TickerOption[]>(`/signals/tickers?timeframe=${timeframe}`);
 
-export const fetchTicker = (ticker: string) =>
-  request<TickerDetail>(`/signals/${encodeURIComponent(ticker)}`);
+export const fetchTicker = (ticker: string, timeframe: Timeframe) =>
+  request<TickerDetail>(
+    `/signals/${encodeURIComponent(ticker)}?timeframe=${timeframe}`,
+  );
 
 export const fetchRefreshStatus = () =>
   request<RefreshStatus>("/signals/refresh");

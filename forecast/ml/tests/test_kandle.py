@@ -135,3 +135,30 @@ def test_first_signal_after_a_base_is_a_trend_start_and_repeats_are_not():
     assert first["setup_off_days_60"] >= 50 and first["trend_start"]
     # The second COMPRA comes right after the first setup: not a base, so sideways.
     assert repeat["setup_off_days_60"] < 50 and not repeat["trend_start"]
+
+
+def test_weekly_candles_aggregate_the_week_and_survive_a_mid_week_split():
+    from forecast_ml.dataset import resample_weekly
+
+    dates = pd.bdate_range("2024-01-01", periods=10)  # two Mon–Fri weeks
+    raw = np.array([200, 202, 204, 100, 101, 102, 103, 104, 105, 106], dtype=float)
+    adjusted = np.where(np.arange(10) < 3, raw / 2, raw)  # 2:1 split on day 4
+    candles = pd.DataFrame(
+        {
+            "ticker": "AAA",
+            "date": dates,
+            "open": raw,
+            "high": raw * 1.01,
+            "low": raw * 0.99,
+            "close": raw,
+            "adjusted_close": adjusted,
+            "volume": 10,
+        }
+    )
+    weekly = resample_weekly(candles)
+    assert list(weekly["date"]) == [dates[4], dates[9]]
+    first = weekly.iloc[0]
+    assert first["open"] == pytest.approx(100.0)  # 200 before the split, in today's terms
+    assert first["high"] == pytest.approx(102 * 1.01)
+    assert first["close"] == 101 and first["volume"] == 50
+    assert weekly.iloc[1]["low"] == pytest.approx(102 * 0.99)

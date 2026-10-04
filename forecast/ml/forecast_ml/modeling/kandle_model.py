@@ -4,6 +4,9 @@ train:   fit on signals before ``--test-start`` (only trades already closed by t
          test on signals from ``--test-start`` on, and save that same model. The test
          period is never used for fitting, so its numbers are an honest preview.
 predict: write data/processed/kandle_signals.json for the API.
+
+``--timeframe weekly`` runs the same rules on weekly candles built from the daily
+CSVs, with its own model, report and snapshot (``*_weekly``).
 """
 
 import argparse
@@ -25,14 +28,32 @@ from forecast_ml.config import (
     REPORTS_DIR,
     TICKER_NAMES_PATH,
 )
-from forecast_ml.dataset import load_market_data
+from forecast_ml.dataset import load_market_data, resample_weekly
 from forecast_ml.kandle_features import FEATURES, add_features
 from forecast_ml.trades import simulate_trades
 
-MODEL_PATH = MODELS_DIR / "kandle_model.joblib"
-SNAPSHOT_PATH = PROCESSED_DATA_DIR / "kandle_signals.json"
+TIMEFRAMES = ("daily", "weekly")
+TIMEFRAME_LABELS = {"daily": "diário", "weekly": "semanal"}
 # Score bands reported on the test period; each signal shows its band's real win rate.
 SCORE_BANDS = (0, 30, 50, 70, 90, 100)
+
+
+def _suffix(timeframe: str) -> str:
+    # Daily keeps the original file names, so existing artifacts stay valid.
+    return "" if timeframe == "daily" else f"_{timeframe}"
+
+
+def model_path(timeframe: str) -> Path:
+    return MODELS_DIR / f"kandle_model{_suffix(timeframe)}.joblib"
+
+
+def snapshot_path(timeframe: str) -> Path:
+    return PROCESSED_DATA_DIR / f"kandle_signals{_suffix(timeframe)}.json"
+
+
+def load_candles(data_dir: Path, timeframe: str) -> pd.DataFrame:
+    candles = load_market_data(data_dir)
+    return resample_weekly(candles) if timeframe == "weekly" else candles
 
 
 def build_dataset(candles: pd.DataFrame) -> pd.DataFrame:
@@ -101,9 +122,9 @@ def band_win_rate(score: float, bands: list[dict]) -> float | None:
     return None
 
 
-def train(data_dir: Path, test_start: str, model_path: Path) -> dict:
+def train(data_dir: Path, test_start: str, model_path: Path, timeframe: str = "daily") -> dict:
     start = pd.Timestamp(test_start)
-    dataset = build_dataset(load_market_data(data_dir))
+    dataset = build_dataset(load_candles(data_dir, timeframe))
     closed = dataset.dropna(subset=["label"])
     # Purge: a trade still open at test_start would leak its outcome into training.
     train_set = closed.loc[(closed["signal_date"] < start) & (closed["exit_date"] < start)]
@@ -113,8 +134,10 @@ def train(data_dir: Path, test_start: str, model_path: Path) -> dict:
     scores = to_score(model, reference, test_set[FEATURES])
     report = {
         "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "rules": "COMPRA Kandle EMA 9/20/50/100; entrada no open seguinte; stop 3xATR no "
-        "fechamento; saída com EMA 9 < EMA 20 por 2 dias; custo 0,1% por lado",
+        "timeframe": timeframe,
+        "rules": f"COMPRA Kandle EMA 9/20/50/100 no {TIMEFRAME_LABELS[timeframe]}; entrada no "
+        "open seguinte; stop 3xATR no fechamento; saída com EMA 9 < EMA 20 por 2 candles; "
+        "custo 0,1% por lado",
         "train_signals": f"{train_set['signal_date'].min().date()} a "
         f"{train_set['signal_date'].max().date()} ({len(train_set)} trades)",
         "test_signals": f"{test_set['signal_date'].min().date()} a "
@@ -125,18 +148,35 @@ def train(data_dir: Path, test_start: str, model_path: Path) -> dict:
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(
-        {"model": model, "reference": reference, "features": FEATURES, "report": report},
+        {
+            "model": model,
+            "reference": reference,
+            "features": FEATURES,
+            "timeframe": timeframe,
+            "report": report,
+        },
         model_path,
     )
     test_set.assign(score=scores).to_csv(model_path.with_suffix(".test.csv"), index=False)
-    (REPORTS_DIR / "kandle_model.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    (REPORTS_DIR / f"kandle_model{_suffix(timeframe)}.json").write_text(
+        json.dumps(report, indent=2), encoding="utf-8"
+    )
     return report
 
 
-def predict(data_dir: Path, model_path: Path, output_path: Path, history_days: int = 730) -> dict:
+def predict(
+    data_dir: Path,
+    model_path: Path,
+    output_path: Path,
+    timeframe: str = "daily",
+    history_days: int = 730,
+) -> dict:
     # Load only trusted local artifacts: joblib/pickle is executable, not a wire format.
     artifact = joblib.load(model_path)
-    candles = load_market_data(data_dir)
+    trained_on = artifact.get("timeframe", "daily")
+    if trained_on != timeframe:
+        raise ValueError(f"{model_path} foi treinado no {trained_on}, não no {timeframe}")
+    candles = load_candles(data_dir, timeframe)
     session = candles["date"].max()
     dataset = build_dataset(candles)
     dataset["score"] = to_score(
@@ -191,6 +231,7 @@ def predict(data_dir: Path, model_path: Path, output_path: Path, history_days: i
     snapshot = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "session": str(session.date()),
+        "timeframe": timeframe,
         "model": artifact["report"],
         "tickers": tickers,
     }
@@ -205,18 +246,24 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Modelo de nota para as COMPRAs do Kandle.")
     parser.add_argument("command", choices=["train", "predict"])
     parser.add_argument("--data-dir", type=Path, default=RAW_DATA_DIR)
-    parser.add_argument("--model-path", type=Path, default=MODEL_PATH)
-    parser.add_argument("--output-path", type=Path, default=SNAPSHOT_PATH)
+    parser.add_argument("--timeframe", choices=TIMEFRAMES, default="daily")
+    parser.add_argument("--model-path", type=Path, help="padrão: models/kandle_model*.joblib")
+    parser.add_argument(
+        "--output-path", type=Path, help="padrão: data/processed/kandle_signals*.json"
+    )
     parser.add_argument("--test-start", default="2022-01-01")
     args = parser.parse_args()
+    path = args.model_path or model_path(args.timeframe)
     if args.command == "train":
-        report = train(args.data_dir, args.test_start, args.model_path)
+        report = train(args.data_dir, args.test_start, path, args.timeframe)
         print(f"Treino: {report['train_signals']}\nTeste: {report['test_signals']}")
         print(f"AUC no teste: {report['test_auc']}")
         print(pd.DataFrame(report["test_by_type"]).to_string(index=False))
         print(pd.DataFrame(report["test_by_score_band"]).to_string(index=False))
     else:
-        snapshot = predict(args.data_dir, args.model_path, args.output_path)
+        snapshot = predict(
+            args.data_dir, path, args.output_path or snapshot_path(args.timeframe), args.timeframe
+        )
         positions = sum(t["position"] is not None for t in snapshot["tickers"].values())
         today = sum(t["signal_today"] for t in snapshot["tickers"].values())
         print(f"Sessão {snapshot['session']}: {today} COMPRAs hoje, {positions} em posição")

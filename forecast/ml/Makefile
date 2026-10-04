@@ -64,15 +64,16 @@ train: requirements
 download: requirements
 	uv run python -m forecast_ml.download
 
-## Train the Kandle COMPRA score model (train before 2022, test from 2022)
+## Train the Kandle COMPRA score model (train before 2022, test from 2022); TIMEFRAME=weekly too
+TIMEFRAME ?= daily
 .PHONY: train-kandle
 train-kandle: requirements
-	uv run python -m forecast_ml.modeling.kandle_model train
+	uv run python -m forecast_ml.modeling.kandle_model train --timeframe $(TIMEFRAME)
 
-## Write data/processed/kandle_signals.json, served by the API
+## Write data/processed/kandle_signals*.json, served by the API
 .PHONY: predict-kandle
 predict-kandle: requirements
-	uv run python -m forecast_ml.modeling.kandle_model predict
+	uv run python -m forecast_ml.modeling.kandle_model predict --timeframe $(TIMEFRAME)
 
 ## Score the latest candle for each ticker using the trained model
 .PHONY: predict

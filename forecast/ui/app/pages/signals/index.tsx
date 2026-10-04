@@ -26,6 +26,7 @@ import {
   type SignalsResponse,
   type TickerDetail,
   type TickerOption,
+  type Timeframe,
 } from "./signalsApi";
 import { TickerSearch } from "./TickerSearch";
 
@@ -97,11 +98,15 @@ const OutcomeRow = ({
   </Table.Row>
 );
 
+const TIMEFRAMES: Timeframe[] = ["daily", "weekly"];
+
 export function meta() {
   return [{ title: "Sinais Kandle + IA" }];
 }
 
-const ModelTest = memo(({ model }: { model: ModelSummary }) => {
+type ModelTestProps = { model: ModelSummary; timeframe: Timeframe };
+
+const ModelTest = memo(({ model, timeframe }: ModelTestProps) => {
   const { t } = useTranslation("signals");
   return (
     <Card>
@@ -149,7 +154,9 @@ const ModelTest = memo(({ model }: { model: ModelSummary }) => {
                 <Table.Head>{t("test.trades")}</Table.Head>
                 <Table.Head>{t("test.winRate")}</Table.Head>
                 <Table.Head>{t("test.meanReturn")}</Table.Head>
-                <Table.Head>{t("test.medianDays")}</Table.Head>
+                <Table.Head>
+                  {t("test.medianDays", { context: timeframe })}
+                </Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -169,7 +176,9 @@ const ModelTest = memo(({ model }: { model: ModelSummary }) => {
 
 ModelTest.displayName = "ModelTest";
 
-const TickerHistory = memo(({ detail }: { detail: TickerDetail }) => {
+type TickerHistoryProps = { detail: TickerDetail; timeframe: Timeframe };
+
+const TickerHistory = memo(({ detail, timeframe }: TickerHistoryProps) => {
   const { t } = useTranslation("signals");
   return (
     <Card>
@@ -192,7 +201,9 @@ const TickerHistory = memo(({ detail }: { detail: TickerDetail }) => {
               <Table.Row>
                 <Table.Head>{t("columns.signal")}</Table.Head>
                 <Table.Head>{t("columns.score")}</Table.Head>
-                <Table.Head>{t("columns.days")}</Table.Head>
+                <Table.Head>
+                  {t("columns.days", { context: timeframe })}
+                </Table.Head>
                 <Table.Head>{t("columns.result")}</Table.Head>
                 <Table.Head>{t("columns.exit")}</Table.Head>
               </Table.Row>
@@ -237,13 +248,14 @@ const Signals = memo(() => {
   const [tickers, setTickers] = useState<TickerOption[]>([]);
   const [detail, setDetail] = useState<TickerDetail | null>(null);
   const [onlyTrendStarts, setOnlyTrendStarts] = useState(true);
+  const [timeframe, setTimeframe] = useState<Timeframe>("daily");
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const [signals, options] = await Promise.all([
-        fetchSignals(),
-        fetchTickers(),
+        fetchSignals(timeframe),
+        fetchTickers(timeframe),
       ]);
       setData(signals);
       setTickers(options);
@@ -253,7 +265,7 @@ const Signals = memo(() => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [timeframe]);
 
   useEffect(() => {
     void load();
@@ -282,13 +294,20 @@ const Signals = memo(() => {
     }
   };
 
-  const openTicker = async (ticker: string) => {
+  const openTicker = async (ticker: string, frame = timeframe) => {
     try {
-      setDetail(await fetchTicker(ticker));
+      setDetail(await fetchTicker(ticker, frame));
       setError(null);
     } catch (detailError) {
+      setDetail(null);
       setError((detailError as Error).message);
     }
+  };
+
+  const changeTimeframe = (next: Timeframe) => {
+    if (next === timeframe) return;
+    setTimeframe(next);
+    if (detail) void openTicker(detail.ticker, next);
   };
 
   const trendStarts = useMemo(
@@ -306,10 +325,29 @@ const Signals = memo(() => {
               {t("title")}
             </h1>
             <p className="mt-2 text-sm text-(--color-text-muted)">
-              {data ? t("subtitle", { session: data.session }) : t("subtitleEmpty")}
+              {data
+                ? t("subtitle", { session: data.session, context: timeframe })
+                : t("subtitleEmpty")}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              role="group"
+              aria-label={t("timeframe.label")}
+              className="flex gap-1"
+            >
+              {TIMEFRAMES.map((frame) => (
+                <Button
+                  key={frame}
+                  size="sm"
+                  variant={timeframe === frame ? "primary" : "ghost"}
+                  aria-pressed={timeframe === frame}
+                  onClick={() => changeTimeframe(frame)}
+                >
+                  {t(`timeframe.${frame}`)}
+                </Button>
+              ))}
+            </div>
             <Button
               variant="secondary"
               size="sm"
@@ -353,7 +391,7 @@ const Signals = memo(() => {
                 <Card.Header>
                   <Card.Title>{t("list.title")}</Card.Title>
                   <p className="text-sm text-(--color-text-muted)">
-                    {t("list.description")}
+                    {t("list.description", { context: timeframe })}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Button
@@ -379,7 +417,9 @@ const Signals = memo(() => {
                         <Table.Head>{t("columns.ticker")}</Table.Head>
                         <Table.Head>{t("columns.signal")}</Table.Head>
                         <Table.Head>{t("columns.score")}</Table.Head>
-                        <Table.Head>{t("columns.days")}</Table.Head>
+                        <Table.Head>
+                          {t("columns.days", { context: timeframe })}
+                        </Table.Head>
                         <Table.Head>{t("columns.result")}</Table.Head>
                         <Table.Head>{t("columns.stop")}</Table.Head>
                       </Table.Row>
@@ -410,7 +450,9 @@ const Signals = memo(() => {
                                 signal.latest.signal_date
                               )}
                             </div>
-                            <SignalType trendStart={signal.latest.trend_start} />
+                            <SignalType
+                              trendStart={signal.latest.trend_start}
+                            />
                           </Table.Cell>
                           <Table.Cell>
                             <Score
@@ -418,7 +460,9 @@ const Signals = memo(() => {
                               winRate={signal.latest.win_rate_pct}
                             />
                           </Table.Cell>
-                          <Table.Cell>{signal.position?.days ?? "—"}</Table.Cell>
+                          <Table.Cell>
+                            {signal.position?.days ?? "—"}
+                          </Table.Cell>
                           <Table.Cell>
                             {signal.position ? (
                               <Signed value={signal.position.return_pct} />
@@ -443,14 +487,14 @@ const Signals = memo(() => {
                 onSelect={(ticker) => void openTicker(ticker)}
               />
               {detail ? (
-                <TickerHistory detail={detail} />
+                <TickerHistory detail={detail} timeframe={timeframe} />
               ) : (
                 <EmptyState
                   title={t("history.selectTitle")}
                   description={t("history.selectDescription")}
                 />
               )}
-              <ModelTest model={data.model} />
+              <ModelTest model={data.model} timeframe={timeframe} />
             </div>
           </div>
         )}

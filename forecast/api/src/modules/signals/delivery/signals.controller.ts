@@ -8,9 +8,14 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ListSignals } from '../domain/list-signals.js';
-import type { SignalRefreshRunner } from '../domain/signal-snapshot.js';
+import {
+  TIMEFRAMES,
+  type SignalRefreshRunner,
+  type Timeframe,
+} from '../domain/signal-snapshot.js';
 
 export const SIGNAL_REFRESH_RUNNER = 'SIGNAL_REFRESH_RUNNER';
 
@@ -23,15 +28,17 @@ export class SignalsController {
   ) {}
 
   @Get()
-  async list() {
-    const result = await this.listSignals.execute();
+  async list(@Query('timeframe') timeframe?: string) {
+    const result = await this.listSignals.execute(parseTimeframe(timeframe));
     if (!result) throw snapshotMissing();
     return result;
   }
 
   @Get('tickers')
-  async tickers() {
-    const result = await this.listSignals.listTickers();
+  async tickers(@Query('timeframe') timeframe?: string) {
+    const result = await this.listSignals.listTickers(
+      parseTimeframe(timeframe),
+    );
     if (!result) throw snapshotMissing();
     return result;
   }
@@ -52,16 +59,31 @@ export class SignalsController {
   }
 
   @Get(':ticker')
-  async ticker(@Param('ticker') ticker: string) {
+  async ticker(
+    @Param('ticker') ticker: string,
+    @Query('timeframe') timeframe?: string,
+  ) {
     if (!/^[a-zA-Z0-9.^_-]{1,20}$/.test(ticker)) {
       throw new BadRequestException('Ticker inválido');
     }
-    const result = await this.listSignals.findTicker(ticker);
+    const result = await this.listSignals.findTicker(
+      ticker,
+      parseTimeframe(timeframe),
+    );
     if (!result) {
       throw new NotFoundException(`Sem sinais para ${ticker.toUpperCase()}`);
     }
     return result;
   }
+}
+
+function parseTimeframe(value = 'daily'): Timeframe {
+  if (!(TIMEFRAMES as readonly string[]).includes(value)) {
+    throw new BadRequestException(
+      `timeframe deve ser ${TIMEFRAMES.join(' ou ')}`,
+    );
+  }
+  return value as Timeframe;
 }
 
 function snapshotMissing() {
