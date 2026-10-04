@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiArrowDown, FiArrowUp, FiRefreshCw } from "react-icons/fi";
 
 import { Alert } from "@/ui/components/primitives/alert";
 import { Badge, type BadgeVariant } from "@/ui/components/primitives/badge";
@@ -24,6 +24,7 @@ import {
   startRefresh,
   type MarketIndex,
   type ModelSummary,
+  type SignalSummary,
   type SignalsResponse,
   type TickerDetail,
   type TickerOption,
@@ -113,6 +114,89 @@ const INDEXES: MarketIndex[] = [
   "watchlist",
   "other",
 ];
+
+type SortKey = "ticker" | "signal" | "score" | "days" | "result" | "stop";
+type Sort = { key: SortKey; direction: "asc" | "desc" };
+
+const SORT_VALUES: Record<
+  SortKey,
+  (signal: SignalSummary) => string | number | null | undefined
+> = {
+  ticker: (signal) => signal.ticker,
+  signal: (signal) => signal.latest.signal_date,
+  score: (signal) => signal.latest.score,
+  days: (signal) => signal.position?.days,
+  result: (signal) => signal.position?.return_pct,
+  stop: (signal) => signal.position?.stop_price,
+};
+
+/** Sorts by the chosen column; rows without a value always go last. */
+const sortSignals = (signals: SignalSummary[], sort: Sort | null) => {
+  if (!sort) return signals;
+  const value = SORT_VALUES[sort.key];
+  const sign = sort.direction === "asc" ? 1 : -1;
+  return [...signals].sort((a, b) => {
+    const left = value(a);
+    const right = value(b);
+    if (left == null || right == null)
+      return left == null ? (right == null ? 0 : 1) : -1;
+    return (
+      sign *
+      (typeof left === "number" && typeof right === "number"
+        ? left - right
+        : String(left).localeCompare(String(right)))
+    );
+  });
+};
+
+/** Header cell that sorts the table: first click desc (asc for text), then flips. */
+const SortableHead = ({
+  column,
+  sort,
+  onSort,
+  children,
+}: {
+  column: SortKey;
+  sort: Sort | null;
+  onSort: (sort: Sort) => void;
+  children: ReactNode;
+}) => {
+  const active = sort?.key === column;
+  const direction = active
+    ? sort.direction === "asc"
+      ? "desc"
+      : "asc"
+    : column === "ticker"
+      ? "asc"
+      : "desc";
+  return (
+    <Table.Head
+      aria-sort={
+        active
+          ? sort.direction === "asc"
+            ? "ascending"
+            : "descending"
+          : undefined
+      }
+    >
+      <button
+        type="button"
+        className={`inline-flex items-center gap-1 whitespace-nowrap hover:text-(--color-text) ${
+          active ? "text-(--color-text)" : ""
+        }`}
+        onClick={() => onSort({ key: column, direction })}
+      >
+        {children}
+        {active &&
+          (sort.direction === "asc" ? (
+            <FiArrowUp aria-hidden="true" />
+          ) : (
+            <FiArrowDown aria-hidden="true" />
+          ))}
+      </button>
+    </Table.Head>
+  );
+};
 
 export function meta() {
   return [{ title: "Sinais Kandle + IA" }];
@@ -290,6 +374,7 @@ const Signals = memo(() => {
   const [onlyTrendStarts, setOnlyTrendStarts] = useState(true);
   const [indexFilter, setIndexFilter] = useState<MarketIndex | "all">("all");
   const [timeframe, setTimeframe] = useState<Timeframe>("daily");
+  const [sort, setSort] = useState<Sort | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -369,7 +454,10 @@ const Signals = memo(() => {
     () => inIndex.filter((signal) => signal.latest.trend_start),
     [inIndex],
   );
-  const rows = onlyTrendStarts ? trendStarts : inIndex;
+  const rows = useMemo(
+    () => sortSignals(onlyTrendStarts ? trendStarts : inIndex, sort),
+    [onlyTrendStarts, trendStarts, inIndex, sort],
+  );
 
   return (
     <main className="min-h-[100dvh] bg-(--color-bg) text-(--color-text)">
@@ -488,14 +576,25 @@ const Signals = memo(() => {
                   <Table>
                     <Table.Header>
                       <Table.Row>
-                        <Table.Head>{t("columns.ticker")}</Table.Head>
-                        <Table.Head>{t("columns.signal")}</Table.Head>
-                        <Table.Head>{t("columns.score")}</Table.Head>
-                        <Table.Head>
-                          {t("columns.days", { context: timeframe })}
-                        </Table.Head>
-                        <Table.Head>{t("columns.result")}</Table.Head>
-                        <Table.Head>{t("columns.stop")}</Table.Head>
+                        {(
+                          [
+                            "ticker",
+                            "signal",
+                            "score",
+                            "days",
+                            "result",
+                            "stop",
+                          ] as const
+                        ).map((column) => (
+                          <SortableHead
+                            key={column}
+                            column={column}
+                            sort={sort}
+                            onSort={setSort}
+                          >
+                            {t(`columns.${column}`, { context: timeframe })}
+                          </SortableHead>
+                        ))}
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
