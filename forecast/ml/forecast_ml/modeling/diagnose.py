@@ -3,8 +3,6 @@
 import argparse
 import json
 
-import pandas as pd
-
 from forecast_ml.config import RAW_DATA_DIR
 from forecast_ml.dataset import load_market_data
 from forecast_ml.features import DEFAULT_EMA_PERIODS
@@ -15,6 +13,7 @@ def diagnose_training_data(
     data_dir=RAW_DATA_DIR,
     target_pcts: tuple[float, ...] = (0.05, 0.14, 0.10, 0.02),
     horizon_bars: int = 10,
+    stop_pct: float = 0.03,
 ) -> list[dict]:
     candles = load_market_data(data_dir)
     reports = []
@@ -23,11 +22,13 @@ def diagnose_training_data(
             candles,
             target_pct=target_pct,
             horizon_bars=horizon_bars,
+            stop_pct=stop_pct,
             ema_periods=DEFAULT_EMA_PERIODS,
         )
         counts = table["label"].value_counts().to_dict()
         report = {
             "target_pct": target_pct,
+            "stop_pct": stop_pct,
             "horizon_bars": horizon_bars,
             "samples": len(table),
             "positives": int(counts.get(1, 0)),
@@ -76,8 +77,11 @@ def main() -> None:
         help="Alvos percentuais como frações (ex.: 0.14 para 14%%).",
     )
     parser.add_argument("--horizon-bars", type=int, default=10)
+    parser.add_argument("--stop-pct", type=float, default=0.03)
     args = parser.parse_args()
-    reports = diagnose_training_data(args.data_dir, tuple(args.target_pcts), args.horizon_bars)
+    reports = diagnose_training_data(
+        args.data_dir, tuple(args.target_pcts), args.horizon_bars, args.stop_pct
+    )
     print(json.dumps(reports, indent=2, ensure_ascii=False, default=str))
 
 

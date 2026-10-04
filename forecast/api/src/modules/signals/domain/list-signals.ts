@@ -1,0 +1,55 @@
+import {
+  SignalSnapshot,
+  SignalSnapshotRepository,
+  SignalTrade,
+  TickerSignals,
+} from './signal-snapshot.js';
+
+export interface SignalSummary {
+  ticker: string;
+  signal_today: boolean;
+  position: TickerSignals['position'];
+  latest: SignalTrade;
+}
+
+export class ListSignals {
+  constructor(private readonly repository: SignalSnapshotRepository) {}
+
+  /** Tickers with a COMPRA today or an open trade, best score first. */
+  async execute() {
+    const snapshot = await this.repository.read();
+    if (!snapshot) return null;
+
+    const signals: SignalSummary[] = Object.entries(snapshot.tickers)
+      .filter(
+        ([, ticker]) =>
+          (ticker.signal_today || ticker.position) && ticker.history.length,
+      )
+      .map(([ticker, { signal_today, position, history }]) => ({
+        ticker,
+        signal_today,
+        position,
+        latest: history[0],
+      }))
+      .sort(
+        (left, right) =>
+          Number(right.signal_today) - Number(left.signal_today) ||
+          right.latest.score - left.latest.score ||
+          left.ticker.localeCompare(right.ticker),
+      );
+
+    return { ...metadata(snapshot), signals };
+  }
+
+  async findTicker(ticker: string) {
+    const snapshot = await this.repository.read();
+    const symbol = ticker.toUpperCase();
+    const signals = snapshot?.tickers[symbol];
+    if (!snapshot || !signals) return null;
+    return { ...metadata(snapshot), ticker: symbol, ...signals };
+  }
+}
+
+function metadata({ generated_at, session, model }: SignalSnapshot) {
+  return { generated_at, session, model };
+}

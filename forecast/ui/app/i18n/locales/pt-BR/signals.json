@@ -1,0 +1,47 @@
+{
+  "title": "Sinais Kandle + IA",
+  "subtitle": "COMPRAs EMA 9/20/50/100 no diário · sessão {{session}}",
+  "subtitleEmpty": "COMPRAs do Kandle com a nota do modelo",
+  "refresh": "Recalcular",
+  "refreshWithDownload": "Baixar dados e recalcular",
+  "search": "Ver histórico de um ticker (ex.: MRVL)",
+  "empty": {
+    "title": "Nenhum snapshot gerado",
+    "description": "Recalcule para gerar o primeiro snapshot."
+  },
+  "list": {
+    "title": "COMPRAs de hoje e trades abertos",
+    "description": "Nota de 0 a 100: quanto maior, melhor o sinal em comparação aos sinais históricos.",
+    "today": "Hoje"
+  },
+  "columns": {
+    "ticker": "Ticker",
+    "signal": "Sinal",
+    "score": "Nota",
+    "days": "Dias",
+    "result": "Resultado",
+    "stop": "Stop",
+    "exit": "Saída"
+  },
+  "exit": {
+    "stop": "Stop",
+    "cruzamento": "EMA 9 < EMA 20",
+    "open": "Em aberto"
+  },
+  "history": {
+    "title": "COMPRAs dos últimos 2 anos",
+    "empty": "Nenhuma COMPRA nos últimos 2 anos.",
+    "selectTitle": "Selecione um ticker",
+    "selectDescription": "Clique numa linha ou busque um ticker para ver cada COMPRA, a nota e o resultado."
+  },
+  "test": {
+    "title": "Como o modelo foi no teste",
+    "description": "Treinado com sinais de {{train}}. Testado em {{test}}, período que ele nunca viu.",
+    "minScore": "Nota mínima",
+    "all": "Todas",
+    "trades": "Trades",
+    "winRate": "Acerto",
+    "meanReturn": "Retorno médio",
+    "medianDays": "Dias (mediana)"
+  }
+}

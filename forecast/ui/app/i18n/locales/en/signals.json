@@ -1,0 +1,47 @@
+{
+  "title": "Kandle + AI signals",
+  "subtitle": "EMA 9/20/50/100 daily COMPRA signals · session {{session}}",
+  "subtitleEmpty": "Kandle COMPRA signals scored by the model",
+  "refresh": "Recompute",
+  "refreshWithDownload": "Download data and recompute",
+  "search": "See a ticker's history (e.g. MRVL)",
+  "empty": {
+    "title": "No snapshot yet",
+    "description": "Recompute to generate the first snapshot."
+  },
+  "list": {
+    "title": "Today's signals and open trades",
+    "description": "Score 0–100: higher means a better signal compared with historical signals.",
+    "today": "Today"
+  },
+  "columns": {
+    "ticker": "Ticker",
+    "signal": "Signal",
+    "score": "Score",
+    "days": "Days",
+    "result": "Result",
+    "stop": "Stop",
+    "exit": "Exit"
+  },
+  "exit": {
+    "stop": "Stop",
+    "cruzamento": "EMA 9 < EMA 20",
+    "open": "Open"
+  },
+  "history": {
+    "title": "Signals in the last 2 years",
+    "empty": "No signals in the last 2 years.",
+    "selectTitle": "Select a ticker",
+    "selectDescription": "Click a row or search a ticker to see each signal, its score and result."
+  },
+  "test": {
+    "title": "How the model did in testing",
+    "description": "Trained on signals from {{train}}. Tested on {{test}}, a period it never saw.",
+    "minScore": "Min score",
+    "all": "All",
+    "trades": "Trades",
+    "winRate": "Win rate",
+    "meanReturn": "Mean return",
+    "medianDays": "Days (median)"
+  }
+}

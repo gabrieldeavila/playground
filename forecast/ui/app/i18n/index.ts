@@ -3,8 +3,10 @@ import { initReactI18next } from "react-i18next";
 
 import enCommon from "./locales/en/common.json";
 import enHome from "./locales/en/home.json";
+import enSignals from "./locales/en/signals.json";
 import ptBRCommon from "./locales/pt-BR/common.json";
 import ptBRHome from "./locales/pt-BR/home.json";
+import ptBRSignals from "./locales/pt-BR/signals.json";
 
 export const supportedLanguages = ["pt-BR", "en"] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
@@ -25,10 +27,12 @@ void i18n.use(initReactI18next).init({
     "pt-BR": {
       common: ptBRCommon,
       home: ptBRHome,
+      signals: ptBRSignals,
     },
     en: {
       common: enCommon,
       home: enHome,
+      signals: enSignals,
     },
   },
   lng: initialLanguage,

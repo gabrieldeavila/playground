@@ -6,6 +6,7 @@ PROJECT_NAME = forecast-ml
 PYTHON_VERSION = 3.12
 PYTHON_INTERPRETER = uv run python
 TARGET_PCT ?= 0.05
+STOP_PCT ?= 0.03
 HORIZON_BARS ?= 10
 THRESHOLD ?= 0.5
 
@@ -51,12 +52,27 @@ test: requirements
 ## Diagnose whether historical data supports the configured target and horizon
 .PHONY: diagnose
 diagnose: requirements
-	uv run python -m forecast_ml.modeling.diagnose --target-pcts 0.05 0.14 0.10 0.02 --horizon-bars $(HORIZON_BARS)
+	uv run python -m forecast_ml.modeling.diagnose --target-pcts 0.05 0.14 0.10 0.02 --stop-pct $(STOP_PCT) --horizon-bars $(HORIZON_BARS)
 
 ## Train the historical opportunity model
 .PHONY: train
 train: requirements
-	uv run python -m forecast_ml.modeling.train --target-pct $(TARGET_PCT) --horizon-bars $(HORIZON_BARS)
+	uv run python -m forecast_ml.modeling.train --target-pct $(TARGET_PCT) --stop-pct $(STOP_PCT) --horizon-bars $(HORIZON_BARS)
+
+## Download daily candles for the tickers in references/universe.txt
+.PHONY: download
+download: requirements
+	uv run python -m forecast_ml.download
+
+## Train the Kandle COMPRA score model (train before 2022, test from 2022)
+.PHONY: train-kandle
+train-kandle: requirements
+	uv run python -m forecast_ml.modeling.kandle_model train
+
+## Write data/processed/kandle_signals.json, served by the API
+.PHONY: predict-kandle
+predict-kandle: requirements
+	uv run python -m forecast_ml.modeling.kandle_model predict
 
 ## Score the latest candle for each ticker using the trained model
 .PHONY: predict
