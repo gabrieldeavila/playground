@@ -1,6 +1,16 @@
 export const TIMEFRAMES = ['daily', 'weekly'] as const;
 export type Timeframe = (typeof TIMEFRAMES)[number];
 
+export const MARKET_INDEXES = [
+  'sp500',
+  'sp400',
+  'sp600',
+  'r2000',
+  'watchlist',
+  'other',
+] as const;
+export type MarketIndex = (typeof MARKET_INDEXES)[number];
+
 export interface SignalTrade {
   signal_date: string;
   exit_date: string | null;
@@ -24,6 +34,11 @@ export interface OpenPosition {
 
 export interface TickerSignals {
   name: string | null;
+  /** Absent in snapshots written before the universe had indexes. */
+  index?: MarketIndex;
+  sector?: string | null;
+  /** False when recent traded value is below the model's liquidity floor. */
+  liquid?: boolean;
   signal_today: boolean;
   position: OpenPosition | null;
   history: SignalTrade[];
@@ -46,6 +61,16 @@ export interface ScoreBandRow {
   median_days: number;
 }
 
+export interface IndexRow {
+  index: MarketIndex;
+  trades: number;
+  auc: number | null;
+  win_rate_pct: number | null;
+  score_70_plus_win_rate_pct: number | null;
+  score_below_30_win_rate_pct: number | null;
+  mean_return_pct: number;
+}
+
 export interface SignalSnapshot {
   generated_at: string;
   session: string;
@@ -56,6 +81,7 @@ export interface SignalSnapshot {
     test_signals: string;
     test_by_type: SignalTypeRow[];
     test_by_score_band: ScoreBandRow[];
+    test_by_index?: IndexRow[];
   };
   tickers: Record<string, TickerSignals>;
 }

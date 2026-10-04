@@ -1,0 +1,6 @@
+# Extra tickers to track besides the index members, one per line.
+AXTI
+DSX
+KODK
+NVAX
+SEI

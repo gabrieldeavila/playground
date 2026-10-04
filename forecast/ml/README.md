@@ -13,26 +13,41 @@ A model gives each Kandle COMPRA signal a 0–100 score.
 1. **Entry** ([kandle_signals.py](forecast_ml/kandle_signals.py)): Kandle's rule with EMA 9/20/50/100 on daily candles, ported rule for rule. The trade enters at the next open.
 2. **Exit** ([trades.py](forecast_ml/trades.py)): the trade ends when EMA 9 closes below EMA 20 for 2 days in a row, or when a close falls 3×ATR below entry. Both exits execute at the next open, with a cost of 0.1% per side. A trade succeeded if its net return is positive.
 3. **Features** ([kandle_features.py](forecast_ml/kandle_features.py)): 11 values read from the chart at the signal candle. They are the EMA spreads and slopes, how stretched price is from EMA 9, ATR, volume against its 20-day average, the 20-day return, and the result of the ticker's previous trade.
-4. **Trend start**: a signal counts as a trend start only when it is the first COMPRA after a base. That means the setup was off on at least 50 of the previous 60 candles and EMA 9 is already more than 1% above EMA 20. Repeated COMPRAs in a choppy market are labeled "lateral" (sideways). This rule is fixed, not learned: in the test period trend starts won 35.7% of the time and averaged +1.46%, against 33.5% and +1.00% for all signals.
+4. **Trend start**: a signal counts as a trend start only when it is the first COMPRA after a base. That means the setup was off on at least 50 of the previous 60 candles and EMA 9 is already more than 1% above EMA 20. Repeated COMPRAs in a choppy market are labeled "lateral" (sideways). This rule is fixed, not learned: in the test period trend starts won 34.5% of the time and averaged +0.57%, against 32.4% and +0.20% for all signals.
 5. **Model** ([modeling/kandle_model.py](forecast_ml/modeling/kandle_model.py)): a shallow gradient boosting classifier trained on signals before 2022 and tested on signals from 2022 on. The saved model is the same model that was tested. A score of 80 means the model rated the signal higher than 80% of the training signals.
+6. **Universe and liquidity** ([universe.py](forecast_ml/universe.py)): `references/universe.csv` holds the current S&P 500, MidCap 400 and SmallCap 600 members from Wikipedia, plus the hand-picked tickers in `references/watchlist.txt`, each tagged with its index and sector. One model is trained on all of them. Signals whose last 20 candles averaged under US$ 5M traded per session are left out of training and testing, and illiquid tickers are left out of the signals list (search still finds them). Liquidity is measured as close × volume, not price, because Yahoo's split-adjusted history makes past prices look tiny.
 
 ```bash
-make download        # tickers in references/universe.txt (S&P 500 + yours)
-make train-kandle    # prints the test table; models/kandle_model.joblib
+make universe        # references/universe.csv (Wikipedia + watchlist.txt)
+make download        # every ticker in the universe (~1,500, a few minutes)
+make compare-kandle  # S&P 500-only vs pooled vs small/mid-only models, per index
+make train-kandle    # prints the test tables; models/kandle_model.joblib
 make predict-kandle  # data/processed/kandle_signals.json for the API
 ```
 
-Test results on 12,704 signals from 2022-01 to 2026-09, which the model never saw. The bands are model scores:
+Russell 2000: iShares blocks scripted downloads, so save the IWM holdings CSV from the fund page in a browser and run `uv run python -m forecast_ml.universe --russell-holdings IWM_holdings.csv`. Russell names already in an S&P index keep the S&P label.
+
+Test results on 34,902 daily signals from 2022-01 to 2026-09, which the model never saw. The bands are model scores:
 
 | | Trades | Win rate | Mean return | Median days |
 |---|---|---|---|---|
-| Trend starts | 2,748 | 35.7% | +1.46% | 24 |
-| All signals | 12,704 | 33.5% | +1.00% | 20 |
-| Score 0–30 | 3,244 | 29.4% | +0.65% | 13 |
-| Score 70–90 | 2,996 | 35.8% | +1.32% | 24 |
-| Score 90–100 | 1,658 | 39.4% | +2.58% | 27 |
+| Trend starts | 8,307 | 34.5% | +0.57% | 23 |
+| All signals | 34,902 | 32.4% | +0.20% | 19 |
+| Score 0–30 | 8,866 | 28.8% | −0.26% | 12 |
+| Score 70–90 | 8,031 | 34.3% | +0.30% | 23 |
+| Score 90–100 | 4,860 | 36.4% | +1.43% | 26 |
 
-This is trend following: most trades lose a little, and a few winners last for months. Trend starts average +14.5% on winners and −5.8% on losers. Next to each score, the UI shows the real win rate of that score band in testing. It does not show the model's own probability, which is optimistic. `references/universe.txt` lists today's S&P 500 members, so delisted stocks are missing and backtests are somewhat optimistic.
+The same score does not mean the same odds in every index. Score 90–100 signals in testing:
+
+| Index | Win rate | Mean return |
+|---|---|---|
+| S&P 500 | 41.7% | +4.02% |
+| S&P 400 | 37.2% | +0.82% |
+| S&P 600 | 32.9% | +0.26% |
+
+So next to each score, the UI shows the real test win rate of that score band *within the ticker's index* (when the index had at least 1,000 test trades). It does not show the model's own probability, which is optimistic. `make compare-kandle` found that the pooled model ranks signals as well as or better than an S&P 500-only or a small/mid-only model in each index, on both timeframes. Over 2022–2026, all S&P 600 daily signals together lost money (−0.44% on average), against +0.95% for the S&P 500, a period when small caps lagged. The universe lists only current members, so delisted stocks are missing and backtests are optimistic, more so for small caps.
+
+This is trend following: most trades lose a little, and a few winners last for months.
 
 ## EMA entry ranking
 

@@ -22,6 +22,7 @@ import {
   fetchTicker,
   fetchTickers,
   startRefresh,
+  type MarketIndex,
   type ModelSummary,
   type SignalsResponse,
   type TickerDetail,
@@ -32,6 +33,9 @@ import { TickerSearch } from "./TickerSearch";
 
 const percent = (value: number) =>
   `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
+
+const rate = (value: number | null) =>
+  value == null ? "—" : `${value.toFixed(1)}%`;
 
 const Signed = ({ value }: { value: number }) => (
   <span
@@ -99,6 +103,14 @@ const OutcomeRow = ({
 );
 
 const TIMEFRAMES: Timeframe[] = ["daily", "weekly"];
+const INDEXES: MarketIndex[] = [
+  "sp500",
+  "sp400",
+  "sp600",
+  "r2000",
+  "watchlist",
+  "other",
+];
 
 export function meta() {
   return [{ title: "Sinais Kandle + IA" }];
@@ -166,6 +178,32 @@ const ModelTest = memo(({ model, timeframe }: ModelTestProps) => {
             </Table.Body>
           </Table>
         ))}
+        {model.test_by_index && (
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>{t("test.index")}</Table.Head>
+                <Table.Head>{t("test.trades")}</Table.Head>
+                <Table.Head>{t("test.winRate")}</Table.Head>
+                <Table.Head>{t("test.winRateScore70")}</Table.Head>
+                <Table.Head>{t("test.meanReturn")}</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {model.test_by_index.map((row) => (
+                <Table.Row key={row.index}>
+                  <Table.Cell>{t(`index.${row.index}`)}</Table.Cell>
+                  <Table.Cell>{row.trades}</Table.Cell>
+                  <Table.Cell>{rate(row.win_rate_pct)}</Table.Cell>
+                  <Table.Cell>{rate(row.score_70_plus_win_rate_pct)}</Table.Cell>
+                  <Table.Cell>
+                    <Signed value={row.mean_return_pct} />
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        )}
         <p className="mt-3 text-xs text-(--color-text-muted)">
           {model.rules}
         </p>
@@ -248,6 +286,7 @@ const Signals = memo(() => {
   const [tickers, setTickers] = useState<TickerOption[]>([]);
   const [detail, setDetail] = useState<TickerDetail | null>(null);
   const [onlyTrendStarts, setOnlyTrendStarts] = useState(true);
+  const [indexFilter, setIndexFilter] = useState<MarketIndex | "all">("all");
   const [timeframe, setTimeframe] = useState<Timeframe>("daily");
 
   const load = useCallback(async () => {
@@ -310,11 +349,25 @@ const Signals = memo(() => {
     if (detail) void openTicker(detail.ticker, next);
   };
 
-  const trendStarts = useMemo(
-    () => (data?.signals ?? []).filter((signal) => signal.latest.trend_start),
+  const indexes = useMemo(
+    () =>
+      INDEXES.filter((index) =>
+        data?.signals.some((signal) => signal.index === index),
+      ),
     [data],
   );
-  const rows = onlyTrendStarts ? trendStarts : (data?.signals ?? []);
+  const inIndex = useMemo(
+    () =>
+      (data?.signals ?? []).filter(
+        (signal) => indexFilter === "all" || signal.index === indexFilter,
+      ),
+    [data, indexFilter],
+  );
+  const trendStarts = useMemo(
+    () => inIndex.filter((signal) => signal.latest.trend_start),
+    [inIndex],
+  );
+  const rows = onlyTrendStarts ? trendStarts : inIndex;
 
   return (
     <main className="min-h-[100dvh] bg-(--color-bg) text-(--color-text)">
@@ -406,9 +459,28 @@ const Signals = memo(() => {
                       variant={onlyTrendStarts ? "ghost" : "primary"}
                       onClick={() => setOnlyTrendStarts(false)}
                     >
-                      {t("list.all", { count: data.signals.length })}
+                      {t("list.all", { count: inIndex.length })}
                     </Button>
                   </div>
+                  {indexes.length > 1 && (
+                    <div
+                      role="group"
+                      aria-label={t("index.label")}
+                      className="flex flex-wrap gap-1"
+                    >
+                      {(["all", ...indexes] as const).map((index) => (
+                        <Button
+                          key={index}
+                          size="sm"
+                          variant={indexFilter === index ? "secondary" : "ghost"}
+                          aria-pressed={indexFilter === index}
+                          onClick={() => setIndexFilter(index)}
+                        >
+                          {t(`index.${index}`)}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </Card.Header>
                 <Card.Body className="overflow-x-auto">
                   <Table>
@@ -437,6 +509,13 @@ const Signals = memo(() => {
                             {signal.name && (
                               <div className="max-w-40 truncate text-xs text-(--color-text-muted)">
                                 {signal.name}
+                              </div>
+                            )}
+                            {signal.index && (
+                              <div className="max-w-40 truncate text-xs text-(--color-text-muted)">
+                                {[t(`index.${signal.index}`), signal.sector]
+                                  .filter(Boolean)
+                                  .join(" · ")}
                               </div>
                             )}
                           </Table.Cell>

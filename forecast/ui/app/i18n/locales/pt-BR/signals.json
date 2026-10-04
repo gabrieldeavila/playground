@@ -49,9 +49,11 @@
     "medianDays_weekly": "Semanas (mediana)",
     "band": "Faixa de nota",
     "type": "Tipo de COMPRA",
-    "allSignals": "Todas as COMPRAs"
+    "allSignals": "Todas as COMPRAs",
+    "index": "Índice",
+    "winRateScore70": "Acerto (nota 70+)"
   },
-  "searchNoMatch": "Nenhum ticker encontrado para \"{{query}}\". Adicione o código em references/universe.txt e baixe os dados.",
+  "searchNoMatch": "Nenhum ticker encontrado para \"{{query}}\". Adicione o código em references/watchlist.txt e baixe os dados.",
   "type": {
     "trendStart": "Início de tendência",
     "sideways": "Lateral"
@@ -60,5 +62,15 @@
     "label": "Tempo gráfico",
     "daily": "Diário",
     "weekly": "Semanal"
+  },
+  "index": {
+    "label": "Índice",
+    "all": "Todos os índices",
+    "sp500": "S&P 500",
+    "sp400": "S&P 400",
+    "sp600": "S&P 600",
+    "r2000": "Russell 2000",
+    "watchlist": "Lista própria",
+    "other": "Outros"
   }
 }

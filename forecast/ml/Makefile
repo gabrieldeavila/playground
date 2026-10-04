@@ -59,7 +59,12 @@ diagnose: requirements
 train: requirements
 	uv run python -m forecast_ml.modeling.train --target-pct $(TARGET_PCT) --stop-pct $(STOP_PCT) --horizon-bars $(HORIZON_BARS)
 
-## Download daily candles for the tickers in references/universe.txt
+## Build references/universe.csv (S&P 500/400/600 from Wikipedia + watchlist.txt)
+.PHONY: universe
+universe: requirements
+	uv run python -m forecast_ml.universe
+
+## Download daily candles for the tickers in references/universe.csv
 .PHONY: download
 download: requirements
 	uv run python -m forecast_ml.download
@@ -69,6 +74,11 @@ TIMEFRAME ?= daily
 .PHONY: train-kandle
 train-kandle: requirements
 	uv run python -m forecast_ml.modeling.kandle_model train --timeframe $(TIMEFRAME)
+
+## Compare S&P 500-only, pooled and small/mid-only Kandle models per index
+.PHONY: compare-kandle
+compare-kandle: requirements
+	uv run python -m forecast_ml.modeling.kandle_model compare --timeframe $(TIMEFRAME)
 
 ## Write data/processed/kandle_signals*.json, served by the API
 .PHONY: predict-kandle

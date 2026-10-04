@@ -20,6 +20,7 @@ dependencies = [
     "joblib",
     "jupyterlab",
     "loguru",
+    "lxml>=6.1.3",
     "matplotlib",
     "notebook",
     "numpy",

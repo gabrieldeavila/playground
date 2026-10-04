@@ -1,4 +1,5 @@
 import {
+  MarketIndex,
   SignalSnapshot,
   SignalSnapshotRepository,
   SignalTrade,
@@ -9,6 +10,8 @@ import {
 export interface SignalSummary {
   ticker: string;
   name: string | null;
+  index: MarketIndex | null;
+  sector: string | null;
   signal_today: boolean;
   position: TickerSignals['position'];
   latest: SignalTrade;
@@ -17,7 +20,10 @@ export interface SignalSummary {
 export class ListSignals {
   constructor(private readonly repository: SignalSnapshotRepository) {}
 
-  /** Tickers with a COMPRA today or an open trade: today first, then trend starts, then score. */
+  /**
+   * Liquid tickers with a COMPRA today or an open trade: today first, then trend
+   * starts, then score. Illiquid ones stay reachable through search.
+   */
   async execute(timeframe: Timeframe = 'daily') {
     const snapshot = await this.repository.read(timeframe);
     if (!snapshot) return null;
@@ -25,15 +31,24 @@ export class ListSignals {
     const signals: SignalSummary[] = Object.entries(snapshot.tickers)
       .filter(
         ([, ticker]) =>
-          (ticker.signal_today || ticker.position) && ticker.history.length,
+          ticker.liquid !== false &&
+          (ticker.signal_today || ticker.position) &&
+          ticker.history.length,
       )
-      .map(([ticker, { name, signal_today, position, history }]) => ({
-        ticker,
-        name,
-        signal_today,
-        position,
-        latest: history[0],
-      }))
+      .map(
+        ([
+          ticker,
+          { name, index, sector, signal_today, position, history },
+        ]) => ({
+          ticker,
+          name,
+          index: index ?? null,
+          sector: sector ?? null,
+          signal_today,
+          position,
+          latest: history[0],
+        }),
+      )
       .sort(
         (left, right) =>
           Number(right.signal_today) - Number(left.signal_today) ||
@@ -50,7 +65,11 @@ export class ListSignals {
     const snapshot = await this.repository.read(timeframe);
     if (!snapshot) return null;
     return Object.entries(snapshot.tickers)
-      .map(([ticker, { name }]) => ({ ticker, name }))
+      .map(([ticker, { name, index }]) => ({
+        ticker,
+        name,
+        index: index ?? null,
+      }))
       .sort((left, right) => left.ticker.localeCompare(right.ticker));
   }
 

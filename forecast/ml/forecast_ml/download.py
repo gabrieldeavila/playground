@@ -16,15 +16,11 @@ from urllib.request import Request, urlopen
 
 import pandas as pd
 
-from forecast_ml.config import RAW_DATA_DIR, TICKER_NAMES_PATH, UNIVERSE_PATH
+from forecast_ml.config import RAW_DATA_DIR, TICKER_NAMES_PATH
 from forecast_ml.dataset import COLUMN_ORDER
+from forecast_ml.universe import read_universe
 
 CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
-
-
-def read_universe(path: Path = UNIVERSE_PATH) -> list[str]:
-    lines = Path(path).read_text(encoding="utf-8").splitlines()
-    return [line.strip().upper() for line in lines if line.strip() and not line.startswith("#")]
 
 
 def fetch_daily(
@@ -111,13 +107,15 @@ def download(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Baixa candles diários do Yahoo Finance.")
-    parser.add_argument("--tickers", nargs="*", help="Padrão: references/universe.txt")
+    parser.add_argument("--tickers", nargs="*", help="Padrão: references/universe.csv")
     parser.add_argument("--start", default="2010-01-01")
     parser.add_argument("--end", default=datetime.now(timezone.utc).date().isoformat())
     parser.add_argument("--data-dir", type=Path, default=RAW_DATA_DIR)
     parser.add_argument("--workers", type=int, default=4)
     args = parser.parse_args()
-    tickers = [t.upper() for t in args.tickers] if args.tickers else read_universe()
+    tickers = (
+        [t.upper() for t in args.tickers] if args.tickers else read_universe()["ticker"].tolist()
+    )
     errors = download(tickers, args.data_dir, args.start, args.end, args.workers)
     if errors:
         print(f"{len(errors)} falhas: {errors}")

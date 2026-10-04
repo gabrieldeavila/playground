@@ -18,6 +18,8 @@ EXTERNAL_DATA_DIR = DATA_DIR / "external"
 MODELS_DIR = PROJ_ROOT / "models"
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
-UNIVERSE_PATH = PROJ_ROOT / "references" / "universe.txt"
+# Built by forecast_ml.universe; watchlist.txt holds hand-picked extra tickers.
+UNIVERSE_PATH = PROJ_ROOT / "references" / "universe.csv"
+WATCHLIST_PATH = PROJ_ROOT / "references" / "watchlist.txt"
 # Company names collected by forecast_ml.download, used for search suggestions.
 TICKER_NAMES_PATH = DATA_DIR / "ticker_names.json"

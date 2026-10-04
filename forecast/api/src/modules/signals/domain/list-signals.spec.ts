@@ -34,6 +34,9 @@ const snapshot: SignalSnapshot = {
   tickers: {
     AAA: {
       name: 'Alpha Inc.',
+      index: 'sp500',
+      sector: 'Information Technology',
+      liquid: true,
       signal_today: false,
       position: null,
       history: [trade(90)],
@@ -50,6 +53,14 @@ const snapshot: SignalSnapshot = {
       signal_today: true,
       position: null,
       history: [trade(10)],
+    },
+    EEE: {
+      name: 'Thin Corp.',
+      index: 'sp600',
+      liquid: false,
+      signal_today: true,
+      position: null,
+      history: [trade(99, true)],
     },
   },
 };
@@ -68,6 +79,13 @@ describe('ListSignals', () => {
     expect(result).not.toHaveProperty('tickers');
   });
 
+  it('deixa tickers ilíquidos fora da lista, mas na busca', async () => {
+    const result = await useCase.execute();
+
+    expect(result?.signals.map(({ ticker }) => ticker)).not.toContain('EEE');
+    expect((await useCase.findTicker('EEE'))?.liquid).toBe(false);
+  });
+
   it('encontra ticker sem diferenciar caixa', async () => {
     expect((await useCase.findTicker('aaa'))?.history).toHaveLength(1);
     expect(await useCase.findTicker('ZZZ')).toBeNull();
@@ -76,8 +94,13 @@ describe('ListSignals', () => {
   it('lista todos os tickers com nome para sugestões', async () => {
     const tickers = await useCase.listTickers();
 
-    expect(tickers?.[0]).toEqual({ ticker: 'AAA', name: 'Alpha Inc.' });
-    expect(tickers).toHaveLength(4);
+    expect(tickers?.[0]).toEqual({
+      ticker: 'AAA',
+      name: 'Alpha Inc.',
+      index: 'sp500',
+    });
+    expect(tickers?.[1]).toEqual({ ticker: 'BBB', name: null, index: null });
+    expect(tickers).toHaveLength(5);
   });
 
   it('lê o snapshot do timeframe pedido', async () => {

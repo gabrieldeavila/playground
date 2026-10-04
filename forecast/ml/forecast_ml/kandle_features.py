@@ -26,6 +26,18 @@ FEATURES = [
 ]
 SIDEWAYS_WINDOW = 60
 FAILED_SIGNALS_DAYS = 180
+LIQUIDITY_WINDOW = 20
+
+
+def dollar_volume(group: pd.DataFrame) -> pd.Series:
+    """Average traded value over the last LIQUIDITY_WINDOW candles, up to this one.
+
+    Yahoo's close and volume are both split-adjusted, so their product is the real
+    traded value even before a split. A minimum *price* filter would not be: NVDA's
+    split-adjusted 2010 price is cents, which is why liquidity is judged on value only.
+    """
+    traded = group["close"].astype(float) * group["volume"].astype(float)
+    return traded.rolling(LIQUIDITY_WINDOW, min_periods=LIQUIDITY_WINDOW).mean()
 
 
 def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
@@ -69,6 +81,8 @@ def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
                         (close - close.shift(SIDEWAYS_WINDOW)).abs() / path
                     ).to_numpy(),
                     "distance_to_60d_high_atr": ((high / close - 1) / atr).to_numpy(),
+                    # Not a model feature: used to filter out illiquid signals.
+                    "dollar_volume_20d": dollar_volume(group).to_numpy(),
                 }
             )
         )

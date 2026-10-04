@@ -49,9 +49,11 @@
     "medianDays_weekly": "Weeks (median)",
     "band": "Score band",
     "type": "Signal type",
-    "allSignals": "All signals"
+    "allSignals": "All signals",
+    "index": "Index",
+    "winRateScore70": "Win rate (score 70+)"
   },
-  "searchNoMatch": "No ticker matches \"{{query}}\". Add it to references/universe.txt and download the data.",
+  "searchNoMatch": "No ticker matches \"{{query}}\". Add it to references/watchlist.txt and download the data.",
   "type": {
     "trendStart": "Trend start",
     "sideways": "Sideways"
@@ -60,5 +62,15 @@
     "label": "Timeframe",
     "daily": "Daily",
     "weekly": "Weekly"
+  },
+  "index": {
+    "label": "Index",
+    "all": "All indexes",
+    "sp500": "S&P 500",
+    "sp400": "S&P 400",
+    "sp600": "S&P 600",
+    "r2000": "Russell 2000",
+    "watchlist": "Watchlist",
+    "other": "Other"
   }
 }

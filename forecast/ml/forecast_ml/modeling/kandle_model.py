@@ -5,8 +5,13 @@ train:   fit on signals before ``--test-start`` (only trades already closed by t
          period is never used for fitting, so its numbers are an honest preview.
 predict: write data/processed/kandle_signals.json for the API.
 
+compare: train one model per universe (S&P 500 only, pooled, small/mid caps only) and
+         report each one's test results per index, to check that a pooled model
+         serves small caps as well as large caps.
+
 ``--timeframe weekly`` runs the same rules on weekly candles built from the daily
-CSVs, with its own model, report and snapshot (``*_weekly``).
+CSVs, with its own model, report and snapshot (``*_weekly``). Signals on illiquid
+candles (see MIN_DOLLAR_VOLUME) are left out of training and testing.
 """
 
 import argparse
@@ -29,13 +34,26 @@ from forecast_ml.config import (
     TICKER_NAMES_PATH,
 )
 from forecast_ml.dataset import load_market_data, resample_weekly
-from forecast_ml.kandle_features import FEATURES, add_features
+from forecast_ml.kandle_features import FEATURES, add_features, dollar_volume
 from forecast_ml.trades import simulate_trades
+from forecast_ml.universe import INDEXES, OTHER_INDEX, read_universe
 
 TIMEFRAMES = ("daily", "weekly")
 TIMEFRAME_LABELS = {"daily": "diário", "weekly": "semanal"}
 # Score bands reported on the test period; each signal shows its band's real win rate.
 SCORE_BANDS = (0, 30, 50, 70, 90, 100)
+# Average traded value per session below which candles are gappy and backtest fills
+# unrealistic. Weekly candles sum five sessions of volume.
+MIN_DOLLAR_VOLUME = 5_000_000
+SESSIONS_PER_CANDLE = {"daily": 1, "weekly": 5}
+COMPARE_VARIANTS = {
+    "sp500_only": ("sp500",),
+    "pooled": None,
+    "small_mid_only": ("sp400", "sp600", "r2000"),
+}
+# Same score, different odds: S&P 600 signals win less than S&P 500 ones. An index with
+# this many test trades shows its own band win rates; smaller ones use the overall table.
+MIN_INDEX_BAND_TRADES = 1000
 
 
 def _suffix(timeframe: str) -> str:
@@ -56,8 +74,45 @@ def load_candles(data_dir: Path, timeframe: str) -> pd.DataFrame:
     return resample_weekly(candles) if timeframe == "weekly" else candles
 
 
-def build_dataset(candles: pd.DataFrame) -> pd.DataFrame:
-    return add_features(simulate_trades(candles), candles)
+def min_dollar_volume(timeframe: str) -> float:
+    return MIN_DOLLAR_VOLUME * SESSIONS_PER_CANDLE[timeframe]
+
+
+def universe_table() -> pd.DataFrame:
+    """Index and sector per ticker; empty when references/universe.csv is missing."""
+    try:
+        return read_universe().set_index("ticker")
+    except FileNotFoundError:
+        return pd.DataFrame(columns=["index", "sector"])
+
+
+def build_dataset(candles: pd.DataFrame, timeframe: str = "daily") -> pd.DataFrame:
+    dataset = add_features(simulate_trades(candles), candles)
+    dataset["index"] = dataset["ticker"].map(universe_table()["index"]).fillna(OTHER_INDEX)
+    # Judged on the signal candle only, so the filter never peeks at the future.
+    dataset["liquid"] = dataset["dollar_volume_20d"] >= min_dollar_volume(timeframe)
+    return dataset
+
+
+def split(
+    dataset: pd.DataFrame, test_start: str, universe: tuple[str, ...] | None = None
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Closed liquid trades: train before ``test_start`` (optionally some indexes only),
+    test from it on across every index."""
+    start = pd.Timestamp(test_start)
+    closed = dataset.loc[dataset["liquid"]].dropna(subset=["label"])
+    # Purge: a trade still open at test_start would leak its outcome into training.
+    train_set = closed.loc[(closed["signal_date"] < start) & (closed["exit_date"] < start)]
+    if universe:
+        train_set = train_set.loc[train_set["index"].isin(universe)]
+    return train_set, closed.loc[closed["signal_date"] >= start]
+
+
+def fit(train_set: pd.DataFrame) -> tuple[HistGradientBoostingClassifier, np.ndarray]:
+    if train_set["label"].nunique() < 2:
+        raise ValueError("Treino precisa de trades vencedores e perdedores")
+    model = make_model().fit(train_set[FEATURES], train_set["label"])
+    return model, np.sort(model.predict_proba(train_set[FEATURES])[:, 1])
 
 
 def make_model() -> HistGradientBoostingClassifier:
@@ -115,6 +170,39 @@ def summary_by_type(trades: pd.DataFrame) -> list[dict]:
     return rows
 
 
+def _auc(trades: pd.DataFrame, scores: np.ndarray) -> float | None:
+    if trades["label"].nunique() < 2:
+        return None
+    return round(float(roc_auc_score(trades["label"], scores)), 3)
+
+
+def _win_rate(trades: pd.DataFrame) -> float | None:
+    return None if trades.empty else round(float(trades["label"].mean() * 100), 1)
+
+
+def summary_by_index(trades: pd.DataFrame, scores: np.ndarray, bands: bool = False) -> list[dict]:
+    """Test outcomes per index; a useful score ranks within each index, not just overall."""
+    rows = []
+    for index in (*INDEXES, OTHER_INDEX):
+        inside = (trades["index"] == index).to_numpy()
+        if not inside.any():
+            continue
+        chosen, chosen_scores = trades.loc[inside], scores[inside]
+        row = {
+            "index": index,
+            "trades": int(inside.sum()),
+            "auc": _auc(chosen, chosen_scores),
+            "win_rate_pct": _win_rate(chosen),
+            "score_70_plus_win_rate_pct": _win_rate(chosen.loc[chosen_scores >= 70]),
+            "score_below_30_win_rate_pct": _win_rate(chosen.loc[chosen_scores < 30]),
+            "mean_return_pct": round(float(chosen["return_pct"].mean()), 2),
+        }
+        if bands:
+            row["by_score_band"] = summary_by_band(chosen, chosen_scores)
+        rows.append(row)
+    return rows
+
+
 def band_win_rate(score: float, bands: list[dict]) -> float | None:
     for band in bands:
         if band["score_from"] <= score < band["score_to"] or score == band["score_to"] == 100:
@@ -122,29 +210,33 @@ def band_win_rate(score: float, bands: list[dict]) -> float | None:
     return None
 
 
-def train(data_dir: Path, test_start: str, model_path: Path, timeframe: str = "daily") -> dict:
-    start = pd.Timestamp(test_start)
-    dataset = build_dataset(load_candles(data_dir, timeframe))
-    closed = dataset.dropna(subset=["label"])
-    # Purge: a trade still open at test_start would leak its outcome into training.
-    train_set = closed.loc[(closed["signal_date"] < start) & (closed["exit_date"] < start)]
-    test_set = closed.loc[closed["signal_date"] >= start]
-    model = make_model().fit(train_set[FEATURES], train_set["label"])
-    reference = np.sort(model.predict_proba(train_set[FEATURES])[:, 1])
+def train(
+    data_dir: Path,
+    test_start: str,
+    model_path: Path,
+    timeframe: str = "daily",
+    universe: tuple[str, ...] | None = None,
+) -> dict:
+    dataset = build_dataset(load_candles(data_dir, timeframe), timeframe)
+    train_set, test_set = split(dataset, test_start, universe)
+    model, reference = fit(train_set)
     scores = to_score(model, reference, test_set[FEATURES])
     report = {
         "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "timeframe": timeframe,
         "rules": f"COMPRA Kandle EMA 9/20/50/100 no {TIMEFRAME_LABELS[timeframe]}; entrada no "
         "open seguinte; stop 3xATR no fechamento; saída com EMA 9 < EMA 20 por 2 candles; "
-        "custo 0,1% por lado",
+        f"custo 0,1% por lado; só candles com média de US$ {min_dollar_volume(timeframe):,.0f} "
+        "negociados",
+        "train_universe": list(universe) if universe else "all",
         "train_signals": f"{train_set['signal_date'].min().date()} a "
         f"{train_set['signal_date'].max().date()} ({len(train_set)} trades)",
         "test_signals": f"{test_set['signal_date'].min().date()} a "
         f"{test_set['signal_date'].max().date()} ({len(test_set)} trades)",
-        "test_auc": round(float(roc_auc_score(test_set["label"], scores)), 3),
+        "test_auc": _auc(test_set, scores),
         "test_by_type": summary_by_type(test_set),
         "test_by_score_band": summary_by_band(test_set, scores),
+        "test_by_index": summary_by_index(test_set, scores, bands=True),
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(
@@ -164,6 +256,35 @@ def train(data_dir: Path, test_start: str, model_path: Path, timeframe: str = "d
     return report
 
 
+def compare(data_dir: Path, test_start: str, timeframe: str = "daily") -> dict:
+    """Same test signals, one model per training universe; nothing is saved but the report."""
+    dataset = build_dataset(load_candles(data_dir, timeframe), timeframe)
+    _, test_set = split(dataset, test_start)
+    variants = {}
+    for name, universe in COMPARE_VARIANTS.items():
+        train_set, _ = split(dataset, test_start, universe)
+        if train_set.empty:
+            continue  # e.g. no small caps downloaded yet
+        model, reference = fit(train_set)
+        scores = to_score(model, reference, test_set[FEATURES])
+        variants[name] = {
+            "train_universe": list(universe) if universe else "all",
+            "train_trades": len(train_set),
+            "test_by_index": summary_by_index(test_set, scores, bands=True),
+        }
+    report = {
+        "compared_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "timeframe": timeframe,
+        "test_start": test_start,
+        "min_dollar_volume": min_dollar_volume(timeframe),
+        "variants": variants,
+    }
+    (REPORTS_DIR / f"kandle_universe_comparison{_suffix(timeframe)}.json").write_text(
+        json.dumps(report, indent=2), encoding="utf-8"
+    )
+    return report
+
+
 def predict(
     data_dir: Path,
     model_path: Path,
@@ -178,12 +299,21 @@ def predict(
         raise ValueError(f"{model_path} foi treinado no {trained_on}, não no {timeframe}")
     candles = load_candles(data_dir, timeframe)
     session = candles["date"].max()
-    dataset = build_dataset(candles)
+    dataset = build_dataset(candles, timeframe)
     dataset["score"] = to_score(
         artifact["model"], artifact["reference"], dataset[artifact["features"]]
     )
-    bands = artifact["report"]["test_by_score_band"]
+    report = artifact["report"]
+    bands_by_index = {
+        row["index"]: row["by_score_band"]
+        for row in report.get("test_by_index", [])
+        if row["trades"] >= MIN_INDEX_BAND_TRADES
+    }
     last_dates = candles.groupby("ticker")["date"].max()
+    liquidity = candles.groupby("ticker")[["close", "volume"]].apply(
+        lambda group: dollar_volume(group).iloc[-1]
+    )
+    universe = universe_table()
     recent = dataset.loc[dataset["signal_date"] >= session - pd.Timedelta(days=history_days)]
 
     def date(value) -> str | None:
@@ -199,9 +329,15 @@ def predict(
         if last_date != session:
             continue  # stale data: never present an old session as current
         rows = recent.loc[recent["ticker"] == ticker].sort_values("signal_date", ascending=False)
+        index = universe["index"].get(ticker, OTHER_INDEX)
+        bands = bands_by_index.get(index, report["test_by_score_band"])
         open_trade = rows.loc[rows["exit_date"].isna()].head(1)
         tickers[ticker] = {
             "name": names.get(ticker),
+            "index": index,
+            "sector": universe["sector"].get(ticker) or None,
+            # Illiquid tickers stay searchable but are left out of the signals list.
+            "liquid": bool(liquidity[ticker] >= min_dollar_volume(timeframe)),
             "signal_today": bool((rows["signal_date"] == session).any()),
             "position": None
             if open_trade.empty
@@ -244,7 +380,7 @@ def predict(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Modelo de nota para as COMPRAs do Kandle.")
-    parser.add_argument("command", choices=["train", "predict"])
+    parser.add_argument("command", choices=["train", "predict", "compare"])
     parser.add_argument("--data-dir", type=Path, default=RAW_DATA_DIR)
     parser.add_argument("--timeframe", choices=TIMEFRAMES, default="daily")
     parser.add_argument("--model-path", type=Path, help="padrão: models/kandle_model*.joblib")
@@ -252,14 +388,35 @@ def main() -> None:
         "--output-path", type=Path, help="padrão: data/processed/kandle_signals*.json"
     )
     parser.add_argument("--test-start", default="2022-01-01")
+    parser.add_argument(
+        "--universe",
+        nargs="*",
+        choices=[*INDEXES, OTHER_INDEX],
+        help="train: índices usados no treino (padrão: todos)",
+    )
     args = parser.parse_args()
     path = args.model_path or model_path(args.timeframe)
+    universe = tuple(args.universe) if args.universe else None
     if args.command == "train":
-        report = train(args.data_dir, args.test_start, path, args.timeframe)
+        report = train(args.data_dir, args.test_start, path, args.timeframe, universe)
         print(f"Treino: {report['train_signals']}\nTeste: {report['test_signals']}")
         print(f"AUC no teste: {report['test_auc']}")
         print(pd.DataFrame(report["test_by_type"]).to_string(index=False))
         print(pd.DataFrame(report["test_by_score_band"]).to_string(index=False))
+        print(
+            pd.DataFrame(report["test_by_index"])
+            .drop(columns="by_score_band")
+            .to_string(index=False)
+        )
+    elif args.command == "compare":
+        report = compare(args.data_dir, args.test_start, args.timeframe)
+        rows = [
+            {"train": name, "train_trades": variant["train_trades"], **row}
+            for name, variant in report["variants"].items()
+            for row in variant["test_by_index"]
+        ]
+        table = pd.DataFrame(rows).drop(columns="by_score_band")
+        print(table.sort_values(["index", "train"], kind="stable").to_string(index=False))
     else:
         snapshot = predict(
             args.data_dir, path, args.output_path or snapshot_path(args.timeframe), args.timeframe

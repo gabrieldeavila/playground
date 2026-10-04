@@ -1,5 +1,13 @@
 export type Timeframe = "daily" | "weekly";
 
+export type MarketIndex =
+  | "sp500"
+  | "sp400"
+  | "sp600"
+  | "r2000"
+  | "watchlist"
+  | "other";
+
 export type SignalTrade = {
   signal_date: string;
   exit_date: string | null;
@@ -38,22 +46,34 @@ export type ScoreBandRow = {
   median_days: number;
 };
 
+export type IndexRow = {
+  index: MarketIndex;
+  trades: number;
+  win_rate_pct: number | null;
+  score_70_plus_win_rate_pct: number | null;
+  mean_return_pct: number;
+};
+
 export type ModelSummary = {
   rules: string;
   train_signals: string;
   test_signals: string;
   test_by_type: SignalTypeRow[];
   test_by_score_band: ScoreBandRow[];
+  test_by_index?: IndexRow[];
 };
 
 export type TickerOption = {
   ticker: string;
   name: string | null;
+  index: MarketIndex | null;
 };
 
 export type SignalSummary = {
   ticker: string;
   name: string | null;
+  index: MarketIndex | null;
+  sector: string | null;
   signal_today: boolean;
   position: OpenPosition | null;
   latest: SignalTrade;
@@ -70,6 +90,9 @@ export type SignalsResponse = {
 export type TickerDetail = {
   ticker: string;
   name: string | null;
+  index?: MarketIndex;
+  sector?: string | null;
+  liquid?: boolean;
   session: string;
   signal_today: boolean;
   position: OpenPosition | null;
