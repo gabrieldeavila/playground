@@ -1,49 +1,65 @@
 {
-  "trained_at": "2026-10-04T15:47:55+00:00",
+  "trained_at": "2026-10-04T16:40:52+00:00",
   "rules": "COMPRA Kandle EMA 9/20/50/100; entrada no open seguinte; stop 3xATR no fechamento; sa\u00edda com EMA 9 < EMA 20 por 2 dias; custo 0,1% por lado",
   "train_signals": "2010-06-03 a 2021-12-17 (35697 trades)",
   "test_signals": "2022-01-03 a 2026-09-29 (12704 trades)",
-  "test_auc": 0.533,
-  "test_by_min_score": [
+  "test_auc": 0.539,
+  "test_by_type": [
     {
-      "min_score": 0,
+      "type": "trend_start",
+      "trades": 2748,
+      "win_rate_pct": 35.7,
+      "mean_return_pct": 1.46,
+      "median_days": 24.0
+    },
+    {
+      "type": "all",
       "trades": 12704,
       "win_rate_pct": 33.5,
       "mean_return_pct": 1.0,
-      "median_days": 20.0,
-      "short_trades_pct": 13.2
+      "median_days": 20.0
+    }
+  ],
+  "test_by_score_band": [
+    {
+      "score_from": 0,
+      "score_to": 30,
+      "trades": 3244,
+      "win_rate_pct": 29.4,
+      "mean_return_pct": 0.65,
+      "median_days": 13.0
     },
     {
-      "min_score": 50,
-      "trades": 7225,
-      "win_rate_pct": 35.1,
-      "mean_return_pct": 1.35,
-      "median_days": 23.0,
-      "short_trades_pct": 7.7
+      "score_from": 30,
+      "score_to": 50,
+      "trades": 2290,
+      "win_rate_pct": 33.2,
+      "mean_return_pct": 0.26,
+      "median_days": 17.0
     },
     {
-      "min_score": 70,
-      "trades": 4708,
-      "win_rate_pct": 36.6,
-      "mean_return_pct": 1.82,
-      "median_days": 25.0,
-      "short_trades_pct": 6.2
+      "score_from": 50,
+      "score_to": 70,
+      "trades": 2516,
+      "win_rate_pct": 32.5,
+      "mean_return_pct": 0.71,
+      "median_days": 20.0
     },
     {
-      "min_score": 80,
-      "trades": 3218,
-      "win_rate_pct": 36.9,
-      "mean_return_pct": 1.75,
-      "median_days": 26.0,
-      "short_trades_pct": 5.4
+      "score_from": 70,
+      "score_to": 90,
+      "trades": 2996,
+      "win_rate_pct": 35.8,
+      "mean_return_pct": 1.32,
+      "median_days": 24.0
     },
     {
-      "min_score": 90,
-      "trades": 1703,
-      "win_rate_pct": 37.2,
-      "mean_return_pct": 1.92,
-      "median_days": 26.0,
-      "short_trades_pct": 4.9
+      "score_from": 90,
+      "score_to": 100,
+      "trades": 1658,
+      "win_rate_pct": 39.4,
+      "mean_return_pct": 2.58,
+      "median_days": 27.0
     }
   ]
 }

@@ -84,3 +84,54 @@ def test_previous_trade_return_only_uses_trades_closed_before_the_signal():
     # Signal on day 3: the first trade is still open (exits day 5), so nothing known yet.
     assert np.isnan(features.loc[1, "previous_trade_return"])
     assert features.loc[2, "previous_trade_return"] == 4.0
+
+
+def test_failed_signals_count_only_closed_losses_inside_the_window():
+    dates = pd.bdate_range("2021-01-01", periods=300)
+    trades = pd.DataFrame(
+        {
+            "ticker": "AAA",
+            "signal_date": [dates[0], dates[10], dates[20], dates[250]],
+            "exit_date": [dates[5], dates[15], dates[260], pd.NaT],
+            "return_pct": [-3.0, -1.0, -2.0, 0.0],
+        }
+    )
+    candles = _candles(np.full(300, 100.0)).assign(date=dates)
+    features = add_features(trades, candles)
+    # Day 20: two losses already closed. Day 250 (~360 days later): both fell out of the
+    # 180-day window and the third loss has not closed yet.
+    assert features.loc[2, "failed_signals_180d"] == 2
+    assert features.loc[3, "failed_signals_180d"] == 0
+
+
+def test_sideways_features_separate_trend_from_chop():
+    trend = _candles(100 * 1.01 ** np.arange(200))
+    chop = _candles(100 + 5 * np.sin(np.arange(200) / 3), ticker="BBB")
+    candles = pd.concat([trend, chop], ignore_index=True)
+    trades = pd.DataFrame(
+        {
+            "ticker": ["AAA", "BBB"],
+            "signal_date": [trend["date"].iloc[-1]] * 2,
+            "exit_date": [pd.NaT] * 2,
+            "return_pct": [0.0, 0.0],
+        }
+    )
+    features = add_features(trades, candles).set_index("ticker")
+    assert features.loc["AAA", "trend_efficiency_60d"] == pytest.approx(1.0)
+    assert features.loc["AAA", "ema_9_20_crosses_60d"] == 0
+    assert features.loc["BBB", "trend_efficiency_60d"] < 0.2
+    assert features.loc["BBB", "ema_9_20_crosses_60d"] >= 4
+    assert features.loc["AAA", "distance_to_60d_high_atr"] == pytest.approx(0.0)
+
+
+def test_first_signal_after_a_base_is_a_trend_start_and_repeats_are_not():
+    base = np.full(120, 100.0)
+    rise = 100 * 1.025 ** np.arange(1, 41)  # strong break-out: EMAs fan out quickly
+    dip = rise[-1] * 0.985 ** np.arange(1, 16)
+    again = dip[-1] * 1.012 ** np.arange(1, 31)
+    trades = simulate_trades(_candles(np.concatenate([base, rise, dip, again])))
+    assert len(trades) >= 2
+    first, repeat = trades.iloc[0], trades.iloc[1]
+    assert first["setup_off_days_60"] >= 50 and first["trend_start"]
+    # The second COMPRA comes right after the first setup: not a base, so sideways.
+    assert repeat["setup_off_days_60"] < 50 and not repeat["trend_start"]

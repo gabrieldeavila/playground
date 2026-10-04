@@ -8,6 +8,7 @@ predict: write data/processed/kandle_signals.json for the API.
 
 import argparse
 from datetime import datetime, timezone
+from itertools import pairwise
 import json
 from pathlib import Path
 
@@ -30,7 +31,8 @@ from forecast_ml.trades import simulate_trades
 
 MODEL_PATH = MODELS_DIR / "kandle_model.joblib"
 SNAPSHOT_PATH = PROCESSED_DATA_DIR / "kandle_signals.json"
-SCORE_CUTS = (0, 50, 70, 80, 90)
+# Score bands reported on the test period; each signal shows its band's real win rate.
+SCORE_BANDS = (0, 30, 50, 70, 90, 100)
 
 
 def build_dataset(candles: pd.DataFrame) -> pd.DataFrame:
@@ -55,23 +57,48 @@ def to_score(model, reference: np.ndarray, features: pd.DataFrame) -> np.ndarray
     return np.searchsorted(reference, probabilities, side="right") / len(reference) * 100
 
 
-def summary_by_score(trades: pd.DataFrame, scores: np.ndarray) -> list[dict]:
+def summary_by_band(trades: pd.DataFrame, scores: np.ndarray) -> list[dict]:
+    """Real outcomes of test signals per score band (the last band includes 100)."""
     rows = []
-    for cut in SCORE_CUTS:
-        chosen = trades.loc[scores >= cut]
+    for low, high in pairwise(SCORE_BANDS):
+        inside = (scores >= low) & ((scores < high) | (high == SCORE_BANDS[-1]))
+        chosen = trades.loc[inside]
         if chosen.empty:
             continue
         rows.append(
             {
-                "min_score": cut,
+                "score_from": low,
+                "score_to": high,
                 "trades": len(chosen),
                 "win_rate_pct": round(float(chosen["label"].mean() * 100), 1),
                 "mean_return_pct": round(float(chosen["return_pct"].mean()), 2),
                 "median_days": float(chosen["days"].median()),
-                "short_trades_pct": round(float((chosen["days"] <= 5).mean() * 100), 1),
             }
         )
     return rows
+
+
+def summary_by_type(trades: pd.DataFrame) -> list[dict]:
+    """Test-period outcomes of trend starts versus every Kandle COMPRA."""
+    rows = []
+    for kind, chosen in (("trend_start", trades.loc[trades["trend_start"]]), ("all", trades)):
+        rows.append(
+            {
+                "type": kind,
+                "trades": len(chosen),
+                "win_rate_pct": round(float(chosen["label"].mean() * 100), 1),
+                "mean_return_pct": round(float(chosen["return_pct"].mean()), 2),
+                "median_days": float(chosen["days"].median()),
+            }
+        )
+    return rows
+
+
+def band_win_rate(score: float, bands: list[dict]) -> float | None:
+    for band in bands:
+        if band["score_from"] <= score < band["score_to"] or score == band["score_to"] == 100:
+            return band["win_rate_pct"]
+    return None
 
 
 def train(data_dir: Path, test_start: str, model_path: Path) -> dict:
@@ -93,7 +120,8 @@ def train(data_dir: Path, test_start: str, model_path: Path) -> dict:
         "test_signals": f"{test_set['signal_date'].min().date()} a "
         f"{test_set['signal_date'].max().date()} ({len(test_set)} trades)",
         "test_auc": round(float(roc_auc_score(test_set["label"], scores)), 3),
-        "test_by_min_score": summary_by_score(test_set, scores),
+        "test_by_type": summary_by_type(test_set),
+        "test_by_score_band": summary_by_band(test_set, scores),
     }
     model_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(
@@ -114,6 +142,7 @@ def predict(data_dir: Path, model_path: Path, output_path: Path, history_days: i
     dataset["score"] = to_score(
         artifact["model"], artifact["reference"], dataset[artifact["features"]]
     )
+    bands = artifact["report"]["test_by_score_band"]
     last_dates = candles.groupby("ticker")["date"].max()
     recent = dataset.loc[dataset["signal_date"] >= session - pd.Timedelta(days=history_days)]
 
@@ -141,6 +170,8 @@ def predict(data_dir: Path, model_path: Path, output_path: Path, history_days: i
                 "days": int(open_trade["days"].iloc[0]),
                 "return_pct": round(float(open_trade["return_pct"].iloc[0]), 2),
                 "score": round(float(open_trade["score"].iloc[0])),
+                "win_rate_pct": band_win_rate(float(open_trade["score"].iloc[0]), bands),
+                "trend_start": bool(open_trade["trend_start"].iloc[0]),
                 "stop_price": round(float(open_trade["stop_price"].iloc[0]), 2),
             },
             "history": [
@@ -151,6 +182,8 @@ def predict(data_dir: Path, model_path: Path, output_path: Path, history_days: i
                     "return_pct": round(float(row.return_pct), 2),
                     "exit_reason": None if pd.isna(row.exit_reason) else row.exit_reason,
                     "score": round(float(row.score)),
+                    "win_rate_pct": band_win_rate(float(row.score), bands),
+                    "trend_start": bool(row.trend_start),
                 }
                 for row in rows.itertuples()
             ],
@@ -180,7 +213,8 @@ def main() -> None:
         report = train(args.data_dir, args.test_start, args.model_path)
         print(f"Treino: {report['train_signals']}\nTeste: {report['test_signals']}")
         print(f"AUC no teste: {report['test_auc']}")
-        print(pd.DataFrame(report["test_by_min_score"]).to_string(index=False))
+        print(pd.DataFrame(report["test_by_type"]).to_string(index=False))
+        print(pd.DataFrame(report["test_by_score_band"]).to_string(index=False))
     else:
         snapshot = predict(args.data_dir, args.model_path, args.output_path)
         positions = sum(t["position"] is not None for t in snapshot["tickers"].values())

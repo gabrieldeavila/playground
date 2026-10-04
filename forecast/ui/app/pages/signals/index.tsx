@@ -1,4 +1,11 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { FiRefreshCw } from "react-icons/fi";
 
@@ -38,10 +45,56 @@ const Signed = ({ value }: { value: number }) => (
 const scoreVariant = (score: number): BadgeVariant =>
   score >= 70 ? "success" : score >= 50 ? "warning" : "default";
 
-const Score = ({ value }: { value: number }) => (
-  <Badge size="sm" variant={scoreVariant(value)}>
-    {value}
-  </Badge>
+/** Score badge plus the real win rate its band had in the test period. */
+const Score = ({
+  value,
+  winRate,
+}: {
+  value: number;
+  winRate: number | null;
+}) => (
+  <span className="inline-flex items-center gap-2 whitespace-nowrap">
+    <Badge size="sm" variant={scoreVariant(value)}>
+      {value}
+    </Badge>
+    {winRate != null && (
+      <span className="text-xs text-(--color-text-muted)">
+        {Math.round(winRate)}%
+      </span>
+    )}
+  </span>
+);
+
+/** Trend start = first COMPRA after a base; sideways = repeated COMPRA in chop. */
+const SignalType = ({ trendStart }: { trendStart: boolean }) => {
+  const { t } = useTranslation("signals");
+  return (
+    <Badge
+      size="sm"
+      variant={trendStart ? "success" : "default"}
+      className="whitespace-nowrap"
+    >
+      {trendStart ? t("type.trendStart") : t("type.sideways")}
+    </Badge>
+  );
+};
+
+const OutcomeRow = ({
+  label,
+  row,
+}: {
+  label: ReactNode;
+  row: { trades: number; win_rate_pct: number; mean_return_pct: number; median_days: number };
+}) => (
+  <Table.Row>
+    <Table.Cell>{label}</Table.Cell>
+    <Table.Cell>{row.trades}</Table.Cell>
+    <Table.Cell>{row.win_rate_pct.toFixed(1)}%</Table.Cell>
+    <Table.Cell>
+      <Signed value={row.mean_return_pct} />
+    </Table.Cell>
+    <Table.Cell>{row.median_days}</Table.Cell>
+  </Table.Row>
 );
 
 export function meta() {
@@ -61,33 +114,51 @@ const ModelTest = memo(({ model }: { model: ModelSummary }) => {
           })}
         </p>
       </Card.Header>
-      <Card.Body className="overflow-x-auto">
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.Head>{t("test.minScore")}</Table.Head>
-              <Table.Head>{t("test.trades")}</Table.Head>
-              <Table.Head>{t("test.winRate")}</Table.Head>
-              <Table.Head>{t("test.meanReturn")}</Table.Head>
-              <Table.Head>{t("test.medianDays")}</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {model.test_by_min_score.map((row) => (
-              <Table.Row key={row.min_score}>
-                <Table.Cell>
-                  {row.min_score === 0 ? t("test.all") : `≥ ${row.min_score}`}
-                </Table.Cell>
-                <Table.Cell>{row.trades}</Table.Cell>
-                <Table.Cell>{row.win_rate_pct.toFixed(1)}%</Table.Cell>
-                <Table.Cell>
-                  <Signed value={row.mean_return_pct} />
-                </Table.Cell>
-                <Table.Cell>{row.median_days}</Table.Cell>
+      <Card.Body className="space-y-4 overflow-x-auto">
+        {[
+          {
+            heading: t("test.type"),
+            rows: model.test_by_type.map((row) => ({
+              key: row.type,
+              label:
+                row.type === "trend_start" ? (
+                  <SignalType trendStart />
+                ) : (
+                  t("test.allSignals")
+                ),
+              row,
+            })),
+          },
+          {
+            heading: t("test.band"),
+            rows: model.test_by_score_band.map((row) => ({
+              key: String(row.score_from),
+              label: (
+                <Badge size="sm" variant={scoreVariant(row.score_from)}>
+                  {row.score_from}–{row.score_to}
+                </Badge>
+              ),
+              row,
+            })),
+          },
+        ].map(({ heading, rows }) => (
+          <Table key={heading}>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>{heading}</Table.Head>
+                <Table.Head>{t("test.trades")}</Table.Head>
+                <Table.Head>{t("test.winRate")}</Table.Head>
+                <Table.Head>{t("test.meanReturn")}</Table.Head>
+                <Table.Head>{t("test.medianDays")}</Table.Head>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+            </Table.Header>
+            <Table.Body>
+              {rows.map(({ key, label, row }) => (
+                <OutcomeRow key={key} label={label} row={row} />
+              ))}
+            </Table.Body>
+          </Table>
+        ))}
         <p className="mt-3 text-xs text-(--color-text-muted)">
           {model.rules}
         </p>
@@ -130,10 +201,11 @@ const TickerHistory = memo(({ detail }: { detail: TickerDetail }) => {
               {detail.history.map((trade) => (
                 <Table.Row key={trade.signal_date}>
                   <Table.Cell className="whitespace-nowrap">
-                    {trade.signal_date}
+                    <div>{trade.signal_date}</div>
+                    <SignalType trendStart={trade.trend_start} />
                   </Table.Cell>
                   <Table.Cell>
-                    <Score value={trade.score} />
+                    <Score value={trade.score} winRate={trade.win_rate_pct} />
                   </Table.Cell>
                   <Table.Cell>{trade.days}</Table.Cell>
                   <Table.Cell>
@@ -164,6 +236,7 @@ const Signals = memo(() => {
   const [refreshing, setRefreshing] = useState(false);
   const [tickers, setTickers] = useState<TickerOption[]>([]);
   const [detail, setDetail] = useState<TickerDetail | null>(null);
+  const [onlyTrendStarts, setOnlyTrendStarts] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -217,6 +290,12 @@ const Signals = memo(() => {
       setError((detailError as Error).message);
     }
   };
+
+  const trendStarts = useMemo(
+    () => (data?.signals ?? []).filter((signal) => signal.latest.trend_start),
+    [data],
+  );
+  const rows = onlyTrendStarts ? trendStarts : (data?.signals ?? []);
 
   return (
     <main className="min-h-[100dvh] bg-(--color-bg) text-(--color-text)">
@@ -276,6 +355,22 @@ const Signals = memo(() => {
                   <p className="text-sm text-(--color-text-muted)">
                     {t("list.description")}
                   </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant={onlyTrendStarts ? "primary" : "ghost"}
+                      onClick={() => setOnlyTrendStarts(true)}
+                    >
+                      {t("list.trendStarts", { count: trendStarts.length })}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={onlyTrendStarts ? "ghost" : "primary"}
+                      onClick={() => setOnlyTrendStarts(false)}
+                    >
+                      {t("list.all", { count: data.signals.length })}
+                    </Button>
+                  </div>
                 </Card.Header>
                 <Card.Body className="overflow-x-auto">
                   <Table>
@@ -290,7 +385,7 @@ const Signals = memo(() => {
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                      {data.signals.map((signal) => (
+                      {rows.map((signal) => (
                         <Table.Row
                           key={signal.ticker}
                           className="cursor-pointer"
@@ -306,16 +401,22 @@ const Signals = memo(() => {
                             )}
                           </Table.Cell>
                           <Table.Cell className="whitespace-nowrap">
-                            {signal.signal_today ? (
-                              <Badge size="sm" variant="info">
-                                {t("list.today")}
-                              </Badge>
-                            ) : (
-                              signal.latest.signal_date
-                            )}
+                            <div>
+                              {signal.signal_today ? (
+                                <Badge size="sm" variant="info">
+                                  {t("list.today")}
+                                </Badge>
+                              ) : (
+                                signal.latest.signal_date
+                              )}
+                            </div>
+                            <SignalType trendStart={signal.latest.trend_start} />
                           </Table.Cell>
                           <Table.Cell>
-                            <Score value={signal.latest.score} />
+                            <Score
+                              value={signal.latest.score}
+                              winRate={signal.latest.win_rate_pct}
+                            />
                           </Table.Cell>
                           <Table.Cell>{signal.position?.days ?? "—"}</Table.Cell>
                           <Table.Cell>

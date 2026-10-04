@@ -11,8 +11,10 @@
   },
   "list": {
     "title": "COMPRAs de hoje e trades abertos",
-    "description": "Nota de 0 a 100: quanto maior, melhor o sinal em comparação aos sinais históricos.",
-    "today": "Hoje"
+    "description": "Início de tendência: primeira COMPRA depois de uma base (setup desligado em 50 dos 60 dias anteriores e EMA 9 abrindo acima da EMA 20). Ao lado da nota, o acerto real da faixa no teste.",
+    "today": "Hoje",
+    "trendStarts": "Inícios de tendência ({{count}})",
+    "all": "Todas ({{count}})"
   },
   "columns": {
     "ticker": "Ticker",
@@ -25,7 +27,7 @@
   },
   "exit": {
     "stop": "Stop",
-    "cruzamento": "EMA 9 < EMA 20",
+    "cruzamento": "Cruzamento",
     "open": "Em aberto"
   },
   "history": {
@@ -36,13 +38,18 @@
   },
   "test": {
     "title": "Como o modelo foi no teste",
-    "description": "Treinado com sinais de {{train}}. Testado em {{test}}, período que ele nunca viu.",
-    "minScore": "Nota mínima",
-    "all": "Todas",
+    "description": "Treinado com sinais de {{train}}. Testado em {{test}}, período que ele nunca viu. Cada faixa mostra o resultado real dos sinais com aquela nota.",
     "trades": "Trades",
     "winRate": "Acerto",
     "meanReturn": "Retorno médio",
-    "medianDays": "Dias (mediana)"
+    "medianDays": "Dias (mediana)",
+    "band": "Faixa de nota",
+    "type": "Tipo de COMPRA",
+    "allSignals": "Todas as COMPRAs"
   },
-  "searchNoMatch": "Nenhum ticker encontrado para \"{{query}}\". Adicione o código em references/universe.txt e baixe os dados."
+  "searchNoMatch": "Nenhum ticker encontrado para \"{{query}}\". Adicione o código em references/universe.txt e baixe os dados.",
+  "type": {
+    "trendStart": "Início de tendência",
+    "sideways": "Lateral"
+  }
 }

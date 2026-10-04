@@ -11,8 +11,10 @@
   },
   "list": {
     "title": "Today's signals and open trades",
-    "description": "Score 0–100: higher means a better signal compared with historical signals.",
-    "today": "Today"
+    "description": "Trend start: first COMPRA after a base (setup off on 50 of the previous 60 days and EMA 9 opening above EMA 20). Next to the score, the band's real win rate in testing.",
+    "today": "Today",
+    "trendStarts": "Trend starts ({{count}})",
+    "all": "All ({{count}})"
   },
   "columns": {
     "ticker": "Ticker",
@@ -25,7 +27,7 @@
   },
   "exit": {
     "stop": "Stop",
-    "cruzamento": "EMA 9 < EMA 20",
+    "cruzamento": "EMA cross",
     "open": "Open"
   },
   "history": {
@@ -36,13 +38,18 @@
   },
   "test": {
     "title": "How the model did in testing",
-    "description": "Trained on signals from {{train}}. Tested on {{test}}, a period it never saw.",
-    "minScore": "Min score",
-    "all": "All",
+    "description": "Trained on signals from {{train}}. Tested on {{test}}, a period it never saw. Each band shows the real outcome of signals with that score.",
     "trades": "Trades",
     "winRate": "Win rate",
     "meanReturn": "Mean return",
-    "medianDays": "Days (median)"
+    "medianDays": "Days (median)",
+    "band": "Score band",
+    "type": "Signal type",
+    "allSignals": "All signals"
   },
-  "searchNoMatch": "No ticker matches \"{{query}}\". Add it to references/universe.txt and download the data."
+  "searchNoMatch": "No ticker matches \"{{query}}\". Add it to references/universe.txt and download the data.",
+  "type": {
+    "trendStart": "Trend start",
+    "sideways": "Sideways"
+  }
 }

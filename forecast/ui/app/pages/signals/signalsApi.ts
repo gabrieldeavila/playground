@@ -5,6 +5,8 @@ export type SignalTrade = {
   return_pct: number;
   exit_reason: "stop" | "cruzamento" | null;
   score: number;
+  win_rate_pct: number | null;
+  trend_start: boolean;
 };
 
 export type OpenPosition = {
@@ -12,23 +14,34 @@ export type OpenPosition = {
   days: number;
   return_pct: number;
   score: number;
+  win_rate_pct: number | null;
+  trend_start: boolean;
   stop_price: number;
 };
 
-export type ScoreSummaryRow = {
-  min_score: number;
+export type SignalTypeRow = {
+  type: "trend_start" | "all";
   trades: number;
   win_rate_pct: number;
   mean_return_pct: number;
   median_days: number;
-  short_trades_pct: number;
+};
+
+export type ScoreBandRow = {
+  score_from: number;
+  score_to: number;
+  trades: number;
+  win_rate_pct: number;
+  mean_return_pct: number;
+  median_days: number;
 };
 
 export type ModelSummary = {
   rules: string;
   train_signals: string;
   test_signals: string;
-  test_by_min_score: ScoreSummaryRow[];
+  test_by_type: SignalTypeRow[];
+  test_by_score_band: ScoreBandRow[];
 };
 
 export type TickerOption = {

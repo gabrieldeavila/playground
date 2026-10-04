@@ -16,7 +16,7 @@ export interface SignalSummary {
 export class ListSignals {
   constructor(private readonly repository: SignalSnapshotRepository) {}
 
-  /** Tickers with a COMPRA today or an open trade, best score first. */
+  /** Tickers with a COMPRA today or an open trade: today first, then trend starts, then score. */
   async execute() {
     const snapshot = await this.repository.read();
     if (!snapshot) return null;
@@ -36,6 +36,7 @@ export class ListSignals {
       .sort(
         (left, right) =>
           Number(right.signal_today) - Number(left.signal_today) ||
+          Number(right.latest.trend_start) - Number(left.latest.trend_start) ||
           right.latest.score - left.latest.score ||
           left.ticker.localeCompare(right.ticker),
       );

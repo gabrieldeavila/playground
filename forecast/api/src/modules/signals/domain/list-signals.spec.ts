@@ -1,19 +1,23 @@
 import { ListSignals } from './list-signals.js';
 import { SignalSnapshot, SignalTrade } from './signal-snapshot.js';
 
-const trade = (score: number): SignalTrade => ({
+const trade = (score: number, trend_start = false): SignalTrade => ({
   signal_date: '2026-09-01',
   exit_date: null,
   days: 5,
   return_pct: 1,
   exit_reason: null,
   score,
+  win_rate_pct: 35,
+  trend_start,
 });
 const position = {
   signal_date: '2026-09-01',
   days: 5,
   return_pct: 1,
   score: 50,
+  win_rate_pct: 33,
+  trend_start: false,
   stop_price: 90,
 };
 
@@ -24,7 +28,8 @@ const snapshot: SignalSnapshot = {
     rules: 'regras',
     train_signals: 'treino',
     test_signals: 'teste',
-    test_by_min_score: [],
+    test_by_type: [],
+    test_by_score_band: [],
   },
   tickers: {
     AAA: {
@@ -33,7 +38,12 @@ const snapshot: SignalSnapshot = {
       position: null,
       history: [trade(90)],
     },
-    BBB: { name: null, signal_today: false, position, history: [trade(40)] },
+    BBB: {
+      name: null,
+      signal_today: false,
+      position,
+      history: [trade(40, true)],
+    },
     CCC: { name: null, signal_today: false, position, history: [trade(80)] },
     DDD: {
       name: null,
@@ -47,13 +57,13 @@ const snapshot: SignalSnapshot = {
 describe('ListSignals', () => {
   const useCase = new ListSignals({ read: () => Promise.resolve(snapshot) });
 
-  it('lista COMPRAs de hoje primeiro e depois posições por nota', async () => {
+  it('lista COMPRAs de hoje, depois inícios de tendência, depois por nota', async () => {
     const result = await useCase.execute();
 
     expect(result?.signals.map(({ ticker }) => ticker)).toEqual([
       'DDD',
-      'CCC',
       'BBB',
+      'CCC',
     ]);
     expect(result).not.toHaveProperty('tickers');
   });

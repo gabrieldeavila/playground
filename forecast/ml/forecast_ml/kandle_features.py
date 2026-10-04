@@ -18,7 +18,14 @@ FEATURES = [
     "volume_vs_20d",
     "return_20d",
     "previous_trade_return",
+    # Sideways-market context: choppy, range-bound tickers make EMA signals fail.
+    "ema_9_20_crosses_60d",
+    "trend_efficiency_60d",
+    "distance_to_60d_high_atr",
+    "failed_signals_180d",
 ]
+SIDEWAYS_WINDOW = 60
+FAILED_SIGNALS_DAYS = 180
 
 
 def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
@@ -31,6 +38,10 @@ def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
         }
         atr = average_true_range_pct(prices).replace(0, np.nan).to_numpy()
         volume = group["volume"].astype(float)
+        above = pd.Series(np.sign(ema[9] - ema[20]))
+        crosses = (above.diff().abs() == 2).astype(float).where(above.notna())
+        path = close.diff().abs().rolling(SIDEWAYS_WINDOW, min_periods=SIDEWAYS_WINDOW).sum()
+        high = close.rolling(SIDEWAYS_WINDOW, min_periods=SIDEWAYS_WINDOW).max()
         frames.append(
             pd.DataFrame(
                 {
@@ -48,6 +59,16 @@ def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
                         volume / volume.rolling(20, min_periods=20).mean()
                     ).to_numpy(),
                     "return_20d": (close / close.shift(20) - 1).to_numpy(),
+                    "ema_9_20_crosses_60d": crosses.rolling(
+                        SIDEWAYS_WINDOW, min_periods=SIDEWAYS_WINDOW
+                    )
+                    .sum()
+                    .to_numpy(),
+                    # 1 = price moved in a straight line, near 0 = went nowhere zig-zagging.
+                    "trend_efficiency_60d": (
+                        (close - close.shift(SIDEWAYS_WINDOW)).abs() / path
+                    ).to_numpy(),
+                    "distance_to_60d_high_atr": ((high / close - 1) / atr).to_numpy(),
                 }
             )
         )
@@ -57,8 +78,8 @@ def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
 def add_features(trades: pd.DataFrame, candles: pd.DataFrame) -> pd.DataFrame:
     """Attach signal-candle features to each trade.
 
-    ``previous_trade_return`` is the result of the same ticker's latest trade that had
-    already closed before this signal, so it never peeks at an unfinished trade.
+    ``previous_trade_return`` and ``failed_signals_180d`` only use the same ticker's
+    trades that had already closed before this signal, never an unfinished one.
     """
     table = trades.merge(
         _per_candle(candles).rename(columns={"date": "signal_date"}),
@@ -67,6 +88,8 @@ def add_features(trades: pd.DataFrame, candles: pd.DataFrame) -> pd.DataFrame:
         validate="one_to_one",
     )
     closed = trades.dropna(subset=["exit_date"])[["ticker", "exit_date", "return_pct"]]
+    # Same datetime resolution as the signals, or merge_asof refuses the keys.
+    closed = closed.astype({"exit_date": table["signal_date"].dtype})
     previous = pd.merge_asof(
         table[["ticker", "signal_date"]].reset_index().sort_values("signal_date"),
         closed.sort_values("exit_date").rename(columns={"return_pct": "previous_trade_return"}),
@@ -76,4 +99,22 @@ def add_features(trades: pd.DataFrame, candles: pd.DataFrame) -> pd.DataFrame:
         allow_exact_matches=False,
     ).set_index("index")
     table["previous_trade_return"] = previous["previous_trade_return"]
+    table["failed_signals_180d"] = _failed_signals(table, closed)
     return table
+
+
+def _failed_signals(table: pd.DataFrame, closed: pd.DataFrame) -> pd.Series:
+    """Losing trades of the same ticker closed in the window before each signal."""
+    counts = pd.Series(0.0, index=table.index)
+    losses = closed.loc[closed["return_pct"] <= 0].groupby("ticker")["exit_date"]
+    exits_by_ticker = {ticker: np.sort(dates.to_numpy()) for ticker, dates in losses}
+    window = np.timedelta64(FAILED_SIGNALS_DAYS, "D")
+    for ticker, rows in table.groupby("ticker"):
+        exits = exits_by_ticker.get(ticker)
+        if exits is None:
+            continue
+        signals = rows["signal_date"].to_numpy()
+        counts.loc[rows.index] = np.searchsorted(exits, signals, side="left") - np.searchsorted(
+            exits, signals - window, side="left"
+        )
+    return counts

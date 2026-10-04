@@ -5,6 +5,8 @@ export interface SignalTrade {
   return_pct: number;
   exit_reason: 'stop' | 'cruzamento' | null;
   score: number;
+  win_rate_pct: number | null;
+  trend_start: boolean;
 }
 
 export interface OpenPosition {
@@ -12,6 +14,8 @@ export interface OpenPosition {
   days: number;
   return_pct: number;
   score: number;
+  win_rate_pct: number | null;
+  trend_start: boolean;
   stop_price: number;
 }
 
@@ -22,13 +26,21 @@ export interface TickerSignals {
   history: SignalTrade[];
 }
 
-export interface ScoreSummaryRow {
-  min_score: number;
+export interface SignalTypeRow {
+  type: 'trend_start' | 'all';
   trades: number;
   win_rate_pct: number;
   mean_return_pct: number;
   median_days: number;
-  short_trades_pct: number;
+}
+
+export interface ScoreBandRow {
+  score_from: number;
+  score_to: number;
+  trades: number;
+  win_rate_pct: number;
+  mean_return_pct: number;
+  median_days: number;
 }
 
 export interface SignalSnapshot {
@@ -38,7 +50,8 @@ export interface SignalSnapshot {
     rules: string;
     train_signals: string;
     test_signals: string;
-    test_by_min_score: ScoreSummaryRow[];
+    test_by_type: SignalTypeRow[];
+    test_by_score_band: ScoreBandRow[];
   };
   tickers: Record<string, TickerSignals>;
 }
