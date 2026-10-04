@@ -1,24 +1,26 @@
-import { memo, useCallback, useEffect, useState, type FormEvent } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiRefreshCw, FiSearch } from "react-icons/fi";
+import { FiRefreshCw } from "react-icons/fi";
 
 import { Alert } from "@/ui/components/primitives/alert";
 import { Badge, type BadgeVariant } from "@/ui/components/primitives/badge";
 import { Button } from "@/ui/components/primitives/button";
 import { Card } from "@/ui/components/primitives/card";
 import { EmptyState } from "@/ui/components/primitives/empty-state";
-import { Input } from "@/ui/components/primitives/input";
 import { Spinner } from "@/ui/components/primitives/spinner";
 import { Table } from "@/ui/components/primitives/table";
 import {
   fetchRefreshStatus,
   fetchSignals,
   fetchTicker,
+  fetchTickers,
   startRefresh,
   type ModelSummary,
   type SignalsResponse,
   type TickerDetail,
+  type TickerOption,
 } from "./signalsApi";
+import { TickerSearch } from "./TickerSearch";
 
 const percent = (value: number) =>
   `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
@@ -104,6 +106,9 @@ const TickerHistory = memo(({ detail }: { detail: TickerDetail }) => {
         <Card.Title>
           {detail.ticker} · {t("history.title")}
         </Card.Title>
+        {detail.name && (
+          <p className="text-sm text-(--color-text-muted)">{detail.name}</p>
+        )}
       </Card.Header>
       <Card.Body className="overflow-x-auto">
         {detail.history.length === 0 ? (
@@ -134,7 +139,7 @@ const TickerHistory = memo(({ detail }: { detail: TickerDetail }) => {
                   <Table.Cell>
                     <Signed value={trade.return_pct} />
                   </Table.Cell>
-                  <Table.Cell className="text-(--color-text-muted)">
+                  <Table.Cell className="whitespace-nowrap text-(--color-text-muted)">
                     {trade.exit_reason
                       ? t(`exit.${trade.exit_reason}`)
                       : t("exit.open")}
@@ -157,13 +162,18 @@ const Signals = memo(() => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [search, setSearch] = useState("");
+  const [tickers, setTickers] = useState<TickerOption[]>([]);
   const [detail, setDetail] = useState<TickerDetail | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setData(await fetchSignals());
+      const [signals, options] = await Promise.all([
+        fetchSignals(),
+        fetchTickers(),
+      ]);
+      setData(signals);
+      setTickers(options);
       setError(null);
     } catch (loadError) {
       setError((loadError as Error).message);
@@ -206,11 +216,6 @@ const Signals = memo(() => {
     } catch (detailError) {
       setError((detailError as Error).message);
     }
-  };
-
-  const submitSearch = (event: FormEvent) => {
-    event.preventDefault();
-    if (search.trim()) void openTicker(search.trim());
   };
 
   return (
@@ -292,8 +297,13 @@ const Signals = memo(() => {
                           aria-selected={detail?.ticker === signal.ticker}
                           onClick={() => void openTicker(signal.ticker)}
                         >
-                          <Table.Cell className="font-semibold">
-                            {signal.ticker}
+                          <Table.Cell>
+                            <div className="font-semibold">{signal.ticker}</div>
+                            {signal.name && (
+                              <div className="max-w-40 truncate text-xs text-(--color-text-muted)">
+                                {signal.name}
+                              </div>
+                            )}
                           </Table.Cell>
                           <Table.Cell className="whitespace-nowrap">
                             {signal.signal_today ? (
@@ -327,15 +337,10 @@ const Signals = memo(() => {
             </div>
 
             <div className="flex min-w-0 flex-col gap-6">
-              <form onSubmit={submitSearch}>
-                <Input
-                  aria-label={t("search")}
-                  placeholder={t("search")}
-                  leftIcon={<FiSearch aria-hidden="true" />}
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                />
-              </form>
+              <TickerSearch
+                options={tickers}
+                onSelect={(ticker) => void openTicker(ticker)}
+              />
               {detail ? (
                 <TickerHistory detail={detail} />
               ) : (

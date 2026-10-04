@@ -19,3 +19,5 @@ MODELS_DIR = PROJ_ROOT / "models"
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
 UNIVERSE_PATH = PROJ_ROOT / "references" / "universe.txt"
+# Company names collected by forecast_ml.download, used for search suggestions.
+TICKER_NAMES_PATH = DATA_DIR / "ticker_names.json"

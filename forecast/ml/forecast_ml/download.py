@@ -16,7 +16,7 @@ from urllib.request import Request, urlopen
 
 import pandas as pd
 
-from forecast_ml.config import RAW_DATA_DIR, UNIVERSE_PATH
+from forecast_ml.config import RAW_DATA_DIR, TICKER_NAMES_PATH, UNIVERSE_PATH
 from forecast_ml.dataset import COLUMN_ORDER
 
 CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
@@ -27,7 +27,10 @@ def read_universe(path: Path = UNIVERSE_PATH) -> list[str]:
     return [line.strip().upper() for line in lines if line.strip() and not line.startswith("#")]
 
 
-def fetch_daily(ticker: str, start: str, end: str, retries: int = 3) -> pd.DataFrame:
+def fetch_daily(
+    ticker: str, start: str, end: str, retries: int = 3
+) -> tuple[pd.DataFrame, str | None]:
+    """Candles plus the company name Yahoo reports for the ticker."""
     period1 = int(datetime.fromisoformat(start).replace(tzinfo=timezone.utc).timestamp())
     period2 = int(datetime.fromisoformat(end).replace(tzinfo=timezone.utc).timestamp()) + 86_400
     url = (
@@ -69,7 +72,9 @@ def fetch_daily(ticker: str, start: str, end: str, retries: int = 3) -> pd.DataF
     # Yahoo occasionally reports OHLC slightly outside the high/low range; clamp it.
     frame["high"] = frame[["open", "high", "low", "close"]].max(axis=1)
     frame["low"] = frame[["open", "high", "low", "close"]].min(axis=1)
-    return frame.drop_duplicates("date", keep="last")[COLUMN_ORDER]
+    meta = result.get("meta") or {}
+    name = meta.get("longName") or meta.get("shortName")
+    return frame.drop_duplicates("date", keep="last")[COLUMN_ORDER], name
 
 
 def download(
@@ -77,10 +82,17 @@ def download(
 ) -> dict[str, str]:
     output_dir.mkdir(parents=True, exist_ok=True)
     errors = {}
+    names = (
+        json.loads(TICKER_NAMES_PATH.read_text(encoding="utf-8"))
+        if TICKER_NAMES_PATH.exists()
+        else {}
+    )
 
     def save(ticker: str) -> int:
-        frame = fetch_daily(ticker, start, end)
+        frame, name = fetch_daily(ticker, start, end)
         frame.to_csv(output_dir / f"{ticker}.csv", index=False)
+        if name:
+            names[ticker] = name
         return len(frame)
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -93,6 +105,7 @@ def download(
             except Exception as error:  # noqa: BLE001 - report and keep downloading
                 errors[ticker] = str(error)
                 print(f"[{done}/{len(tickers)}] {ticker}: ERRO {error}")
+    TICKER_NAMES_PATH.write_text(json.dumps(names, indent=0, sort_keys=True), encoding="utf-8")
     return errors
 
 

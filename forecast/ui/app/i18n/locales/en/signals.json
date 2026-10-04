@@ -4,7 +4,7 @@
   "subtitleEmpty": "Kandle COMPRA signals scored by the model",
   "refresh": "Recompute",
   "refreshWithDownload": "Download data and recompute",
-  "search": "See a ticker's history (e.g. MRVL)",
+  "search": "Search by ticker or company (e.g. KODK, Kodak)",
   "empty": {
     "title": "No snapshot yet",
     "description": "Recompute to generate the first snapshot."
@@ -43,5 +43,6 @@
     "winRate": "Win rate",
     "meanReturn": "Mean return",
     "medianDays": "Days (median)"
-  }
+  },
+  "searchNoMatch": "No ticker matches \"{{query}}\". Add it to references/universe.txt and download the data."
 }

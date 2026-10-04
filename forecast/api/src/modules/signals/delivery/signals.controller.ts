@@ -29,6 +29,13 @@ export class SignalsController {
     return result;
   }
 
+  @Get('tickers')
+  async tickers() {
+    const result = await this.listSignals.listTickers();
+    if (!result) throw snapshotMissing();
+    return result;
+  }
+
   @Get('refresh')
   refreshStatus() {
     return this.refreshRunner.status();

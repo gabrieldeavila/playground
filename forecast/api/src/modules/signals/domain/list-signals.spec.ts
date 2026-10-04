@@ -27,10 +27,20 @@ const snapshot: SignalSnapshot = {
     test_by_min_score: [],
   },
   tickers: {
-    AAA: { signal_today: false, position: null, history: [trade(90)] },
-    BBB: { signal_today: false, position, history: [trade(40)] },
-    CCC: { signal_today: false, position, history: [trade(80)] },
-    DDD: { signal_today: true, position: null, history: [trade(10)] },
+    AAA: {
+      name: 'Alpha Inc.',
+      signal_today: false,
+      position: null,
+      history: [trade(90)],
+    },
+    BBB: { name: null, signal_today: false, position, history: [trade(40)] },
+    CCC: { name: null, signal_today: false, position, history: [trade(80)] },
+    DDD: {
+      name: null,
+      signal_today: true,
+      position: null,
+      history: [trade(10)],
+    },
   },
 };
 
@@ -51,6 +61,13 @@ describe('ListSignals', () => {
   it('encontra ticker sem diferenciar caixa', async () => {
     expect((await useCase.findTicker('aaa'))?.history).toHaveLength(1);
     expect(await useCase.findTicker('ZZZ')).toBeNull();
+  });
+
+  it('lista todos os tickers com nome para sugestões', async () => {
+    const tickers = await useCase.listTickers();
+
+    expect(tickers?.[0]).toEqual({ ticker: 'AAA', name: 'Alpha Inc.' });
+    expect(tickers).toHaveLength(4);
   });
 
   it('retorna null quando o snapshot ainda não existe', async () => {

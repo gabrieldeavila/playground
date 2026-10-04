@@ -17,7 +17,13 @@ import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import roc_auc_score
 
-from forecast_ml.config import MODELS_DIR, PROCESSED_DATA_DIR, RAW_DATA_DIR, REPORTS_DIR
+from forecast_ml.config import (
+    MODELS_DIR,
+    PROCESSED_DATA_DIR,
+    RAW_DATA_DIR,
+    REPORTS_DIR,
+    TICKER_NAMES_PATH,
+)
 from forecast_ml.dataset import load_market_data
 from forecast_ml.kandle_features import FEATURES, add_features
 from forecast_ml.trades import simulate_trades
@@ -114,6 +120,11 @@ def predict(data_dir: Path, model_path: Path, output_path: Path, history_days: i
     def date(value) -> str | None:
         return None if pd.isna(value) else str(pd.Timestamp(value).date())
 
+    names = (
+        json.loads(TICKER_NAMES_PATH.read_text(encoding="utf-8"))
+        if TICKER_NAMES_PATH.exists()
+        else {}
+    )
     tickers = {}
     for ticker, last_date in last_dates.items():
         if last_date != session:
@@ -121,6 +132,7 @@ def predict(data_dir: Path, model_path: Path, output_path: Path, history_days: i
         rows = recent.loc[recent["ticker"] == ticker].sort_values("signal_date", ascending=False)
         open_trade = rows.loc[rows["exit_date"].isna()].head(1)
         tickers[ticker] = {
+            "name": names.get(ticker),
             "signal_today": bool((rows["signal_date"] == session).any()),
             "position": None
             if open_trade.empty

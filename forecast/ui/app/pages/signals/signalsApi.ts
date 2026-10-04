@@ -31,8 +31,14 @@ export type ModelSummary = {
   test_by_min_score: ScoreSummaryRow[];
 };
 
+export type TickerOption = {
+  ticker: string;
+  name: string | null;
+};
+
 export type SignalSummary = {
   ticker: string;
+  name: string | null;
   signal_today: boolean;
   position: OpenPosition | null;
   latest: SignalTrade;
@@ -47,6 +53,7 @@ export type SignalsResponse = {
 
 export type TickerDetail = {
   ticker: string;
+  name: string | null;
   session: string;
   signal_today: boolean;
   position: OpenPosition | null;
@@ -77,6 +84,8 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
 };
 
 export const fetchSignals = () => request<SignalsResponse>("/signals");
+
+export const fetchTickers = () => request<TickerOption[]>("/signals/tickers");
 
 export const fetchTicker = (ticker: string) =>
   request<TickerDetail>(`/signals/${encodeURIComponent(ticker)}`);

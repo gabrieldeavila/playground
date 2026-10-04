@@ -16,6 +16,7 @@ export interface OpenPosition {
 }
 
 export interface TickerSignals {
+  name: string | null;
   signal_today: boolean;
   position: OpenPosition | null;
   history: SignalTrade[];

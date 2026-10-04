@@ -7,6 +7,7 @@ import {
 
 export interface SignalSummary {
   ticker: string;
+  name: string | null;
   signal_today: boolean;
   position: TickerSignals['position'];
   latest: SignalTrade;
@@ -25,8 +26,9 @@ export class ListSignals {
         ([, ticker]) =>
           (ticker.signal_today || ticker.position) && ticker.history.length,
       )
-      .map(([ticker, { signal_today, position, history }]) => ({
+      .map(([ticker, { name, signal_today, position, history }]) => ({
         ticker,
+        name,
         signal_today,
         position,
         latest: history[0],
@@ -39,6 +41,15 @@ export class ListSignals {
       );
 
     return { ...metadata(snapshot), signals };
+  }
+
+  /** Every ticker in the snapshot with its company name, for search suggestions. */
+  async listTickers() {
+    const snapshot = await this.repository.read();
+    if (!snapshot) return null;
+    return Object.entries(snapshot.tickers)
+      .map(([ticker, { name }]) => ({ ticker, name }))
+      .sort((left, right) => left.ticker.localeCompare(right.ticker));
   }
 
   async findTicker(ticker: string) {

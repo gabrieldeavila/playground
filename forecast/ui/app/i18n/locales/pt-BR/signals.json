@@ -4,7 +4,7 @@
   "subtitleEmpty": "COMPRAs do Kandle com a nota do modelo",
   "refresh": "Recalcular",
   "refreshWithDownload": "Baixar dados e recalcular",
-  "search": "Ver histórico de um ticker (ex.: MRVL)",
+  "search": "Buscar por código ou empresa (ex.: KODK, Kodak)",
   "empty": {
     "title": "Nenhum snapshot gerado",
     "description": "Recalcule para gerar o primeiro snapshot."
@@ -43,5 +43,6 @@
     "winRate": "Acerto",
     "meanReturn": "Retorno médio",
     "medianDays": "Dias (mediana)"
-  }
+  },
+  "searchNoMatch": "Nenhum ticker encontrado para \"{{query}}\". Adicione o código em references/universe.txt e baixe os dados."
 }
