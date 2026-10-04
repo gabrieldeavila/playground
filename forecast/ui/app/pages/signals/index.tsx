@@ -259,7 +259,7 @@ type TickerHistoryProps = { detail: TickerDetail; timeframe: Timeframe };
 const TickerHistory = memo(({ detail, timeframe }: TickerHistoryProps) => {
   const { t } = useTranslation("signals");
   return (
-    <Card>
+    <Card className="lg:flex lg:min-h-0 lg:flex-col">
       <Card.Header>
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -286,7 +286,7 @@ const TickerHistory = memo(({ detail, timeframe }: TickerHistoryProps) => {
           </Button>
         </div>
       </Card.Header>
-      <Card.Body className="overflow-x-auto">
+      <Card.Body className="overflow-x-auto lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
         {detail.history.length === 0 ? (
           <p className="text-sm text-(--color-text-muted)">
             {t("history.empty")}
@@ -646,7 +646,7 @@ const Signals = memo(() => {
               </Card>
             </div>
 
-            <div className="flex min-w-0 flex-col gap-6">
+            <div className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-4 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:max-h-[calc(100dvh-2rem)] lg:self-start">
               <TickerSearch
                 options={tickers}
                 onSelect={(ticker) => void openTicker(ticker)}
@@ -659,6 +659,9 @@ const Signals = memo(() => {
                   description={t("history.selectDescription")}
                 />
               )}
+            </div>
+
+            <div className="min-w-0 lg:col-start-1">
               <ModelTest model={data.model} timeframe={timeframe} />
             </div>
           </div>
