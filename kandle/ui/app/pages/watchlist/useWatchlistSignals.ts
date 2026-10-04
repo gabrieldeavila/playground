@@ -116,6 +116,8 @@ export function useWatchlistSignals(
       controllersRef.current.clear();
       queueRef.current = [];
       queuedRef.current.clear();
+      // Aborted tasks must be queued again if the hook remounts (StrictMode).
+      requestedRef.current.clear();
     };
   }, []);
 

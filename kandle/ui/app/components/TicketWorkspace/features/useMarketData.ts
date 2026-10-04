@@ -249,8 +249,16 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
         // explicit retry action removes this marker again.
         requestedRangesRef.current.add(request.key);
         rememberRange(request);
-        failedRequestRef.current = request;
-        setError("Não foi possível carregar os candles. Tente novamente.");
+        // Paging past the first listing date, a weekend or the current
+        // week returns 404; that is the edge of the data, not a failure.
+        const isEmptyExtension =
+          axios.isAxiosError(requestError) &&
+          requestError.response?.status === 404 &&
+          hasCachedMarketDataRef.current;
+        if (!isEmptyExtension) {
+          failedRequestRef.current = request;
+          setError("Não foi possível carregar os candles. Tente novamente.");
+        }
       }
     } finally {
       // An aborted request from an older generation must not remove a newer
@@ -289,6 +297,8 @@ export function useMarketData(initialState?: TicketWorkspacePersistence) {
           const generation = ++generationRef.current;
           completedRangesRef.current = [];
           failedRequestRef.current = null;
+          // Requests from an older generation never decrement the counter.
+          setLoadingCount(0);
           const to = new Date();
           const historyYears =
             activeIntervalRef.current === MarketDataInterval.Monthly

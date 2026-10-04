@@ -1,4 +1,10 @@
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useSearchParams } from "react-router";
 
 import type { HoveredCandle } from "@/types/interface/hovered-candle.interface";
@@ -14,7 +20,7 @@ export function TicketWorkspaceBaseProvider({
 }: {
   children: ReactNode;
 }) {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const requestedTicker = searchParams.get("ticker")?.trim() ?? "";
   const [persistedState] = useState(readTicketWorkspaceStorage);
   const [ticketQuery, setTicketQuery] = useState(
@@ -51,6 +57,31 @@ export function TicketWorkspaceBaseProvider({
     void loadTicker(requestedTicker);
   }, [loadTicker, requestedTicker]);
 
+  // Persisted candles are only a display cache; refresh them once on load.
+  useEffect(() => {
+    if (!requestedTicker && persistedState?.selectedTicker) {
+      void loadTicker(persistedState.selectedTicker);
+    }
+  }, []);
+
+  const selectTicker = useCallback(
+    (ticker: string) => {
+      // A leftover ?ticker= would override this choice on the next reload.
+      if (searchParams.has("ticker")) {
+        setSearchParams(
+          (params) => {
+            const nextParams = new URLSearchParams(params);
+            nextParams.delete("ticker");
+            return nextParams;
+          },
+          { replace: true },
+        );
+      }
+      return loadTicker(ticker);
+    },
+    [loadTicker, searchParams, setSearchParams],
+  );
+
   useEffect(() => {
     writeTicketWorkspaceStorage({
       ticketQuery,
@@ -84,7 +115,7 @@ export function TicketWorkspaceBaseProvider({
       dataTicker,
       isMarketDataLoading,
       marketDataError,
-      loadTicker,
+      loadTicker: selectTicker,
       loadMoreMarketData,
       retryMarketData,
     }),
@@ -98,7 +129,7 @@ export function TicketWorkspaceBaseProvider({
       dataTicker,
       isMarketDataLoading,
       marketDataError,
-      loadTicker,
+      selectTicker,
       loadMoreMarketData,
       retryMarketData,
     ],

@@ -267,6 +267,10 @@ const StockChartContent = memo(() => {
       emaSeriesRef.current.clear();
       emaCacheRef.current.clear();
       renderedEmaRef.current.clear();
+      // A recreated chart starts with mock candles, so the data effect must
+      // render the current market data again (e.g. StrictMode remount).
+      previousDataRef.current = [];
+      renderedTickerRef.current = "";
       chart.remove();
       chartRef.current = null;
     };

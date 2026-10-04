@@ -5,8 +5,8 @@ import {
   FiBarChart2,
   FiChevronDown,
   FiPlay,
-  FiPlus,
   FiRefreshCw,
+  FiTrash2,
 } from "react-icons/fi";
 
 import { Button } from "@/ui/components/primitives/button";
@@ -160,12 +160,15 @@ export default function OpportunitiesPage() {
     });
   }, [isReady, interval, backtestTicker, backtestFrom, backtestTo, criteria]);
 
-  const addToWatchlist = (asset: TickerSuggestion) => {
-    const storedAssets = readWatchlistAssets();
-    if (storedAssets.some(({ value }) => value === asset.value)) return;
-    const nextAssets = [...storedAssets, asset];
+  const removeFromWatchlist = (ticker: string) => {
+    const nextAssets = readWatchlistAssets().filter(
+      ({ value }) => value !== ticker,
+    );
     setAssets(nextAssets);
     setStorageError(!writeWatchlistAssets(nextAssets));
+    if (backtestTicker === ticker) {
+      setBacktestTicker(nextAssets[0]?.value ?? "");
+    }
   };
 
   const counts = useMemo(() => {
@@ -515,9 +518,6 @@ export default function OpportunitiesPage() {
                 ];
                 const kind =
                   state?.status === "success" ? state.result?.kind ?? null : null;
-                const isInWatchlist = assets.some(
-                  ({ value }) => value.toUpperCase() === asset.value.toUpperCase(),
-                );
                 const result = state?.status === "success" ? state.result : null;
                 return (
                   <li
@@ -548,16 +548,15 @@ export default function OpportunitiesPage() {
                             Abrir gráfico
                           </Link>
                         </Button>
-                        {!isInWatchlist && (
-                          <Button
-                            leftIcon={<FiPlus />}
-                            onClick={() => addToWatchlist(asset)}
-                            size="sm"
-                            variant="secondary"
-                          >
-                            Adicionar à watchlist
-                          </Button>
-                        )}
+                        <Button
+                          aria-label={`Remover ${asset.value} da watchlist`}
+                          leftIcon={<FiTrash2 />}
+                          onClick={() => removeFromWatchlist(asset.value)}
+                          size="sm"
+                          variant="ghost"
+                        >
+                          Remover
+                        </Button>
                         {state?.status === "error" && (
                           <Button
                             aria-label={`Tentar novamente para ${asset.value}`}
