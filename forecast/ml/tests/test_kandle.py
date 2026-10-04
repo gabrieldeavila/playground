@@ -162,3 +162,23 @@ def test_weekly_candles_aggregate_the_week_and_survive_a_mid_week_split():
     assert first["high"] == pytest.approx(102 * 1.01)
     assert first["close"] == 101 and first["volume"] == 50
     assert weekly.iloc[1]["low"] == pytest.approx(102 * 0.99)
+
+
+def test_market_breadth_is_the_share_of_tickers_above_their_ema_100_that_day():
+    up = _candles(100 * 1.01 ** np.arange(150))
+    down = _candles(100 * 0.99 ** np.arange(150), ticker="BBB")
+    flat_up = _candles(100 * 1.002 ** np.arange(150), ticker="CCC")
+    candles = pd.concat([up, down, flat_up], ignore_index=True)
+    last = up["date"].iloc[-1]
+    trades = pd.DataFrame(
+        {
+            "ticker": ["AAA", "BBB"],
+            "signal_date": [last, up["date"].iloc[50]],
+            "exit_date": [pd.NaT] * 2,
+            "return_pct": [0.0, 0.0],
+        }
+    )
+    features = add_features(trades, candles).set_index("ticker")
+    assert features.loc["AAA", "market_breadth_100"] == pytest.approx(2 / 3)
+    # Before EMA 100 exists no ticker counts, so breadth is unknown, not zero.
+    assert np.isnan(features.loc["BBB", "market_breadth_100"])

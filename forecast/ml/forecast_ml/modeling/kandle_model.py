@@ -224,7 +224,7 @@ def train(
     report = {
         "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "timeframe": timeframe,
-        "rules": f"COMPRA Kandle EMA 9/20/50/100 no {TIMEFRAME_LABELS[timeframe]}; entrada no "
+        "rules": f"COMPRA Kandle EMA 9/20/50 no {TIMEFRAME_LABELS[timeframe]}; entrada no "
         "open seguinte; stop 3xATR no fechamento; saída com EMA 9 < EMA 20 por 2 candles; "
         f"custo 0,1% por lado; só candles com média de US$ {min_dollar_volume(timeframe):,.0f} "
         "negociados",

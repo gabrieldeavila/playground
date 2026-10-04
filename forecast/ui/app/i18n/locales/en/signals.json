@@ -1,7 +1,7 @@
 {
   "title": "Kandle + AI signals",
-  "subtitle": "EMA 9/20/50/100 daily COMPRA signals · session {{session}}",
-  "subtitle_weekly": "EMA 9/20/50/100 weekly COMPRA signals · session {{session}}",
+  "subtitle": "EMA 9/20/50 daily COMPRA signals · session {{session}}",
+  "subtitle_weekly": "EMA 9/20/50 weekly COMPRA signals · session {{session}}",
   "subtitleEmpty": "Kandle COMPRA signals scored by the model",
   "refresh": "Recompute",
   "refreshWithDownload": "Download data and recompute",

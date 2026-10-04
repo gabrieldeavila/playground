@@ -10,7 +10,10 @@ import pandas as pd
 
 from forecast_ml.features import _kandle_ema
 
-KANDLE_EMA_PERIODS = (9, 20, 50, 100)
+# Without EMA 100 the setup fires earlier in a trend, and on 2010-2021 daily and weekly
+# signals it made more per ticker than 9/20/50/100 at the same profit factor. Select
+# the same EMAs (9, 20, 50) on the Kandle chart so both show the same COMPRAs.
+KANDLE_EMA_PERIODS = (9, 20, 50)
 SLOPE_LOOKBACK = 5
 ALIGNMENT_HOLD_CANDLES = 3
 MIN_EMA_SPREAD_RATIO = 0.005

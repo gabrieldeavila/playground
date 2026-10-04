@@ -23,6 +23,8 @@ FEATURES = [
     "trend_efficiency_60d",
     "distance_to_60d_high_atr",
     "failed_signals_180d",
+    # Market context: COMPRAs while most of the market is already stretched do worst.
+    "market_breadth_100",
 ]
 SIDEWAYS_WINDOW = 60
 FAILED_SIGNALS_DAYS = 180
@@ -81,12 +83,18 @@ def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
                         (close - close.shift(SIDEWAYS_WINDOW)).abs() / path
                     ).to_numpy(),
                     "distance_to_60d_high_atr": ((high / close - 1) / atr).to_numpy(),
+                    "above_ema_100": np.where(
+                        np.isfinite(ema[100]), close.to_numpy() > ema[100], np.nan
+                    ),
                     # Not a model feature: used to filter out illiquid signals.
                     "dollar_volume_20d": dollar_volume(group).to_numpy(),
                 }
             )
         )
-    return pd.concat(frames, ignore_index=True)
+    table = pd.concat(frames, ignore_index=True)
+    # Share of the universe closing above its own EMA 100 on the same candle.
+    table["market_breadth_100"] = table.groupby("date")["above_ema_100"].transform("mean")
+    return table.drop(columns="above_ema_100")
 
 
 def add_features(trades: pd.DataFrame, candles: pd.DataFrame) -> pd.DataFrame:

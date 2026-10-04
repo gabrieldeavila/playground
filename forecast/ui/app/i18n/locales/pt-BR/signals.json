@@ -1,7 +1,7 @@
 {
   "title": "Sinais Kandle + IA",
-  "subtitle": "COMPRAs EMA 9/20/50/100 no diário · sessão {{session}}",
-  "subtitle_weekly": "COMPRAs EMA 9/20/50/100 no semanal · sessão {{session}}",
+  "subtitle": "COMPRAs EMA 9/20/50 no diário · sessão {{session}}",
+  "subtitle_weekly": "COMPRAs EMA 9/20/50 no semanal · sessão {{session}}",
   "subtitleEmpty": "COMPRAs do Kandle com a nota do modelo",
   "refresh": "Recalcular",
   "refreshWithDownload": "Baixar dados e recalcular",
