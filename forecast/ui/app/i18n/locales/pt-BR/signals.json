@@ -99,6 +99,9 @@
     "tradesTitle": "Trades simulados",
     "tradesDescription": "Entrada no open seguinte à COMPRA; saída quando a EMA 9 fecha abaixo da EMA 20 por 2 candles ou no stop de 3×ATR. Clique numa linha (ou num marcador) para centralizar o trade.",
     "summaryTitle": "Resultado neste ticker",
-    "notFound": "Sem candles para {{ticker}}."
+    "notFound": "Sem candles para {{ticker}}.",
+    "scoreAll": "Todas as notas",
+    "scoreFrom": "Nota {{score}}+",
+    "scoreBand": "Nota {{from}}–{{to}}"
   }
 }

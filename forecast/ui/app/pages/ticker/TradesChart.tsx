@@ -19,11 +19,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { percent } from "../signals/shared";
-import type {
-  ChartTrade,
-  TickerChart,
-  Timeframe,
-} from "../signals/signalsApi";
+import type { ChartTrade, TickerChart, Timeframe } from "../signals/signalsApi";
 
 // Same palette as the Kandle chart, so both read the same way.
 const UP = "#61d6a3";
@@ -77,9 +73,7 @@ const buildMarkers = (trades: ChartTrade[], selected: string | null) => {
       size: group.some((trade) => trade.signal_date === selected) ? 2 : 1,
     });
   }
-  return markers.sort((a, b) =>
-    String(a.time).localeCompare(String(b.time)),
-  );
+  return markers.sort((a, b) => String(a.time).localeCompare(String(b.time)));
 };
 
 export const TradesChart = memo(
@@ -255,7 +249,11 @@ export const TradesChart = memo(
           });
       }
       priceLinesRef.current = lines.map((line) =>
-        series.createPriceLine({ lineWidth: 1, axisLabelVisible: true, ...line }),
+        series.createPriceLine({
+          lineWidth: 1,
+          axisLabelVisible: true,
+          ...line,
+        }),
       );
     }, [trades, selected, t]);
 
@@ -319,13 +317,19 @@ export const TradesChart = memo(
           </div>
           {events.map((trade) =>
             trade.entry_date === time ? (
-              <div key={`buy:${trade.signal_date}`} className="text-(--color-text)">
-                ▲ {t("chart.buy")} {price(trade.entry_price)} · {t("columns.score")}{" "}
-                {trade.score}
+              <div
+                key={`buy:${trade.signal_date}`}
+                className="text-(--color-text)"
+              >
+                ▲ {t("chart.buy")} {price(trade.entry_price)} ·{" "}
+                {t("columns.score")} {trade.score}
                 {!trade.test && ` · ${t("chart.train")}`}
               </div>
             ) : (
-              <div key={`sell:${trade.signal_date}`} className="text-(--color-text)">
+              <div
+                key={`sell:${trade.signal_date}`}
+                className="text-(--color-text)"
+              >
                 ▼ {t("chart.sell")} {price(trade.exit_price)} ·{" "}
                 <span
                   className={
@@ -336,8 +340,9 @@ export const TradesChart = memo(
                 >
                   {percent(trade.return_pct)}
                 </span>{" "}
-                · {trade.days} {t("columns.days", { context: chart.timeframe }).toLowerCase()} ·{" "}
-                {trade.exit_reason ? t(`exit.${trade.exit_reason}`) : ""} ·{" "}
+                · {trade.days}{" "}
+                {t("columns.days", { context: chart.timeframe }).toLowerCase()}{" "}
+                · {trade.exit_reason ? t(`exit.${trade.exit_reason}`) : ""} ·{" "}
                 {t("chart.buy")} {trade.entry_date}
               </div>
             ),

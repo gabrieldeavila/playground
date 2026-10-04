@@ -99,6 +99,9 @@
     "tradesTitle": "Simulated trades",
     "tradesDescription": "Entry at the open after the signal; exit when EMA 9 closes below EMA 20 for 2 candles or at the 3×ATR stop. Click a row (or a marker) to center the trade.",
     "summaryTitle": "Results on this ticker",
-    "notFound": "No candles for {{ticker}}."
+    "notFound": "No candles for {{ticker}}.",
+    "scoreAll": "All scores",
+    "scoreFrom": "Score {{score}}+",
+    "scoreBand": "Score {{from}}–{{to}}"
   }
 }

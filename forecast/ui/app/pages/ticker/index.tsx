@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { FiArrowLeft } from "react-icons/fi";
 import { Link, useParams, useSearchParams } from "react-router";
@@ -24,6 +25,9 @@ import {
 import { TradesChart } from "./TradesChart";
 
 const TIMEFRAMES: Timeframe[] = ["daily", "weekly"];
+// Minimum score options; 0 means every score.
+const SCORE_FILTERS = [0, 50, 70, 90] as const;
+type ScoreFilter = (typeof SCORE_FILTERS)[number];
 
 export function meta({ params }: Route.MetaArgs) {
   return [{ title: `${params.ticker?.toUpperCase()} · Sinais Kandle + IA` }];
@@ -52,64 +56,78 @@ const summarize = (trades: ChartTrade[]) => {
   };
 };
 
-type SummaryProps = { trades: ChartTrade[]; showTrain: boolean } & Pick<
-  TickerChart,
-  "timeframe"
->;
+const scoreLabel = (t: TFunction<"signals">, minScore: ScoreFilter) =>
+  minScore === 0
+    ? t("chart.scoreAll")
+    : minScore === 90
+      ? t("chart.scoreBand", { from: 90, to: 100 })
+      : t("chart.scoreFrom", { score: minScore });
 
-const Summary = memo(({ trades, showTrain, timeframe }: SummaryProps) => {
-  const { t } = useTranslation("signals");
-  const periods = [
-    { key: "test", label: t("chart.test"), trades: trades.filter((x) => x.test) },
-    ...(showTrain
-      ? [
-          {
-            key: "train",
-            label: t("chart.train"),
-            trades: trades.filter((x) => !x.test),
-          },
-        ]
-      : []),
-  ];
-  return (
-    <Card>
-      <Card.Header>
-        <Card.Title>{t("chart.summaryTitle")}</Card.Title>
-      </Card.Header>
-      <Card.Body className="overflow-x-auto">
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.Head>{t("chart.period")}</Table.Head>
-              <Table.Head>{t("test.trades")}</Table.Head>
-              <Table.Head>{t("test.winRate")}</Table.Head>
-              <Table.Head>{t("test.meanReturn")}</Table.Head>
-              <Table.Head>{t("test.medianDays", { context: timeframe })}</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {periods.map(({ key, label, trades: rows }) => {
-              const summary = summarize(rows);
-              return (
-                <Table.Row key={key}>
-                  <Table.Cell>{label}</Table.Cell>
-                  <Table.Cell>{summary?.trades ?? 0}</Table.Cell>
-                  <Table.Cell>
-                    {summary ? `${summary.winRate.toFixed(1)}%` : "—"}
-                  </Table.Cell>
-                  <Table.Cell>
-                    {summary ? <Signed value={summary.meanReturn} /> : "—"}
-                  </Table.Cell>
-                  <Table.Cell>{summary?.medianDays ?? "—"}</Table.Cell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        </Table>
-      </Card.Body>
-    </Card>
-  );
-});
+type SummaryProps = {
+  /** Trades before the score filter, so the chosen band sits next to all scores. */
+  trades: ChartTrade[];
+  showTrain: boolean;
+  minScore: ScoreFilter;
+} & Pick<TickerChart, "timeframe">;
+
+const Summary = memo(
+  ({ trades, showTrain, minScore, timeframe }: SummaryProps) => {
+    const { t } = useTranslation("signals");
+    const scores = minScore === 0 ? [0 as const] : [0 as const, minScore];
+    const periods = [
+      { key: "test", label: t("chart.test"), test: true },
+      ...(showTrain
+        ? [{ key: "train", label: t("chart.train"), test: false }]
+        : []),
+    ].flatMap(({ key, label, test }) =>
+      scores.map((score) => ({
+        key: `${key}:${score}`,
+        label: `${label} · ${scoreLabel(t, score)}`,
+        trades: trades.filter((x) => x.test === test && x.score >= score),
+      })),
+    );
+    return (
+      <Card>
+        <Card.Header>
+          <Card.Title>{t("chart.summaryTitle")}</Card.Title>
+        </Card.Header>
+        <Card.Body className="overflow-x-auto">
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>{t("chart.period")}</Table.Head>
+                <Table.Head>{t("test.trades")}</Table.Head>
+                <Table.Head>{t("test.winRate")}</Table.Head>
+                <Table.Head>{t("test.meanReturn")}</Table.Head>
+                <Table.Head>
+                  {t("test.medianDays", { context: timeframe })}
+                </Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {periods.map(({ key, label, trades: rows }) => {
+                const summary = summarize(rows);
+                return (
+                  <Table.Row key={key}>
+                    <Table.Cell>{label}</Table.Cell>
+                    <Table.Cell>{summary?.trades ?? 0}</Table.Cell>
+                    <Table.Cell>
+                      {summary ? `${summary.winRate.toFixed(1)}%` : "—"}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {summary ? <Signed value={summary.meanReturn} /> : "—"}
+                    </Table.Cell>
+                    <Table.Cell>{summary?.medianDays ?? "—"}</Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          </Table>
+        </Card.Body>
+      </Card>
+    );
+  },
+);
 
 Summary.displayName = "Summary";
 
@@ -149,7 +167,9 @@ const TradesTable = memo(
                   <Table.Head>{t("columns.score")}</Table.Head>
                   <Table.Head>{t("chart.entry")}</Table.Head>
                   <Table.Head>{t("chart.exit")}</Table.Head>
-                  <Table.Head>{t("columns.days", { context: timeframe })}</Table.Head>
+                  <Table.Head>
+                    {t("columns.days", { context: timeframe })}
+                  </Table.Head>
                   <Table.Head>{t("columns.result")}</Table.Head>
                 </Table.Row>
               </Table.Header>
@@ -160,7 +180,8 @@ const TradesTable = memo(
                     aria-selected={trade.signal_date === selected}
                     className={cn(
                       "cursor-pointer",
-                      trade.signal_date === selected && "bg-(--color-surface-3)",
+                      trade.signal_date === selected &&
+                        "bg-(--color-surface-3)",
                       !trade.test && "opacity-60",
                     )}
                     onClick={() => onSelect(trade.signal_date)}
@@ -224,7 +245,9 @@ const Legend = ({ testStart }: { testStart: string }) => {
       <span>
         <span className="text-[#f4778b]">┈┈</span> {t("chart.legendOpen")}
       </span>
-      <span className="basis-full">{t("chart.trainNote", { date: testStart })}</span>
+      <span className="basis-full">
+        {t("chart.trainNote", { date: testStart })}
+      </span>
     </div>
   );
 };
@@ -242,6 +265,7 @@ const Ticker = memo(() => {
   const [loading, setLoading] = useState(true);
   const [showTrain, setShowTrain] = useState(false);
   const [onlyTrendStarts, setOnlyTrendStarts] = useState(false);
+  const [minScore, setMinScore] = useState<ScoreFilter>(0);
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
@@ -270,7 +294,7 @@ const Ticker = memo(() => {
     };
   }, [ticker, timeframe]);
 
-  const trades = useMemo(
+  const unscored = useMemo(
     () =>
       (chart?.trades ?? []).filter(
         (trade) =>
@@ -278,8 +302,15 @@ const Ticker = memo(() => {
       ),
     [chart, showTrain, onlyTrendStarts],
   );
+  const trades = useMemo(
+    () => unscored.filter((trade) => trade.score >= minScore),
+    [unscored, minScore],
+  );
   const chartRef = useRef<HTMLDivElement>(null);
-  const select = useCallback((signalDate: string) => setSelected(signalDate), []);
+  const select = useCallback(
+    (signalDate: string) => setSelected(signalDate),
+    [],
+  );
   // The table sits below the chart: bring the chart back into view to show the trade.
   const selectFromTable = useCallback((signalDate: string) => {
     setSelected(signalDate);
@@ -320,7 +351,11 @@ const Ticker = memo(() => {
                 .join(" · ")}
             </p>
           </div>
-          <div role="group" aria-label={t("timeframe.label")} className="flex gap-1">
+          <div
+            role="group"
+            aria-label={t("timeframe.label")}
+            className="flex gap-1"
+          >
             {TIMEFRAMES.map((frame) => (
               <Button
                 key={frame}
@@ -359,6 +394,23 @@ const Ticker = memo(() => {
                       }
                       label={t("chart.onlyTrendStarts")}
                     />
+                    <div
+                      role="group"
+                      aria-label={t("columns.score")}
+                      className="flex flex-wrap items-center gap-1"
+                    >
+                      {SCORE_FILTERS.map((score) => (
+                        <Button
+                          key={score}
+                          size="sm"
+                          variant={minScore === score ? "secondary" : "ghost"}
+                          aria-pressed={minScore === score}
+                          onClick={() => setMinScore(score)}
+                        >
+                          {scoreLabel(t, score)}
+                        </Button>
+                      ))}
+                    </div>
                     <span className="text-sm text-(--color-text-muted)">
                       {t("chart.trades", { count: trades.length })}
                     </span>
@@ -376,8 +428,9 @@ const Ticker = memo(() => {
                 </Card.Body>
               </Card>
               <Summary
-                trades={trades}
+                trades={unscored}
                 showTrain={showTrain}
+                minScore={minScore}
                 timeframe={chart.timeframe}
               />
               <TradesTable

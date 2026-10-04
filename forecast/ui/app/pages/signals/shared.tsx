@@ -10,9 +10,7 @@ export const rate = (value: number | null) =>
 
 export const Signed = ({ value }: { value: number }) => (
   <span
-    className={
-      value >= 0 ? "text-(--color-success)" : "text-(--color-danger)"
-    }
+    className={value >= 0 ? "text-(--color-success)" : "text-(--color-danger)"}
   >
     {percent(value)}
   </span>
