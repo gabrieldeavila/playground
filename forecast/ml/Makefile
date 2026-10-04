@@ -59,7 +59,7 @@ diagnose: requirements
 train: requirements
 	uv run python -m forecast_ml.modeling.train --target-pct $(TARGET_PCT) --stop-pct $(STOP_PCT) --horizon-bars $(HORIZON_BARS)
 
-## Build references/universe.csv (S&P 500/400/600 from Wikipedia + watchlist.txt)
+## Build references/universe.csv (S&P 500/400/600, NYSE/Nasdaq common shares, watchlist.txt)
 .PHONY: universe
 universe: requirements
 	uv run python -m forecast_ml.universe

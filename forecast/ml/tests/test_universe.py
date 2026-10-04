@@ -1,10 +1,17 @@
+import io
+
 import numpy as np
 import pandas as pd
 import pytest
 
 from forecast_ml.kandle_features import dollar_volume
 from forecast_ml.modeling.kandle_model import split
-from forecast_ml.universe import build_universe, russell_members, yahoo_symbol
+from forecast_ml.universe import (
+    build_universe,
+    russell_members,
+    select_exchange_members,
+    yahoo_symbol,
+)
 
 ISHARES_CSV = """iShares Russell 2000 ETF
 Fund Holdings as of,"Oct 03, 2026"
@@ -16,6 +23,48 @@ Ticker,Name,Sector,Asset Class,Market Value,Weight (%),Notional Value,Quantity,P
 "XTSLA","BLK CSH FND TREASURY SL AGENCY","Cash and/or Derivatives","Money Market","1","0.2","1","1","1"
 "RTYZ6","RUSSELL 2000 EMINI DEC 26","Cash and/or Derivatives","Futures","1","0.0","1","1","1"
 """
+
+
+OTHERLISTED = """ACT Symbol|Security Name|Exchange|CQS Symbol|ETF|Round Lot Size|Test Issue|NASDAQ Symbol
+BW|Babcock & Wilcox Enterprises, Inc. Common Stock|N|BW|N|100|N|BW
+BORR|Borr Drilling Limited Common Shares|N|BORR|N|100|N|BORR
+MOG.A|Moog Inc. Class A Common Stock|N|MOG.A|N|100|N|MOG.A
+ABR|Arbor Realty Trust Common Stock|N|ABR|N|100|N|ABR
+ABR$D|Arbor Realty Trust 6.375% Series D Cumulative Redeemable Preferred Stock|N|ABRpD|N|100|N|ABR-D
+BHP|BHP Group Limited American Depositary Shares (Each representing two Ordinary Shares)|N|BHP|N|100|N|BHP
+EQNR|Equinor ASA|N|EQNR|N|100|N|EQNR
+GUT|Gabelli Utility Trust (The) Common Stock|N|GUT|N|100|N|GUT
+KIO|KKR Income Opportunities Fund Common Shares|N|KIO|N|100|N|KIO
+BIII|Black Spade Acquisition III Co Class A Ordinary Shares|N|BIII|N|100|N|BIII
+TINY|Tiny Corp Common Stock|N|TINY|N|100|N|TINY
+SPY|SPDR S&P 500 ETF Trust|P|SPY|Y|100|N|SPY
+AMEX|Some American Corp Common Stock|A|AMEX|N|100|N|AMEX
+File Creation Time: 1002202621:31||||||
+"""
+NASDAQLISTED = """Symbol|Security Name|Market Category|Test Issue|Financial Status|Round Lot Size|ETF|NextShares
+ZYME|Zymeworks Inc. - Common Stock|Q|N|N|100|N|N
+LATE|Late Filer Inc. - Common Stock|S|N|D|100|N|N
+ZXZZT|NASDAQ TEST STOCK|G|Y|N|100|N|N
+File Creation Time: 1002202621:31|||||||
+"""
+
+
+def _listing(text):
+    return pd.read_csv(io.StringIO(text), sep="|", dtype=str, keep_default_na=False)
+
+
+def _screener(rows):
+    return pd.DataFrame([_quote(*row) for row in rows])
+
+
+def _quote(symbol, market_cap, sector, price=10, volume=1_000_000):
+    return {
+        "symbol": symbol,
+        "marketCap": str(market_cap),
+        "sector": sector,
+        "lastsale": f"${price}",
+        "volume": str(volume),
+    }
 
 
 def _members(index, tickers):
@@ -89,3 +138,32 @@ def test_split_drops_illiquid_signals_and_restricts_only_training_to_the_univers
     train_set, test_set = split(dataset, "2022-01-01", universe=("sp500",))
     assert train_set.index.tolist() == [0]
     assert test_set.index.tolist() == [2]
+
+
+def test_exchange_members_are_common_shares_of_operating_companies():
+    screener = _screener(
+        [(t, 5e9, "Industrials") for t in ("BW", "BORR", "ABR", "BHP", "EQNR", "GUT", "KIO", "BIII", "AMEX")]
+        + [("MOG/A", 3e9, "Technology"), ("TINY", 5e7, "Finance"), ("ABR^D", 1e9, "Finance")]
+    )
+    members = select_exchange_members(_listing(OTHERLISTED), screener, "nyse", 1e8)
+    assert dict(members[["ticker", "sector"]].values) == {
+        "BW": "Industrials",
+        "BORR": "Industrials",
+        "MOG-A": "Information Technology",
+        "ABR": "Industrials",
+    }
+    assert set(members["index"]) == {"nyse"}
+
+
+def test_nasdaq_members_skip_test_issues_and_deficient_companies():
+    screener = _screener([("ZYME", 1e9, "Health Care"), ("LATE", 1e9, ""), ("ZXZZT", 1e9, "")])
+    members = select_exchange_members(_listing(NASDAQLISTED), screener, "nasdaq", 1e8)
+    assert members["ticker"].tolist() == ["ZYME"]
+
+
+def test_exchange_members_need_the_minimum_traded_value():
+    screener = _screener(
+        [("BW", 1e9, "Industrials", 20, 300_000), ("BORR", 1e9, "Energy", 4, 1_000_000)]
+    )
+    members = select_exchange_members(_listing(OTHERLISTED), screener, "nyse", 1e8, 5e6)
+    assert members["ticker"].tolist() == ["BW"]  # BORR traded only US$ 4M

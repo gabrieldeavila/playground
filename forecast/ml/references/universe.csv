@@ -1,32 +1,47 @@
-# Download universe built by forecast_ml.universe on 2026-10-04 from Wikipedia (sp500, sp400, sp600) and watchlist.txt.
-# sp600=601, sp500=503, sp400=400, watchlist=4. Current members only -> survivorship bias in backtests.
+# Download universe built by forecast_ml.universe on 2026-10-04 from Wikipedia (sp500, sp400, sp600), Nasdaq Trader (nyse, nasdaq, market cap >= 500,000,000, dollar volume >= 5,000,000) and watchlist.txt.
+# sp600=601, nasdaq=600, sp500=503, nyse=459, sp400=400, watchlist=2. Current members only -> survivorship bias in backtests.
 ticker,index,sector
 A,sp500,Health Care
 AA,sp400,Materials
+AADX,nyse,Industrials
 AAL,sp400,Industrials
 AAMI,sp600,Financials
+AAOI,nasdaq,Information Technology
 AAON,sp400,Industrials
 AAP,sp600,Consumer Discretionary
 AAPL,sp500,Information Technology
 AAT,sp600,Real Estate
+AAUC,nyse,
 ABBV,sp500,Health Care
 ABCB,sp600,Financials
+ABCL,nasdaq,Health Care
 ABG,sp600,Consumer Discretionary
 ABM,sp600,Industrials
 ABNB,sp500,Consumer Discretionary
 ABR,sp600,Financials
+ABSI,nasdaq,Health Care
 ABT,sp500,Health Care
+ABTC,nasdaq,Financials
+ABUS,nasdaq,Health Care
+ABX,nyse,Financials
 ACA,sp600,Industrials
 ACAD,sp600,Health Care
+ACCV,nasdaq,Energy
+ACDC,nasdaq,Energy
 ACGL,sp500,Financials
 ACHC,sp600,Health Care
+ACHR,nyse,Industrials
+ACHV,nasdaq,Health Care
 ACI,sp400,Consumer Staples
 ACIW,sp600,Information Technology
 ACLS,sp600,Information Technology
 ACM,sp400,Industrials
 ACMR,sp600,Information Technology
 ACN,sp500,Information Technology
+ACRS,nasdaq,Health Care
 ACT,sp600,Financials
+ACVA,nyse,Consumer Discretionary
+AD,nyse,Communication Services
 ADAM,sp600,Real Estate
 ADBE,sp500,Information Technology
 ADC,sp400,Real Estate
@@ -37,49 +52,86 @@ ADM,sp500,Consumer Staples
 ADMA,sp600,Health Care
 ADNT,sp600,Consumer Discretionary
 ADP,sp500,Industrials
+ADPT,nasdaq,Health Care
+ADRX,nasdaq,Health Care
 ADSK,sp500,Information Technology
 ADT,sp600,Consumer Discretionary
+ADTN,nasdaq,Utilities
 ADUS,sp600,Health Care
+AEBI,nasdaq,Industrials
 AEE,sp500,Utilities
+AEHR,nasdaq,Industrials
 AEIS,sp400,Information Technology
+AEM,nyse,Materials
 AEO,sp600,Consumer Discretionary
 AEP,sp500,Utilities
+AER,nyse,Consumer Discretionary
 AES,sp500,Utilities
 AESI,sp600,Energy
+AEVA,nasdaq,Consumer Discretionary
 AFG,sp400,Financials
 AFL,sp500,Financials
+AFRM,nasdaq,Financials
+AG,nyse,Materials
 AGCO,sp400,Industrials
+AGI,nyse,Materials
+AGIO,nasdaq,Health Care
+AGL,nyse,Health Care
+AGM,nyse,Financials
 AGNC,sp400,Financials
 AGNT,sp600,Real Estate
 AGO,sp600,Financials
+AGRO,nyse,Consumer Staples
 AGX,sp600,Industrials
 AGYS,sp600,Information Technology
 AHCO,sp600,Health Care
 AHR,sp400,Real Estate
+AI,nyse,Information Technology
 AIG,sp500,Financials
 AIN,sp600,Industrials
+AIP,nasdaq,Information Technology
 AIR,sp600,Industrials
 AIT,sp400,Industrials
 AIZ,sp500,Financials
 AJG,sp500,Financials
 AKAM,sp500,Information Technology
 AKR,sp600,Real Estate
+AKTS,nasdaq,Health Care
+ALAB,nasdaq,Information Technology
 ALB,sp500,Materials
+ALC,nyse,Health Care
 ALG,sp600,Industrials
 ALGM,sp400,Information Technology
 ALGN,sp500,Health Care
 ALGT,sp600,Industrials
+ALH,nyse,Industrials
 ALHC,sp600,Health Care
 ALK,sp400,Industrials
 ALKS,sp600,Health Care
+ALKT,nasdaq,Information Technology
 ALL,sp500,Financials
 ALLE,sp500,Industrials
+ALLO,nasdaq,Health Care
 ALLY,sp400,Financials
+ALM,nasdaq,Materials
+ALMR,nasdaq,Industrials
+ALMS,nasdaq,Health Care
+ALNT,nasdaq,Industrials
+ALNY,nasdaq,Health Care
+ALOY,nasdaq,Materials
 ALRM,sp600,Financials
+ALRS,nasdaq,Financials
 ALSN,sp400,Industrials
+ALT,nasdaq,Health Care
 ALV,sp400,Consumer Discretionary
+ALVO,nasdaq,Health Care
+ALX,nyse,Real Estate
 AM,sp400,Energy
+AMAL,nasdaq,Financials
 AMAT,sp500,Information Technology
+AMBA,nasdaq,Information Technology
+AMBQ,nyse,Information Technology
+AMC,nyse,Consumer Discretionary
 AMCR,sp500,Materials
 AMD,sp500,Information Technology
 AME,sp500,Industrials
@@ -87,20 +139,33 @@ AMG,sp400,Financials
 AMGN,sp500,Health Care
 AMH,sp400,Real Estate
 AMKR,sp400,Information Technology
+AMLX,nasdaq,Health Care
 AMN,sp600,Health Care
 AMP,sp500,Financials
 AMPH,sp600,Health Care
+AMPL,nasdaq,Information Technology
+AMPX,nyse,
 AMR,sp600,Materials
+AMRC,nyse,Consumer Discretionary
 AMRX,sp600,Health Care
+AMRZ,nyse,Industrials
+AMSC,nasdaq,Consumer Discretionary
 AMSF,sp600,Financials
 AMT,sp500,Real Estate
+AMTB,nyse,Financials
 AMTM,sp600,Industrials
 AMZN,sp500,Consumer Discretionary
 AN,sp400,Consumer Discretionary
+ANAB,nasdaq,Health Care
 ANDE,sp600,Consumer Staples
+ANDG,nyse,Consumer Discretionary
 ANET,sp500,Information Technology
 ANF,sp400,Consumer Discretionary
+ANGO,nasdaq,Health Care
+ANGX,nyse,Consumer Discretionary
 ANIP,sp600,Health Care
+ANNX,nasdaq,Health Care
+ANRO,nyse,Health Care
 AON,sp500,Financials
 AORT,sp600,Health Care
 AOS,sp500,Industrials
@@ -108,133 +173,262 @@ AOSL,sp600,Information Technology
 APA,sp500,Energy
 APAM,sp600,Financials
 APD,sp500,Materials
+APEI,nasdaq,Real Estate
 APG,sp400,Industrials
 APH,sp500,Information Technology
+APLD,nasdaq,Information Technology
 APLE,sp600,Real Estate
+APMD,nasdaq,Health Care
 APO,sp500,Financials
 APOG,sp600,Industrials
 APP,sp500,Communication Services
 APPF,sp400,Information Technology
+APPN,nasdaq,Information Technology
+APPS,nasdaq,
 APTV,sp500,Consumer Discretionary
+AQN,nyse,Utilities
+AQST,nasdaq,Health Care
 AR,sp400,Energy
 ARCB,sp600,Industrials
+ARCO,nyse,Consumer Discretionary
+ARDX,nasdaq,Health Care
 ARE,sp500,Real Estate
 ARES,sp500,Financials
+ARHS,nasdaq,Consumer Discretionary
+ARIS,nyse,
 ARLO,sp600,Information Technology
 ARMK,sp400,Consumer Discretionary
 AROC,sp600,Energy
+ARQT,nasdaq,Health Care
 ARR,sp600,Real Estate
+ARRY,nasdaq,Information Technology
 ARW,sp400,Information Technology
 ARWR,sp400,Health Care
+ARX,nyse,Financials
+ARXS,nasdaq,Industrials
+AS,nyse,Consumer Discretionary
+ASAN,nyse,Information Technology
 ASB,sp400,Financials
+ASC,nyse,Consumer Discretionary
 ASH,sp400,Materials
+ASND,nasdaq,Health Care
 ASO,sp600,Consumer Discretionary
+ASR,nyse,Consumer Discretionary
+ASST,nasdaq,Financials
 ASTE,sp600,Industrials
 ASTH,sp600,Health Care
+ASTS,nasdaq,Consumer Discretionary
+ATEC,nasdaq,Health Care
 ATEN,sp600,Information Technology
+ATEX,nasdaq,Communication Services
 ATI,sp400,Industrials
+ATKR,nyse,
+ATLC,nasdaq,Financials
 ATMU,sp600,Industrials
 ATO,sp500,Utilities
 ATR,sp400,Materials
+ATRC,nasdaq,Health Care
+ATRO,nasdaq,Industrials
+ATTO,nasdaq,Health Care
+AU,nyse,Materials
 AUB,sp600,Financials
+AUGO,nasdaq,Materials
+AUPH,nasdaq,Health Care
+AUR,nasdaq,Information Technology
 AVA,sp600,Utilities
+AVAH,nasdaq,Health Care
 AVAV,sp400,Industrials
+AVBP,nasdaq,Health Care
+AVEX,nyse,Industrials
 AVGO,sp500,Information Technology
+AVLN,nasdaq,Health Care
 AVNT,sp400,Materials
+AVO,nasdaq,Consumer Staples
+AVPT,nasdaq,Information Technology
+AVR,nasdaq,Health Care
 AVT,sp400,Information Technology
 AVTR,sp400,Health Care
+AVTX,nasdaq,Health Care
 AVY,sp500,Materials
 AWI,sp600,Industrials
 AWK,sp500,Utilities
 AWR,sp600,Utilities
 AX,sp600,Financials
+AXGN,nasdaq,Health Care
 AXON,sp500,Industrials
 AXP,sp500,Financials
+AXS,nyse,Financials
+AXSM,nasdaq,Health Care
 AXTA,sp400,Materials
-AXTI,watchlist,
+AXTI,nasdaq,Information Technology
+AYA,nasdaq,Materials
 AYI,sp400,Industrials
+AZN,nyse,Health Care
 AZO,sp500,Consumer Discretionary
 AZTA,sp600,Health Care
 AZZ,sp600,Industrials
+B,nyse,Materials
 BA,sp500,Industrials
 BAC,sp500,Financials
 BAH,sp400,Industrials
 BALL,sp500,Materials
+BAM,nyse,Real Estate
 BANC,sp600,Financials
+BAND,nasdaq,Information Technology
 BANF,sp600,Financials
 BANR,sp600,Financials
+BAP,nyse,Financials
+BATRK,nasdaq,Consumer Discretionary
 BAX,sp500,Health Care
+BB,nyse,Information Technology
+BBAI,nyse,Information Technology
+BBDC,nyse,Financials
+BBIO,nasdaq,Health Care
+BBNX,nasdaq,Health Care
+BBSI,nasdaq,Consumer Discretionary
 BBT,sp600,Financials
+BBUC,nyse,Consumer Discretionary
+BBVA,nyse,Financials
 BBWI,sp400,Consumer Discretionary
 BBY,sp500,Consumer Discretionary
 BC,sp400,Consumer Discretionary
+BCAX,nasdaq,Health Care
 BCC,sp600,Industrials
+BCE,nyse,Communication Services
 BCO,sp400,Industrials
 BCPC,sp600,Materials
+BCRX,nasdaq,Health Care
+BCS,nyse,Financials
 BDC,sp400,Information Technology
 BDX,sp500,Health Care
 BE,sp500,Industrials
+BEAM,nasdaq,Health Care
+BELFA,nasdaq,
+BELFB,nasdaq,
 BEN,sp500,Financials
+BEPC,nyse,Utilities
+BETA,nyse,Industrials
 BF-B,sp500,Consumer Staples
 BFAM,sp600,Consumer Discretionary
+BFC,nasdaq,Financials
 BFH,sp600,Financials
+BFLY,nyse,Health Care
 BFS,sp600,Real Estate
+BFST,nasdaq,Financials
 BG,sp500,Consumer Staples
 BGC,sp600,Financials
+BH,nyse,Consumer Discretionary
+BHC,nyse,Health Care
 BHE,sp600,Information Technology
 BHF,sp400,Financials
+BHRB,nasdaq,Financials
+BHVN,nyse,Health Care
 BIIB,sp500,Health Care
 BILL,sp400,Information Technology
 BIO,sp400,Health Care
+BIRK,nyse,Consumer Discretionary
 BJ,sp400,Consumer Staples
 BJRI,sp600,Consumer Discretionary
+BKD,nyse,Health Care
 BKE,sp600,Consumer Discretionary
 BKH,sp400,Utilities
 BKNG,sp500,Consumer Discretionary
 BKR,sp500,Energy
+BKSY,nyse,Information Technology
 BKU,sp600,Financials
+BKV,nyse,Energy
 BL,sp600,Information Technology
+BLBD,nasdaq,Consumer Discretionary
+BLCO,nyse,Health Care
+BLDR,nyse,Consumer Discretionary
 BLFS,sp600,Health Care
 BLK,sp500,Financials
 BLKB,sp600,Information Technology
+BLLN,nasdaq,Health Care
+BLMN,nasdaq,Consumer Discretionary
+BLSH,nyse,Financials
+BLX,nyse,Financials
+BLZE,nasdaq,Information Technology
 BMI,sp600,Information Technology
+BMNR,nyse,Financials
+BMO,nyse,Financials
 BMRN,sp400,Health Care
 BMY,sp500,Health Care
+BN,nyse,Real Estate
 BNL,sp600,Real Estate
+BNS,nyse,Financials
 BNY,sp500,Financials
+BOBS,nyse,Consumer Discretionary
 BOH,sp600,Financials
+BOKF,nasdaq,Financials
 BOOT,sp600,Consumer Discretionary
+BORR,nyse,Energy
+BOW,nyse,Financials
 BOX,sp600,Information Technology
+BP,nyse,Energy
+BPOP,nasdaq,Financials
 BR,sp500,Industrials
+BRBR,nyse,Consumer Staples
 BRC,sp600,Industrials
+BRK-A,nyse,
 BRK-B,sp500,Financials
 BRKR,sp400,Health Care
 BRO,sp500,Financials
 BROS,sp400,Consumer Discretionary
+BRSL,nyse,Consumer Discretionary
+BRUN,nasdaq,Information Technology
+BRVE,nasdaq,Health Care
 BRX,sp400,Real Estate
+BRZE,nasdaq,Information Technology
+BSP,nasdaq,Information Technology
 BSX,sp500,Health Care
 BSY,sp400,Information Technology
+BTBT,nasdaq,Financials
+BTDR,nasdaq,Financials
+BTE,nyse,Energy
+BTGO,nyse,Financials
 BTSG,sp400,Health Care
 BTU,sp600,Energy
+BULL,nasdaq,Financials
+BUR,nyse,Financials
 BURL,sp400,Consumer Discretionary
+BUSE,nasdaq,Financials
+BV,nyse,Consumer Staples
+BVS,nasdaq,Health Care
+BW,nyse,Industrials
 BWA,sp400,Consumer Discretionary
+BWIN,nasdaq,Financials
+BWLP,nyse,Consumer Discretionary
+BWMN,nasdaq,Consumer Discretionary
 BWXT,sp400,Industrials
 BX,sp500,Financials
+BXC,nyse,Consumer Discretionary
 BXMT,sp600,Financials
 BXP,sp500,Real Estate
+BY,nyse,Financials
 BYD,sp400,Consumer Discretionary
+BZH,nyse,Consumer Discretionary
 C,sp500,Financials
+CAAP,nyse,Consumer Discretionary
+CAC,nasdaq,Financials
 CACC,sp600,Financials
 CACI,sp400,Industrials
+CADL,nasdaq,Health Care
+CAE,nasdaq,
 CAG,sp600,Consumer Staples
 CAH,sp500,Health Care
+CAI,nasdaq,Health Care
 CAKE,sp600,Consumer Discretionary
 CALM,sp600,Consumer Staples
 CALX,sp600,Information Technology
 CALY,sp600,Consumer Discretionary
+CAMT,nasdaq,Information Technology
+CAPR,nasdaq,Health Care
 CAR,sp400,Industrials
+CARE,nasdaq,Financials
 CARG,sp600,Communication Services
 CARR,sp500,Industrials
+CARS,nyse,Information Technology
 CART,sp400,Consumer Staples
 CASH,sp600,Financials
 CASY,sp500,Consumer Staples
@@ -242,73 +436,116 @@ CAT,sp500,Industrials
 CATY,sp600,Financials
 CAVA,sp400,Consumer Discretionary
 CB,sp500,Financials
+CBC,nasdaq,Financials
+CBL,nyse,Real Estate
+CBLL,nasdaq,Health Care
+CBNK,nasdaq,Financials
 CBOE,sp500,Financials
 CBRE,sp500,Real Estate
 CBRL,sp600,Consumer Discretionary
+CBRS,nasdaq,Information Technology
 CBSH,sp400,Financials
 CBT,sp400,Materials
 CBU,sp600,Financials
+CBZ,nyse,Consumer Discretionary
 CC,sp600,Materials
+CCB,nasdaq,Financials
+CCC,nasdaq,Information Technology
+CCEP,nasdaq,Consumer Staples
 CCI,sp500,Real Estate
+CCJ,nyse,Materials
 CCK,sp400,Materials
 CCL,sp500,Consumer Discretionary
+CCO,nyse,Consumer Discretionary
 CCOI,sp600,Communication Services
 CCS,sp600,Consumer Discretionary
 CDE,sp400,Materials
+CDNA,nasdaq,Health Care
+CDNL,nasdaq,Industrials
 CDNS,sp500,Information Technology
 CDP,sp400,Real Estate
+CDRE,nyse,Health Care
 CDW,sp500,Information Technology
 CE,sp600,Materials
+CECO,nasdaq,Industrials
 CEG,sp500,Utilities
+CELC,nasdaq,Health Care
 CELH,sp400,Consumer Staples
 CENT,sp600,Consumer Staples
 CENTA,sp600,Consumer Staples
 CENX,sp600,Materials
 CERT,sp600,Health Care
+CEVA,nasdaq,Information Technology
 CF,sp500,Materials
 CFFN,sp600,Financials
 CFG,sp500,Financials
 CFR,sp400,Financials
 CG,sp400,Financials
+CGAU,nyse,Materials
+CGEM,nasdaq,Health Care
 CGNX,sp400,Information Technology
+CGON,nasdaq,Health Care
 CHCO,sp600,Financials
 CHD,sp500,Consumer Staples
 CHDN,sp400,Consumer Discretionary
 CHE,sp400,Health Care
 CHEF,sp600,Consumer Staples
 CHH,sp400,Consumer Discretionary
+CHKP,nasdaq,Information Technology
 CHRD,sp400,Energy
 CHRW,sp500,Industrials
 CHTR,sp500,Communication Services
 CHWY,sp400,Consumer Discretionary
+CHYM,nasdaq,Financials
 CI,sp500,Health Care
 CIEN,sp500,Information Technology
+CIFR,nasdaq,Financials
+CIM,nyse,Real Estate
 CINF,sp500,Financials
 CL,sp500,Consumer Staples
+CLBK,nasdaq,Financials
+CLBT,nasdaq,Information Technology
+CLDX,nasdaq,Health Care
 CLF,sp400,Materials
 CLH,sp400,Industrials
+CLMT,nasdaq,Energy
+CLOV,nasdaq,Health Care
+CLS,nyse,Information Technology
 CLSK,sp600,Information Technology
+CLVT,nyse,Information Technology
 CLX,sp500,Consumer Staples
+CLYM,nasdaq,Health Care
+CM,nyse,Financials
+CMBT,nyse,Consumer Discretionary
 CMC,sp400,Materials
 CMCSA,sp500,Communication Services
 CME,sp500,Financials
 CMG,sp500,Consumer Discretionary
 CMI,sp500,Industrials
+CMP,nyse,Industrials
+CMPR,nasdaq,Consumer Discretionary
 CMS,sp500,Utilities
+CNA,nyse,Financials
 CNC,sp500,Health Care
 CNH,sp400,Industrials
+CNI,nyse,Industrials
 CNK,sp600,Communication Services
 CNM,sp400,Industrials
 CNMD,sp600,Health Care
+CNNE,nyse,Consumer Discretionary
 CNO,sp400,Financials
+CNOB,nasdaq,Financials
 CNP,sp500,Utilities
+CNQ,nyse,Energy
 CNR,sp600,Energy
 CNS,sp600,Financials
 CNX,sp400,Energy
 CNXC,sp600,Industrials
 CNXN,sp600,Information Technology
+COAG,nasdaq,Health Care
 COCO,sp600,Consumer Staples
 COF,sp500,Financials
+COGT,nasdaq,Health Care
 COHR,sp500,Information Technology
 COHU,sp600,Information Technology
 COIN,sp500,Financials
@@ -316,42 +553,69 @@ COKE,sp400,Consumer Staples
 COLB,sp400,Financials
 COLL,sp600,Health Care
 COLM,sp400,Consumer Discretionary
+COMP,nyse,Financials
 CON,sp600,Health Care
 COO,sp500,Health Care
 COP,sp500,Energy
 COR,sp500,Health Care
 CORT,sp400,Health Care
+CORZ,nasdaq,Financials
 COST,sp500,Consumer Staples
 COTY,sp600,Consumer Staples
+COUR,nyse,Information Technology
+CP,nyse,Industrials
+CPA,nyse,Consumer Discretionary
 CPAY,sp500,Financials
 CPB,sp600,Consumer Staples
 CPF,sp600,Financials
 CPK,sp600,Utilities
+CPNG,nyse,Consumer Discretionary
+CPRI,nyse,Consumer Discretionary
 CPRT,sp500,Industrials
 CPT,sp500,Real Estate
 CR,sp400,Industrials
+CRAI,nasdaq,Consumer Discretionary
 CRBG,sp400,Financials
 CRC,sp600,Energy
+CRCL,nyse,Financials
+CRDO,nasdaq,Information Technology
 CRGY,sp600,Energy
 CRH,sp500,Materials
 CRI,sp600,Consumer Discretionary
 CRK,sp600,Energy
 CRL,sp500,Health Care
 CRM,sp500,Information Technology
+CRMD,nasdaq,Health Care
+CRML,nasdaq,Materials
 CROX,sp400,Consumer Discretionary
 CRS,sp400,Industrials
+CRSP,nasdaq,Health Care
 CRSR,sp600,Information Technology
+CRTO,nasdaq,Consumer Discretionary
 CRUS,sp400,Information Technology
 CRVL,sp600,Health Care
+CRVS,nasdaq,Health Care
 CRWD,sp500,Information Technology
+CRWV,nasdaq,Information Technology
 CSCO,sp500,Information Technology
 CSGP,sp500,Real Estate
+CSIQ,nasdaq,Information Technology
 CSL,sp400,Industrials
+CSQR,nyse,Information Technology
 CSR,sp600,Real Estate
+CSTL,nasdaq,Health Care
+CSTM,nyse,Industrials
+CSV,nyse,Consumer Discretionary
 CSW,sp600,Industrials
+CSWC,nasdaq,Consumer Discretionary
 CSX,sp500,Industrials
 CTAS,sp500,Industrials
+CTKB,nasdaq,Industrials
+CTMX,nasdaq,Health Care
+CTO,nyse,Real Estate
+CTOS,nyse,Consumer Discretionary
 CTRE,sp400,Real Estate
+CTRI,nyse,Utilities
 CTS,sp600,Information Technology
 CTSH,sp500,Information Technology
 CTVA,sp500,Materials
@@ -361,43 +625,59 @@ CURB,sp600,Real Estate
 CUZ,sp400,Real Estate
 CVBF,sp600,Financials
 CVCO,sp600,Consumer Discretionary
+CVE,nyse,Energy
 CVI,sp600,Energy
+CVLG,nyse,Industrials
 CVLT,sp400,Information Technology
 CVNA,sp500,Consumer Discretionary
 CVS,sp500,Health Care
 CVSA,sp600,Consumer Discretionary
 CVX,sp500,Energy
 CW,sp400,Industrials
+CWBC,nasdaq,Financials
 CWEN,sp600,Utilities
 CWEN-A,sp600,Utilities
+CWH,nyse,Consumer Discretionary
 CWK,sp600,Real Estate
 CWST,sp600,Industrials
 CWT,sp600,Utilities
 CXM,sp600,Information Technology
 CXT,sp400,Information Technology
 CXW,sp600,Industrials
+CYD,nyse,Industrials
+CYRX,nasdaq,Health Care
 CYTK,sp400,Health Care
 CZR,sp600,Consumer Discretionary
 D,sp500,Utilities
+DAC,nyse,Consumer Discretionary
+DAKT,nasdaq,Consumer Discretionary
 DAL,sp500,Industrials
 DAN,sp600,Consumer Discretionary
 DAR,sp400,Consumer Staples
 DASH,sp500,Consumer Discretionary
 DAVE,sp600,Financials
+DB,nyse,Financials
 DBD,sp600,Information Technology
 DBX,sp400,Information Technology
 DCH,sp600,Consumer Discretionary
 DCI,sp400,Industrials
+DCO,nyse,Industrials
 DCOM,sp600,Financials
+DCTH,nasdaq,Health Care
 DD,sp500,Industrials
+DDD,nyse,Information Technology
 DDOG,sp500,Information Technology
+DDS,nyse,Consumer Discretionary
 DE,sp500,Industrials
 DEA,sp600,Real Estate
+DEC,nyse,
 DECK,sp500,Consumer Discretionary
 DEI,sp600,Real Estate
 DELL,sp500,Information Technology
+DEO,nyse,Consumer Staples
 DFH,sp600,Consumer Discretionary
 DFIN,sp600,Financials
+DFTX,nasdaq,Health Care
 DG,sp500,Consumer Staples
 DGII,sp600,Information Technology
 DGX,sp500,Health Care
@@ -406,23 +686,41 @@ DHR,sp500,Health Care
 DINO,sp400,Energy
 DIOD,sp600,Information Technology
 DIS,sp500,Communication Services
+DJCO,nasdaq,Consumer Discretionary
+DJT,nasdaq,Information Technology
+DK,nyse,Energy
+DKNG,nasdaq,Consumer Discretionary
 DKS,sp400,Consumer Discretionary
 DLB,sp400,Information Technology
+DLO,nasdaq,Consumer Discretionary
 DLR,sp500,Real Estate
 DLTR,sp500,Consumer Staples
 DLX,sp600,Industrials
 DMC,sp600,Consumer Staples
+DMRA,nasdaq,Health Care
+DNA,nyse,Health Care
+DNLI,nasdaq,Health Care
 DNOW,sp600,Industrials
+DNTH,nasdaq,Health Care
+DNUT,nasdaq,Consumer Staples
 DOC,sp500,Real Estate
 DOCN,sp400,Information Technology
 DOCS,sp400,Health Care
 DOCU,sp400,Information Technology
+DOLE,nyse,Consumer Staples
 DORM,sp600,Consumer Discretionary
 DOV,sp500,Industrials
 DOW,sp500,Materials
+DOX,nasdaq,Information Technology
+DPC,nyse,Communication Services
 DPZ,sp500,Consumer Discretionary
 DRH,sp600,Real Estate
 DRI,sp500,Consumer Discretionary
+DRS,nasdaq,Industrials
+DRTS,nasdaq,Health Care
+DRVN,nasdaq,Consumer Discretionary
+DSGR,nasdaq,Consumer Discretionary
+DSGX,nasdaq,Information Technology
 DSX,watchlist,
 DT,sp400,Information Technology
 DTE,sp500,Utilities
@@ -432,36 +730,53 @@ DUOL,sp400,Consumer Discretionary
 DV,sp600,Communication Services
 DVA,sp500,Health Care
 DVN,sp500,Energy
+DX,nyse,Real Estate
 DXC,sp600,Information Technology
 DXCM,sp500,Health Care
 DXPE,sp600,Industrials
 DY,sp400,Industrials
+DYN,nasdaq,Health Care
+E,nyse,Energy
 EAT,sp400,Consumer Discretionary
 EBAY,sp500,Consumer Discretionary
 EBC,sp600,Financials
 ECG,sp600,Industrials
 ECHO,sp500,Communication Services
 ECL,sp500,Materials
+ECO,nyse,Consumer Discretionary
 ECPG,sp600,Financials
+ECVT,nyse,Industrials
 ED,sp500,Utilities
+EE,nyse,Utilities
 EEFT,sp400,Financials
 EFC,sp600,Financials
 EFOR,sp600,Information Technology
+EFSC,nasdaq,Financials
 EFX,sp500,Industrials
+EFXT,nyse,Industrials
 EG,sp500,Financials
 EGBN,sp600,Financials
+EGO,nyse,Materials
 EGP,sp400,Real Estate
+EGY,nyse,Energy
 EHC,sp400,Health Care
 EIG,sp600,Financials
 EIX,sp500,Utilities
 EL,sp500,Consumer Staples
 ELAN,sp400,Health Care
+ELE,nasdaq,Materials
 ELF,sp400,Consumer Staples
+ELMT,nasdaq,Industrials
 ELS,sp400,Real Estate
 ELV,sp500,Health Care
+ELVN,nasdaq,Health Care
+EMA,nyse,Utilities
+EMBJ,nyse,Industrials
 EME,sp500,Industrials
 EMN,sp600,Materials
 EMR,sp500,Industrials
+ENB,nyse,Energy
+ENLT,nasdaq,Utilities
 ENOV,sp600,Health Care
 ENPH,sp600,Information Technology
 ENR,sp600,Consumer Staples
@@ -469,33 +784,57 @@ ENS,sp400,Industrials
 ENSG,sp400,Health Care
 ENTG,sp400,Information Technology
 ENVA,sp600,Financials
+ENVX,nasdaq,
 EOG,sp500,Energy
+EOLS,nasdaq,Health Care
+EOSE,nasdaq,
 EPAC,sp600,Industrials
 EPAM,sp600,Information Technology
 EPC,sp600,Consumer Staples
+EPD,nyse,Utilities
 EPR,sp400,Real Estate
 EPRT,sp600,Real Estate
+EPRX,nasdaq,Health Care
+EQBK,nyse,Financials
 EQH,sp400,Financials
 EQIX,sp500,Real Estate
+EQPT,nasdaq,Consumer Discretionary
 EQT,sp500,Energy
+ERAS,nasdaq,Health Care
 ERIE,sp500,Financials
+ERO,nyse,Materials
+EROC,nyse,Energy
+EROK,nyse,Energy
 ES,sp500,Utilities
 ESAB,sp400,Industrials
 ESE,sp600,Industrials
 ESI,sp600,Materials
+ESLT,nasdaq,Industrials
 ESNT,sp400,Financials
+ESQ,nasdaq,Financials
 ESS,sp500,Real Estate
+ESTA,nasdaq,Health Care
+ESTC,nyse,Information Technology
+ETD,nyse,Consumer Discretionary
 ETN,sp500,Industrials
+ETON,nasdaq,Health Care
+ETOR,nasdaq,Financials
 ETR,sp500,Utilities
+ETRA,nasdaq,Health Care
 ETSY,sp600,Consumer Discretionary
+EVC,nyse,Industrials
+EVER,nasdaq,Information Technology
+EVLV,nasdaq,Information Technology
 EVR,sp400,Financials
 EVRG,sp500,Utilities
 EVTC,sp600,Financials
 EW,sp500,Health Care
 EWBC,sp400,Financials
+EWTX,nasdaq,Health Care
 EXC,sp500,Utilities
 EXE,sp500,Energy
 EXEL,sp400,Health Care
+EXK,nyse,Materials
 EXLS,sp400,Industrials
 EXP,sp400,Materials
 EXPD,sp500,Industrials
@@ -515,17 +854,23 @@ FBK,sp600,Financials
 FBNC,sp600,Financials
 FBP,sp600,Financials
 FBRT,sp600,Real Estate
+FCEL,nasdaq,Energy
 FCF,sp600,Financials
 FCFS,sp400,Financials
 FCN,sp400,Industrials
+FCNCA,nasdaq,Financials
 FCPT,sp600,Real Estate
 FCX,sp500,Materials
+FDMT,nasdaq,Health Care
 FDS,sp500,Financials
 FDX,sp500,Industrials
 FDXF,sp500,Industrials
 FE,sp500,Utilities
+FEIM,nasdaq,Industrials
 FELE,sp600,Industrials
+FER,nasdaq,Industrials
 FERG,sp500,Industrials
+FET,nyse,Consumer Discretionary
 FFBC,sp600,Financials
 FFIN,sp400,Financials
 FFIV,sp500,Information Technology
@@ -535,7 +880,11 @@ FHI,sp400,Financials
 FHN,sp400,Financials
 FIBK,sp600,Financials
 FICO,sp500,Information Technology
+FIG,nyse,Information Technology
+FIGR,nasdaq,Financials
+FIGS,nyse,Consumer Discretionary
 FIS,sp500,Financials
+FISI,nasdaq,Financials
 FISV,sp500,Financials
 FITB,sp500,Financials
 FIVE,sp400,Consumer Discretionary
@@ -544,78 +893,157 @@ FIX,sp500,Industrials
 FIZZ,sp600,Consumer Staples
 FLEX,sp500,Information Technology
 FLG,sp400,Financials
+FLGT,nasdaq,Health Care
+FLNC,nasdaq,
+FLNG,nyse,Consumer Discretionary
 FLO,sp600,Consumer Staples
+FLOC,nyse,Consumer Discretionary
 FLR,sp400,Industrials
 FLS,sp400,Industrials
+FLUT,nyse,Information Technology
+FLY,nasdaq,Industrials
+FLYW,nasdaq,Consumer Discretionary
+FMBH,nasdaq,Financials
 FMC,sp600,Materials
+FMNB,nasdaq,Financials
+FMX,nyse,Consumer Staples
 FN,sp400,Information Technology
 FNB,sp400,Financials
 FND,sp400,Consumer Discretionary
 FNF,sp400,Financials
+FOR,nyse,Financials
 FORM,sp600,Information Technology
 FOUR,sp400,Financials
 FOX,sp500,Communication Services
 FOXA,sp500,Communication Services
 FOXF,sp600,Consumer Discretionary
+FPI,nyse,Real Estate
+FPS,nyse,Energy
 FR,sp400,Real Estate
+FRHC,nasdaq,Financials
+FRME,nasdaq,Financials
+FRMI,nasdaq,Real Estate
+FRNM,nasdaq,Health Care
+FRO,nyse,Consumer Discretionary
+FROG,nasdaq,Information Technology
 FRPT,sp600,Consumer Staples
+FRSH,nasdaq,Information Technology
 FRT,sp500,Real Estate
+FRVO,nasdaq,Utilities
+FSBC,nasdaq,Financials
+FSCO,nyse,Financials
+FSK,nyse,Financials
 FSLR,sp500,Information Technology
+FSLY,nasdaq,Information Technology
+FSM,nyse,Materials
 FSS,sp600,Industrials
+FSUN,nasdaq,Financials
+FSV,nasdaq,Financials
+FTAI,nasdaq,Industrials
 FTDR,sp600,Consumer Discretionary
+FTH,nasdaq,Health Care
 FTI,sp400,Energy
+FTK,nyse,Industrials
 FTNT,sp500,Information Technology
 FTRE,sp600,Health Care
+FTS,nyse,Utilities
 FTV,sp500,Industrials
+FUBO,nyse,Consumer Discretionary
 FUL,sp600,Materials
 FULT,sp600,Financials
 FUN,sp600,Consumer Discretionary
+FWDI,nasdaq,Financials
+FWONA,nasdaq,Industrials
+FWONK,nasdaq,Industrials
+FWRD,nasdaq,Industrials
+FWRG,nasdaq,Consumer Discretionary
 G,sp400,Industrials
+GABC,nasdaq,Financials
 GAP,sp400,Consumer Discretionary
 GATX,sp400,Industrials
 GBCI,sp400,Financials
 GBX,sp600,Industrials
+GCMG,nasdaq,Financials
+GCT,nasdaq,Consumer Discretionary
 GD,sp500,Industrials
 GDDY,sp500,Information Technology
+GDOT,nyse,Financials
+GDYN,nasdaq,Information Technology
 GE,sp500,Industrials
 GEF,sp400,Materials
 GEHC,sp500,Health Care
+GEMI,nasdaq,Financials
 GEN,sp500,Information Technology
+GENB,nasdaq,Health Care
+GENI,nyse,Consumer Discretionary
 GEO,sp600,Industrials
+GERN,nasdaq,Health Care
 GEV,sp500,Industrials
 GFF,sp600,Industrials
+GFS,nasdaq,Information Technology
+GGB,nyse,Industrials
 GGG,sp400,Industrials
+GH,nasdaq,Health Care
 GHC,sp400,Consumer Discretionary
+GHM,nyse,Industrials
+GHRS,nasdaq,Health Care
+GIB,nyse,Consumer Discretionary
+GIC,nyse,Industrials
 GIII,sp600,Consumer Discretionary
+GIL,nyse,Consumer Discretionary
 GILD,sp500,Health Care
 GIS,sp500,Consumer Staples
 GKOS,sp600,Health Care
 GL,sp500,Financials
+GLBE,nasdaq,Information Technology
+GLIBK,nasdaq,Communication Services
+GLNG,nasdaq,Consumer Discretionary
+GLOB,nyse,Information Technology
 GLPI,sp400,Real Estate
+GLUE,nasdaq,Health Care
 GLW,sp500,Information Technology
+GLXY,nasdaq,Financials
 GM,sp500,Consumer Discretionary
 GME,sp400,Consumer Discretionary
 GMED,sp400,Health Care
+GMRS,nyse,Consumer Discretionary
+GNK,nyse,Consumer Discretionary
 GNL,sp600,Real Estate
 GNRC,sp500,Industrials
 GNTX,sp400,Consumer Discretionary
 GNW,sp600,Financials
 GO,sp600,Consumer Staples
+GOLD,nyse,Industrials
 GOLF,sp600,Consumer Discretionary
 GOOG,sp500,Communication Services
 GOOGL,sp500,Communication Services
 GPC,sp500,Consumer Discretionary
+GPGI,nyse,Financials
 GPI,sp600,Consumer Discretionary
 GPK,sp400,Materials
 GPN,sp500,Financials
 GPOR,sp600,Energy
+GPRE,nasdaq,Industrials
+GPRK,nyse,Energy
+GRAB,nasdaq,Consumer Discretionary
+GRAL,nasdaq,Health Care
 GRBK,sp600,Consumer Discretionary
+GRC,nyse,Industrials
+GRDN,nyse,Consumer Staples
 GRMN,sp500,Consumer Discretionary
+GRND,nyse,Information Technology
+GRPN,nasdaq,Consumer Discretionary
 GS,sp500,Financials
+GSAT,nasdaq,Consumer Discretionary
+GSBC,nasdaq,Financials
+GSBD,nyse,Financials
 GSHD,sp600,Financials
+GSL,nyse,Consumer Discretionary
 GT,sp600,Consumer Discretionary
 GTES,sp600,Industrials
+GTLB,nasdaq,Information Technology
 GTM,sp600,Communication Services
+GTX,nasdaq,Consumer Discretionary
 GTY,sp600,Real Estate
 GVA,sp600,Industrials
 GWRE,sp400,Information Technology
@@ -624,198 +1052,343 @@ GXO,sp400,Industrials
 H,sp400,Consumer Discretionary
 HAE,sp400,Health Care
 HAFC,sp600,Financials
+HAFN,nyse,Consumer Discretionary
 HAL,sp500,Energy
 HALO,sp400,Health Care
+HAPN,nasdaq,Financials
 HAS,sp500,Consumer Discretionary
 HASI,sp600,Financials
+HAWK,nyse,Information Technology
 HAYW,sp600,Industrials
 HBAN,sp500,Financials
+HBM,nyse,Materials
+HBNC,nasdaq,Financials
+HBT,nasdaq,Financials
 HCA,sp500,Health Care
 HCC,sp600,Materials
 HCI,sp600,Financials
 HCSG,sp600,Industrials
 HD,sp500,Consumer Discretionary
+HDB,nyse,Financials
 HE,sp600,Utilities
+HEI,nyse,Industrials
+HELE,nasdaq,Consumer Discretionary
+HELP,nasdaq,Health Care
+HESM,nyse,Energy
 HFWA,sp600,Financials
+HG,nyse,Financials
+HGTY,nyse,Financials
 HGV,sp400,Consumer Discretionary
+HHH,nyse,Real Estate
+HIFS,nasdaq,Financials
 HIG,sp500,Financials
 HII,sp500,Industrials
 HIMS,sp400,Health Care
+HIVE,nasdaq,Financials
 HIW,sp600,Real Estate
 HL,sp400,Materials
+HLF,nyse,Health Care
 HLI,sp400,Financials
+HLIO,nyse,Industrials
 HLIT,sp600,Information Technology
+HLMN,nasdaq,Consumer Discretionary
 HLNE,sp400,Financials
 HLT,sp500,Consumer Discretionary
 HLX,sp600,Energy
+HMC,nyse,Industrials
 HMN,sp600,Financials
+HNGE,nyse,Information Technology
 HNI,sp600,Industrials
+HNRG,nasdaq,Utilities
+HNST,nasdaq,Consumer Discretionary
 HOG,sp400,Consumer Discretionary
 HOMB,sp400,Financials
 HON,sp500,Industrials
 HONA,sp500,Industrials
 HOOD,sp500,Financials
 HOPE,sp600,Financials
+HOS,nyse,Energy
+HOV,nyse,Consumer Discretionary
 HP,sp600,Energy
 HPE,sp500,Information Technology
+HPP,nyse,Financials
 HPQ,sp500,Information Technology
 HQY,sp400,Health Care
 HR,sp400,Real Estate
 HRB,sp400,Consumer Discretionary
+HRI,nyse,Industrials
 HRL,sp500,Consumer Staples
 HRMY,sp600,Health Care
+HROW,nasdaq,Health Care
+HRTG,nyse,Financials
+HSBC,nyse,Financials
+HSHP,nyse,Consumer Discretionary
 HSIC,sp500,Health Care
 HST,sp500,Real Estate
 HSTM,sp600,Health Care
 HSY,sp500,Consumer Staples
+HTB,nyse,Financials
+HTFL,nasdaq,Health Care
+HTGC,nyse,Financials
 HTH,sp600,Financials
 HTLD,sp600,Industrials
 HTO,sp600,Utilities
+HTZ,nasdaq,Consumer Discretionary
 HUBB,sp500,Industrials
 HUBG,sp600,Industrials
 HUBS,sp400,Information Technology
 HUM,sp500,Health Care
+HUN,nyse,Industrials
+HURN,nasdaq,Consumer Discretionary
+HUT,nasdaq,Financials
 HWC,sp400,Financials
 HWKN,sp600,Materials
 HWM,sp500,Industrials
 HXL,sp400,Industrials
+HY,nyse,Industrials
+HYMC,nasdaq,Materials
 HZO,sp600,Consumer Discretionary
+IAG,nyse,Materials
 IART,sp600,Health Care
+IBCP,nasdaq,Financials
 IBKR,sp500,Financials
 IBM,sp500,Information Technology
+IBN,nyse,Financials
 IBOC,sp400,Financials
 IBP,sp600,Consumer Discretionary
+IBRX,nasdaq,Health Care
+IBTA,nyse,Consumer Discretionary
 ICE,sp500,Financials
+ICFI,nasdaq,Consumer Discretionary
 ICHR,sp600,Information Technology
+ICL,nyse,Industrials
+ICLR,nasdaq,Health Care
 ICUI,sp600,Health Care
 IDA,sp400,Utilities
 IDCC,sp400,Information Technology
+IDT,nyse,Communication Services
 IDXX,sp500,Health Care
+IDYA,nasdaq,Health Care
 IESC,sp400,Industrials
 IEX,sp500,Industrials
 IFF,sp500,Materials
+IFS,nyse,Financials
+IHS,nyse,Communication Services
+IIIN,nyse,Industrials
 IIPR,sp600,Real Estate
 ILMN,sp500,Health Care
+IMAX,nyse,Consumer Discretionary
+IMKTA,nasdaq,Consumer Staples
+IMMX,nasdaq,Health Care
+IMNM,nasdaq,Health Care
+IMTX,nasdaq,Health Care
+IMVT,nasdaq,Health Care
+INBX,nasdaq,Health Care
 INCY,sp500,Health Care
 INDB,sp600,Financials
+INDI,nasdaq,Information Technology
 INDV,sp600,Health Care
+INFQ,nyse,Information Technology
+ING,nyse,Financials
+INGM,nyse,Information Technology
 INGR,sp400,Consumer Staples
+INIO,nasdaq,Consumer Discretionary
+INMD,nasdaq,Health Care
+INN,nyse,Real Estate
+INOD,nasdaq,Information Technology
+INSM,nasdaq,Health Care
 INSP,sp600,Health Care
 INSW,sp600,Energy
+INTA,nasdaq,Information Technology
 INTC,sp500,Information Technology
+INTR,nasdaq,Financials
 INTU,sp500,Information Technology
 INVA,sp600,Health Care
 INVH,sp500,Real Estate
 INVX,sp600,Energy
+IOND,nasdaq,Financials
+IONQ,nyse,Information Technology
+IONS,nasdaq,Health Care
 IOSP,sp600,Materials
+IOT,nyse,Information Technology
+IOVA,nasdaq,Health Care
 IP,sp500,Materials
 IPAR,sp600,Consumer Staples
 IPGP,sp400,Information Technology
 IQV,sp500,Health Care
 IR,sp500,Industrials
 IRDM,sp600,Communication Services
+IREN,nasdaq,Financials
 IRM,sp500,Real Estate
+IRMD,nasdaq,Health Care
+IRON,nasdaq,Health Care
 IRT,sp400,Real Estate
+IRTC,nasdaq,Health Care
+IRWD,nasdaq,Health Care
 ISRG,sp500,Health Care
 IT,sp500,Information Technology
 ITGR,sp600,Health Care
+ITIC,nasdaq,Financials
 ITRI,sp600,Information Technology
+ITRN,nasdaq,Information Technology
 ITT,sp400,Industrials
 ITW,sp500,Industrials
+IVR,nyse,Real Estate
 IVT,sp600,Real Estate
 IVZ,sp500,Financials
 J,sp500,Industrials
+JAN,nyse,Real Estate
+JANX,nasdaq,Health Care
 JAZZ,sp400,Health Care
 JBGS,sp600,Real Estate
 JBHT,sp500,Industrials
+JBI,nyse,Industrials
+JBIO,nasdaq,Health Care
 JBL,sp500,Information Technology
 JBLU,sp600,Industrials
+JBS,nyse,Consumer Staples
 JBSS,sp600,Consumer Staples
 JBTM,sp600,Industrials
+JCAP,nasdaq,Financials
 JCI,sp500,Industrials
 JEF,sp400,Financials
+JHX,nyse,Industrials
 JJSF,sp600,Consumer Staples
 JKHY,sp500,Financials
 JLL,sp400,Real Estate
+JMKE,nyse,Consumer Discretionary
 JNJ,sp500,Health Care
+JOBY,nyse,Industrials
 JOE,sp600,Real Estate
 JPM,sp500,Financials
 JXN,sp600,Financials
 KAI,sp600,Industrials
 KALU,sp600,Materials
+KARD,nasdaq,Health Care
 KBH,sp400,Consumer Discretionary
 KBR,sp400,Industrials
 KD,sp400,Information Technology
 KDP,sp500,Consumer Staples
+KE,nasdaq,Information Technology
+KEEL,nasdaq,Financials
+KELYA,nasdaq,Consumer Discretionary
+KEP,nyse,Utilities
 KEX,sp400,Industrials
 KEY,sp500,Financials
 KEYS,sp500,Information Technology
+KFRC,nyse,Consumer Discretionary
 KFY,sp600,Industrials
+KGC,nyse,Materials
 KGS,sp600,Energy
 KHC,sp500,Consumer Staples
 KIM,sp500,Real Estate
 KKR,sp500,Financials
 KLAC,sp500,Information Technology
+KLAR,nyse,Financials
 KLIC,sp600,Information Technology
+KLRA,nasdaq,Health Care
 KMB,sp500,Consumer Staples
 KMI,sp500,Energy
 KMPR,sp600,Financials
 KMT,sp600,Industrials
+KMTS,nasdaq,Health Care
 KMX,sp600,Consumer Discretionary
 KN,sp600,Information Technology
 KNF,sp400,Materials
+KNSA,nasdaq,Health Care
 KNSL,sp400,Financials
 KNTK,sp600,Energy
 KNX,sp400,Industrials
 KO,sp500,Consumer Staples
+KOD,nasdaq,Health Care
 KODK,watchlist,
 KOP,sp600,Materials
+KOPN,nasdaq,Information Technology
+KOS,nyse,Energy
 KR,sp500,Consumer Staples
 KRC,sp400,Real Estate
 KRG,sp400,Real Estate
 KRMN,sp600,Industrials
+KRNT,nasdaq,Industrials
+KRT,nasdaq,Industrials
+KRUS,nasdaq,Consumer Discretionary
 KRYS,sp400,Health Care
 KSS,sp600,Consumer Discretionary
+KT,nyse,Communication Services
 KTB,sp600,Consumer Discretionary
 KTOS,sp400,Industrials
+KURA,nasdaq,Health Care
 KVUE,sp500,Consumer Staples
+KVYO,nyse,Information Technology
 KWR,sp600,Materials
+KYIV,nasdaq,Communication Services
+KYMR,nasdaq,Health Care
 L,sp500,Financials
+LAC,nyse,Materials
 LAD,sp400,Consumer Discretionary
+LADR,nyse,Real Estate
+LAES,nasdaq,Information Technology
 LAMR,sp400,Real Estate
+LAR,nyse,Materials
+LASR,nasdaq,Information Technology
 LAUR,sp600,Consumer Discretionary
 LAZ,sp600,Financials
+LB,nyse,Energy
 LBRT,sp600,Energy
+LBRX,nasdaq,Health Care
+LBTYA,nasdaq,Communication Services
+LBTYK,nasdaq,Communication Services
+LCID,nasdaq,Industrials
 LCII,sp600,Consumer Discretionary
+LCLN,nyse,Financials
 LDOS,sp500,Industrials
 LEA,sp400,Consumer Discretionary
 LECO,sp400,Industrials
 LEG,sp600,Consumer Discretionary
 LEN,sp500,Consumer Discretionary
 LEU,sp600,Energy
+LEVI,nyse,Consumer Discretionary
 LFST,sp600,Health Care
+LFTO,nasdaq,Information Technology
 LFUS,sp400,Information Technology
 LGIH,sp600,Consumer Discretionary
+LGN,nasdaq,Consumer Discretionary
 LGND,sp600,Health Care
 LH,sp500,Health Care
 LHX,sp500,Industrials
 LIF,sp600,Information Technology
+LIFE,nasdaq,Financials
 LII,sp500,Industrials
+LILAK,nasdaq,Communication Services
+LIME,nasdaq,Information Technology
 LIN,sp500,Materials
+LINC,nasdaq,Real Estate
+LIND,nasdaq,Consumer Discretionary
+LINE,nasdaq,Real Estate
+LION,nyse,Consumer Discretionary
 LITE,sp500,Information Technology
 LIVN,sp400,Health Care
 LKFN,sp600,Financials
 LKQ,sp600,Consumer Discretionary
 LLY,sp500,Health Care
+LLYVA,nasdaq,Consumer Discretionary
+LLYVK,nasdaq,Consumer Discretionary
 LMAT,sp600,Health Care
+LMB,nasdaq,Consumer Discretionary
+LMND,nyse,Financials
 LMT,sp500,Industrials
 LNC,sp600,Financials
+LNG,nyse,Utilities
 LNN,sp600,Materials
 LNT,sp500,Utilities
 LNTH,sp400,Health Care
+LOAR,nyse,Industrials
+LOB,nyse,Financials
 LOPE,sp400,Consumer Discretionary
 LOW,sp500,Consumer Discretionary
 LPG,sp600,Energy
+LPLA,nasdaq,Financials
+LPTH,nasdaq,Information Technology
 LPX,sp400,Industrials
 LQDA,sp600,Health Care
 LQDT,sp600,Industrials
@@ -824,15 +1397,21 @@ LRN,sp600,Consumer Discretionary
 LSCC,sp400,Information Technology
 LSTR,sp400,Industrials
 LTC,sp600,Real Estate
+LTGO,nasdaq,Health Care
 LTH,sp600,Consumer Discretionary
 LULU,sp500,Consumer Discretionary
 LUMN,sp600,Communication Services
+LUNR,nasdaq,Industrials
 LUV,sp500,Industrials
 LVS,sp500,Consumer Discretionary
 LW,sp600,Consumer Staples
+LWLG,nasdaq,Industrials
 LXP,sp600,Real Estate
+LXU,nyse,Materials
 LYB,sp500,Materials
 LYFT,sp600,Industrials
+LYNX,nyse,Industrials
+LYTS,nasdaq,Consumer Discretionary
 LYV,sp500,Communication Services
 LZ,sp600,Industrials
 LZB,sp600,Consumer Discretionary
@@ -840,74 +1419,126 @@ M,sp400,Consumer Discretionary
 MA,sp500,Financials
 MAA,sp500,Real Estate
 MAC,sp600,Real Estate
+MAIN,nyse,Financials
+MAIR,nyse,Industrials
+MAMA,nasdaq,Consumer Staples
 MAN,sp600,Industrials
+MANE,nyse,Health Care
 MANH,sp400,Information Technology
+MANU,nyse,Consumer Discretionary
 MAR,sp500,Consumer Discretionary
 MARA,sp600,Information Technology
 MAS,sp500,Industrials
+MASS,nasdaq,Industrials
 MAT,sp400,Consumer Discretionary
+MATV,nyse,Materials
 MATW,sp600,Consumer Discretionary
 MATX,sp600,Industrials
+MAX,nyse,Consumer Discretionary
+MAZE,nasdaq,Health Care
 MBC,sp600,Industrials
 MBGL,sp600,Industrials
 MBIN,sp600,Financials
+MBLY,nasdaq,Information Technology
+MBWM,nasdaq,Financials
+MBX,nasdaq,Health Care
 MC,sp600,Financials
+MCB,nyse,Financials
 MCD,sp500,Consumer Discretionary
+MCHB,nasdaq,Financials
 MCHP,sp500,Information Technology
 MCK,sp500,Health Care
 MCO,sp500,Financials
 MCRI,sp600,Consumer Discretionary
+MCS,nyse,Consumer Discretionary
 MCY,sp600,Financials
 MD,sp600,Health Care
+MDA,nyse,Consumer Discretionary
+MDB,nasdaq,Information Technology
+MDGL,nasdaq,Health Care
+MDLN,nasdaq,Health Care
 MDLZ,sp500,Consumer Staples
 MDT,sp500,Health Care
 MDU,sp600,Utilities
+MDXG,nasdaq,Health Care
 MEDP,sp400,Health Care
+MEI,nyse,Information Technology
+MELI,nasdaq,Consumer Discretionary
+MEOH,nasdaq,Industrials
 MET,sp500,Financials
 META,sp500,Communication Services
+METC,nasdaq,Energy
+MFC,nyse,Financials
 MFP,sp600,Industrials
+MG,nyse,Consumer Discretionary
+MGA,nyse,Consumer Discretionary
 MGEE,sp600,Utilities
 MGM,sp500,Consumer Discretionary
+MGNI,nasdaq,Information Technology
+MGRC,nasdaq,Consumer Discretionary
+MGTX,nasdaq,Health Care
 MGY,sp600,Energy
+MH,nyse,Consumer Discretionary
 MHK,sp600,Consumer Discretionary
 MHO,sp600,Consumer Discretionary
+MIAX,nyse,Financials
+MICC,nyse,Consumer Staples
 MIDD,sp400,Industrials
 MIR,sp600,Information Technology
+MIRM,nasdaq,Health Care
+MITK,nasdaq,Information Technology
 MKC,sp500,Consumer Staples
+MKL,nyse,Financials
 MKSI,sp400,Information Technology
 MKTX,sp600,Financials
+MLAB,nasdaq,Industrials
 MLI,sp400,Industrials
 MLKN,sp600,Industrials
 MLM,sp500,Materials
+MLTX,nasdaq,Health Care
+MLYS,nasdaq,Health Care
+MMED,nasdaq,Health Care
 MMI,sp600,Real Estate
 MMM,sp500,Industrials
 MMS,sp400,Industrials
 MMSI,sp600,Health Care
+MMYT,nasdaq,Consumer Discretionary
+MNDY,nasdaq,Information Technology
+MNKD,nasdaq,Health Care
+MNPR,nasdaq,Health Care
 MNST,sp500,Consumer Staples
+MNTN,nyse,Consumer Discretionary
 MO,sp500,Consumer Staples
+MOD,nyse,Consumer Discretionary
 MOG-A,sp400,Industrials
 MOH,sp400,Health Care
 MORN,sp400,Financials
 MOS,sp500,Materials
+MOV,nyse,Consumer Discretionary
 MP,sp400,Materials
 MPC,sp500,Energy
 MPT,sp600,Real Estate
 MPWR,sp500,Information Technology
+MQ,nasdaq,Information Technology
 MRCY,sp600,Industrials
 MRK,sp500,Health Care
 MRNA,sp500,Health Care
 MRP,sp600,Real Estate
 MRSH,sp500,Financials
 MRTN,sp600,Industrials
+MRVI,nasdaq,Health Care
 MRVL,sp500,Information Technology
+MRX,nasdaq,Financials
 MS,sp500,Financials
 MSA,sp400,Industrials
 MSCI,sp500,Financials
 MSEX,sp600,Utilities
 MSFT,sp500,Information Technology
+MSGE,nyse,Consumer Discretionary
 MSGS,sp600,Communication Services
 MSI,sp500,Information Technology
 MSM,sp400,Industrials
+MSTR,nasdaq,Information Technology
 MTB,sp500,Financials
 MTCH,sp600,Communication Services
 MTD,sp500,Health Care
@@ -918,22 +1549,35 @@ MTN,sp400,Consumer Discretionary
 MTRN,sp600,Materials
 MTSI,sp400,Information Technology
 MTUS,sp600,Materials
+MTW,nyse,Industrials
 MTX,sp600,Materials
 MTZ,sp400,Industrials
 MU,sp500,Information Technology
+MUFG,nyse,Financials
 MUR,sp400,Energy
 MUSA,sp400,Consumer Discretionary
+MUX,nyse,Materials
 MWA,sp600,Industrials
+MWH,nasdaq,Industrials
 MXL,sp600,Information Technology
+MYE,nyse,Industrials
 MYRG,sp600,Industrials
 MZTI,sp400,Consumer Staples
 NABL,sp600,Information Technology
+NAMS,nasdaq,Health Care
+NAT,nyse,Consumer Discretionary
 NATL,sp600,Financials
 NAVI,sp600,Financials
+NAVN,nasdaq,Information Technology
+NB,nasdaq,Materials
+NBBK,nasdaq,Financials
 NBHC,sp600,Financials
+NBIS,nasdaq,Information Technology
 NBIX,sp400,Health Care
+NBN,nasdaq,Financials
 NBTB,sp600,Financials
 NCLH,sp500,Consumer Discretionary
+NCNO,nasdaq,Information Technology
 NDAQ,sp500,Financials
 NDSN,sp500,Industrials
 NE,sp600,Energy
@@ -941,109 +1585,203 @@ NEE,sp500,Utilities
 NEM,sp500,Materials
 NEO,sp600,Health Care
 NEOG,sp600,Health Care
+NESR,nasdaq,Energy
+NET,nyse,Information Technology
 NEU,sp400,Materials
+NEXA,nyse,Materials
+NEXN,nasdaq,Information Technology
+NEXT,nasdaq,Utilities
 NFG,sp400,Utilities
 NFLX,sp500,Communication Services
 NGVT,sp600,Materials
 NHC,sp600,Health Care
 NHI,sp600,Real Estate
+NHP,nasdaq,Real Estate
 NI,sp500,Utilities
 NIC,sp600,Financials
+NIQ,nyse,Information Technology
 NJR,sp400,Utilities
 NKE,sp500,Consumer Discretionary
+NKTR,nasdaq,Health Care
 NLY,sp400,Financials
+NMAX,nyse,Industrials
+NMFC,nasdaq,Financials
 NMIH,sp600,Financials
+NMRK,nasdaq,Financials
+NN,nasdaq,Industrials
+NNE,nasdaq,Utilities
+NNI,nyse,Financials
 NNN,sp400,Real Estate
 NOC,sp500,Industrials
 NOG,sp600,Energy
+NOMD,nyse,Consumer Staples
 NOV,sp400,Energy
 NOVT,sp400,Information Technology
 NOW,sp500,Information Technology
+NP,nyse,Financials
 NPK,sp600,Industrials
+NPKI,nyse,Industrials
 NPO,sp600,Industrials
+NRDS,nasdaq,Information Technology
 NRG,sp500,Utilities
+NRGV,nyse,
+NRIX,nasdaq,Health Care
 NSC,sp500,Industrials
 NSIT,sp600,Industrials
 NSP,sp600,Industrials
 NSSC,sp600,Information Technology
 NTAP,sp500,Information Technology
+NTB,nyse,Financials
 NTCT,sp600,Information Technology
+NTGR,nasdaq,Utilities
+NTLA,nasdaq,Health Care
 NTNX,sp400,Information Technology
+NTR,nyse,Industrials
+NTRA,nasdaq,Health Care
 NTRS,sp500,Financials
+NTSK,nasdaq,Information Technology
 NTST,sp600,Real Estate
+NU,nyse,Financials
+NUAI,nasdaq,Energy
 NUE,sp500,Materials
-NVAX,watchlist,
+NUTX,nasdaq,Consumer Discretionary
+NUVB,nyse,Health Care
+NVAX,nasdaq,Health Care
+NVCR,nasdaq,Health Care
 NVDA,sp500,Information Technology
+NVEC,nasdaq,Information Technology
+NVGS,nyse,Consumer Discretionary
+NVMI,nasdaq,Information Technology
+NVO,nyse,Health Care
 NVR,sp500,Consumer Discretionary
+NVRI,nyse,
+NVS,nyse,Health Care
 NVST,sp400,Health Care
 NVT,sp400,Industrials
+NVTS,nasdaq,Information Technology
 NWBI,sp600,Financials
 NWE,sp400,Utilities
 NWL,sp600,Consumer Discretionary
 NWN,sp600,Utilities
+NWPX,nasdaq,Industrials
 NWS,sp500,Communication Services
 NWSA,sp500,Communication Services
 NX,sp600,Industrials
+NXE,nyse,Materials
+NXP,nyse,Financials
 NXPI,sp500,Information Technology
 NXRT,sp600,Real Estate
 NXST,sp400,Communication Services
 NXT,sp400,Industrials
 NYT,sp400,Communication Services
 O,sp500,Real Estate
+OABI,nasdaq,Health Care
+OBDC,nyse,Financials
+OBK,nyse,Financials
 OC,sp400,Industrials
+OCFC,nasdaq,Financials
+OCS,nasdaq,Health Care
+OCTV,nasdaq,Information Technology
+OCUL,nasdaq,Health Care
+ODC,nyse,Consumer Discretionary
+ODD,nasdaq,Consumer Discretionary
 ODFL,sp500,Industrials
+ODTX,nasdaq,Health Care
 OFG,sp600,Financials
+OFRM,nyse,Consumer Staples
+OGC,nyse,
 OGE,sp400,Utilities
+OGG,nyse,Materials
 OGN,sp600,Health Care
 OGS,sp400,Utilities
 OHI,sp400,Real Estate
 OI,sp600,Materials
+OIG,nasdaq,Financials
 OII,sp600,Energy
 OKE,sp500,Energy
+OKLO,nyse,Utilities
 OKTA,sp400,Information Technology
 OLED,sp400,Information Technology
 OLLI,sp400,Consumer Discretionary
+OLMA,nasdaq,Health Care
 OLN,sp400,Materials
 OMC,sp500,Communication Services
 OMCL,sp600,Health Care
+OMDA,nasdaq,Health Care
+OMER,nasdaq,Health Care
+OMF,nyse,Financials
 ON,sp500,Information Technology
 ONB,sp400,Financials
+ONDS,nasdaq,Information Technology
+ONON,nyse,Consumer Discretionary
 ONTO,sp400,Information Technology
+OOMA,nyse,Information Technology
 OPCH,sp400,Health Care
+OPEN,nasdaq,Financials
 OPLN,sp600,Industrials
+OPY,nyse,Financials
+OR,nyse,Materials
 ORA,sp400,Utilities
+ORC,nyse,Real Estate
 ORCL,sp500,Information Technology
 ORI,sp400,Financials
+ORIC,nasdaq,Health Care
+ORKA,nasdaq,Health Care
 ORLY,sp500,Consumer Discretionary
+OSBC,nasdaq,Financials
+OSCR,nyse,Health Care
 OSIS,sp600,Information Technology
 OSK,sp400,Industrials
+OSPN,nasdaq,Information Technology
 OSW,sp600,Consumer Discretionary
+OTEX,nasdaq,Information Technology
+OTF,nyse,
 OTIS,sp500,Industrials
 OTTR,sp600,Utilities
+OUST,nasdaq,Industrials
 OUT,sp600,Real Estate
 OVV,sp400,Energy
+OWL,nyse,Financials
 OXY,sp500,Energy
 OZK,sp400,Financials
 P,sp500,Information Technology
+PAAS,nyse,Materials
+PACB,nasdaq,Industrials
+PACS,nyse,Health Care
 PAG,sp400,Consumer Discretionary
+PAGP,nasdaq,Energy
+PAGS,nyse,Information Technology
 PAHC,sp600,Health Care
 PANW,sp500,Information Technology
+PAR,nyse,
 PARR,sp600,Energy
 PATH,sp400,Information Technology
 PATK,sp600,Consumer Discretionary
+PAX,nasdaq,Financials
+PAY,nyse,Consumer Discretionary
 PAYC,sp600,Industrials
 PAYO,sp600,Financials
+PAYS,nasdaq,Information Technology
 PAYX,sp500,Industrials
 PB,sp400,Financials
+PBA,nyse,Energy
 PBF,sp400,Energy
 PBH,sp600,Health Care
 PBI,sp600,Industrials
+PBLS,nasdaq,Health Care
+PBYI,nasdaq,Health Care
 PCAR,sp500,Industrials
 PCG,sp500,Utilities
+PCOR,nyse,Information Technology
 PCRX,sp600,Health Care
+PCT,nasdaq,Industrials
 PCTY,sp400,Industrials
+PCVX,nasdaq,Health Care
+PD,nyse,Information Technology
 PDFS,sp600,Information Technology
+PDS,nyse,Energy
 PEB,sp600,Real Estate
+PEBO,nasdaq,Financials
 PECO,sp600,Real Estate
 PEG,sp500,Utilities
 PEGA,sp400,Information Technology
@@ -1055,25 +1793,41 @@ PFBC,sp600,Financials
 PFE,sp500,Health Care
 PFG,sp500,Financials
 PFGC,sp400,Consumer Staples
+PFLT,nyse,Financials
 PFS,sp600,Financials
+PFSI,nyse,Financials
 PG,sp500,Consumer Staples
+PGC,nasdaq,Financials
+PGEN,nasdaq,Health Care
 PGNY,sp600,Health Care
 PGR,sp500,Financials
+PGY,nasdaq,Financials
 PH,sp500,Industrials
+PHAT,nasdaq,Health Care
 PHIN,sp600,Consumer Discretionary
 PHM,sp500,Consumer Discretionary
+PHR,nyse,Consumer Discretionary
+PHVS,nasdaq,Health Care
 PI,sp600,Information Technology
+PICS,nasdaq,Financials
 PII,sp400,Consumer Discretionary
 PINS,sp400,Communication Services
 PIPR,sp600,Financials
 PJT,sp600,Financials
 PK,sp400,Real Estate
 PKG,sp500,Materials
+PKOH,nasdaq,Industrials
+PL,nyse,Information Technology
 PLAB,sp600,Information Technology
 PLD,sp500,Real Estate
+PLGO,nyse,Financials
 PLMR,sp600,Financials
 PLNT,sp400,Consumer Discretionary
+PLOW,nyse,Industrials
+PLPC,nasdaq,Industrials
+PLSE,nasdaq,Health Care
 PLTR,sp500,Information Technology
+PLUG,nasdaq,Energy
 PLUS,sp600,Information Technology
 PLXS,sp600,Information Technology
 PM,sp500,Consumer Staples
@@ -1081,8 +1835,10 @@ PMT,sp600,Real Estate
 PNC,sp500,Financials
 PNFP,sp400,Financials
 PNR,sp500,Industrials
+PNTG,nasdaq,Health Care
 PNW,sp500,Utilities
 PODD,sp500,Health Care
+POET,nasdaq,Information Technology
 POOL,sp600,Consumer Discretionary
 POR,sp400,Utilities
 POST,sp400,Consumer Staples
@@ -1092,7 +1848,12 @@ PPC,sp400,Consumer Staples
 PPG,sp500,Materials
 PPL,sp500,Utilities
 PPLI,sp600,Communication Services
+PPTA,nasdaq,Materials
 PR,sp400,Energy
+PRAA,nasdaq,Financials
+PRAX,nasdaq,Health Care
+PRCH,nasdaq,Information Technology
+PRCT,nasdaq,Health Care
 PRDO,sp600,Consumer Discretionary
 PRG,sp600,Financials
 PRGO,sp600,Health Care
@@ -1102,43 +1863,85 @@ PRIM,sp600,Industrials
 PRK,sp600,Financials
 PRKS,sp600,Consumer Discretionary
 PRLB,sp600,Industrials
+PRM,nyse,Industrials
+PRMB,nyse,Consumer Staples
+PRME,nasdaq,Health Care
 PRSU,sp600,Consumer Discretionary
+PRTH,nasdaq,Consumer Discretionary
 PRU,sp500,Financials
 PRVA,sp600,Health Care
+PS,nyse,Financials
 PSA,sp500,Real Estate
+PSIX,nasdaq,Industrials
 PSKY,sp500,Communication Services
 PSMT,sp600,Consumer Staples
 PSN,sp400,Industrials
+PSNL,nasdaq,Health Care
+PSO,nyse,Consumer Discretionary
+PSUS,nyse,
 PSX,sp500,Energy
 PTC,sp500,Information Technology
 PTCT,sp600,Health Care
 PTEN,sp600,Energy
 PTGX,sp600,Health Care
 PTON,sp600,Consumer Discretionary
+PTRN,nasdaq,Consumer Discretionary
+PUBM,nasdaq,Information Technology
+PUK,nyse,Financials
+PUMP,nyse,Energy
+PURR,nasdaq,Financials
 PVH,sp400,Consumer Discretionary
+PVLA,nasdaq,Health Care
+PWP,nasdaq,Financials
 PWR,sp500,Industrials
 PYPL,sp500,Financials
 PZZA,sp600,Consumer Discretionary
 Q,sp500,Information Technology
+QBTS,nasdaq,Information Technology
 QCOM,sp500,Information Technology
+QCRH,nasdaq,Financials
 QDEL,sp600,Health Care
+QGEN,nyse,Health Care
 QLYS,sp400,Information Technology
+QMCO,nasdaq,Information Technology
 QNST,sp600,Communication Services
+QNT,nasdaq,Information Technology
 QRVO,sp600,Information Technology
+QS,nasdaq,
+QSR,nyse,Consumer Discretionary
 QTWO,sp600,Information Technology
+QUBT,nasdaq,Information Technology
+QURE,nasdaq,Health Care
+QXO,nyse,Consumer Discretionary
 R,sp400,Industrials
+RACE,nyse,Industrials
 RAL,sp600,Information Technology
 RAMP,sp600,Information Technology
+RAPP,nasdaq,Health Care
+RARE,nasdaq,Health Care
 RBA,sp400,Industrials
 RBC,sp400,Industrials
+RBCAA,nasdaq,Financials
+RBLX,nyse,Information Technology
+RBRK,nyse,Information Technology
+RCAT,nasdaq,Information Technology
+RCBC,nasdaq,Financials
+RCI,nyse,Communication Services
 RCL,sp500,Consumer Discretionary
 RCUS,sp600,Health Care
 RDDT,sp500,Communication Services
 RDN,sp600,Financials
 RDNT,sp600,Health Care
+RDVT,nasdaq,Information Technology
+RDW,nyse,Industrials
+RDWR,nasdaq,Consumer Discretionary
+RDY,nyse,Health Care
+REAL,nasdaq,Consumer Discretionary
+REF,nyse,Consumer Discretionary
 REG,sp500,Real Estate
 REGN,sp500,Health Care
 RELY,sp600,Financials
+REPL,nasdaq,Health Care
 RES,sp600,Energy
 REX,sp600,Energy
 REXR,sp400,Real Estate
@@ -1148,18 +1951,31 @@ RF,sp500,Financials
 RGA,sp400,Financials
 RGEN,sp400,Health Care
 RGLD,sp400,Materials
+RGR,nyse,Industrials
+RGTI,nasdaq,Information Technology
 RH,sp400,Consumer Discretionary
 RHI,sp600,Industrials
+RHLD,nyse,Financials
 RHP,sp600,Real Estate
+RIG,nyse,Energy
+RIGL,nasdaq,Health Care
+RIO,nyse,Materials
+RIOT,nasdaq,Financials
 RITM,sp600,Financials
+RIVN,nasdaq,Industrials
 RJF,sp500,Financials
+RKLB,nasdaq,Industrials
+RKT,nyse,Financials
 RL,sp500,Consumer Discretionary
+RLAY,nasdaq,Health Care
 RLI,sp400,Financials
 RMBS,sp400,Information Technology
 RMD,sp500,Health Care
+RMIX,nasdaq,Industrials
 RNG,sp600,Information Technology
 RNR,sp400,Financials
 RNST,sp600,Financials
+RNW,nasdaq,Utilities
 ROAD,sp600,Industrials
 ROCK,sp600,Industrials
 ROG,sp600,Information Technology
@@ -1167,100 +1983,182 @@ ROIV,sp400,Health Care
 ROK,sp500,Industrials
 ROKU,sp400,Communication Services
 ROL,sp500,Industrials
+ROOT,nasdaq,Financials
 ROP,sp500,Information Technology
 ROST,sp500,Consumer Discretionary
+RPD,nasdaq,Information Technology
 RPM,sp400,Materials
+RPRX,nasdaq,Health Care
+RRBI,nasdaq,Financials
 RRC,sp400,Energy
 RRR,sp600,Consumer Discretionary
 RRX,sp400,Industrials
 RS,sp400,Materials
 RSG,sp500,Industrials
 RSI,sp600,Consumer Discretionary
+RSKD,nyse,Consumer Discretionary
 RTX,sp500,Industrials
+RUM,nasdaq,Information Technology
 RUN,sp600,Industrials
 RUSHA,sp600,Industrials
+RVLV,nyse,Consumer Discretionary
+RVMD,nasdaq,Health Care
 RVTY,sp500,Health Care
 RXO,sp600,Industrials
+RXRX,nasdaq,Health Care
+RXT,nasdaq,Information Technology
+RY,nyse,Financials
 RYAN,sp400,Financials
 RYN,sp400,Real Estate
+RYTM,nasdaq,Health Care
+RYZ,nyse,Industrials
+RZAI,nasdaq,Information Technology
+RZLV,nasdaq,Information Technology
+S,nyse,Information Technology
+SA,nyse,Materials
 SABR,sp600,Consumer Discretionary
 SAFE,sp600,Real Estate
 SAFT,sp600,Financials
 SAH,sp600,Consumer Discretionary
 SAIA,sp400,Industrials
 SAIC,sp400,Industrials
+SAIL,nasdaq,Information Technology
+SAM,nyse,Consumer Staples
+SANA,nasdaq,Health Care
 SANM,sp400,Information Technology
 SARO,sp400,Industrials
+SATL,nasdaq,Information Technology
+SB,nyse,Consumer Discretionary
 SBAC,sp500,Real Estate
 SBCF,sp600,Financials
+SBET,nasdaq,Information Technology
+SBGI,nasdaq,Industrials
 SBH,sp600,Consumer Discretionary
+SBLK,nasdaq,Consumer Discretionary
 SBRA,sp400,Real Estate
 SBSI,sp600,Financials
 SBUX,sp500,Consumer Discretionary
+SCCO,nyse,Materials
 SCHL,sp600,Consumer Discretionary
 SCHW,sp500,Financials
 SCI,sp400,Consumer Discretionary
 SCL,sp600,Materials
 SCSC,sp600,Information Technology
 SDGR,sp600,Health Care
+SDRL,nyse,Energy
+SECZ,nyse,Financials
 SEDG,sp600,Information Technology
 SEI,sp600,Energy
 SEIC,sp400,Financials
+SENEA,nasdaq,Consumer Staples
+SENS,nasdaq,Health Care
+SEPN,nasdaq,Health Care
 SEZL,sp600,Financials
 SF,sp400,Financials
 SFBS,sp600,Financials
+SFD,nasdaq,Consumer Staples
 SFM,sp400,Consumer Staples
 SFNC,sp600,Financials
+SG,nyse,Consumer Discretionary
+SGHC,nyse,Consumer Discretionary
 SGI,sp400,Consumer Discretionary
+SGML,nasdaq,Materials
+SGMT,nasdaq,Health Care
+SGRY,nasdaq,Health Care
 SHAK,sp600,Consumer Discretionary
+SHAZ,nasdaq,Information Technology
+SHBI,nasdaq,Financials
 SHC,sp400,Health Care
 SHEN,sp600,Communication Services
+SHLS,nasdaq,Information Technology
 SHO,sp600,Real Estate
 SHOO,sp600,Consumer Discretionary
+SHOP,nasdaq,Information Technology
 SHW,sp500,Materials
+SIBN,nasdaq,Health Care
+SID,nyse,Industrials
 SIG,sp600,Consumer Discretionary
 SIGI,sp400,Financials
+SII,nyse,Financials
 SIRI,sp400,Communication Services
+SITE,nyse,Consumer Discretionary
 SITM,sp400,Information Technology
 SJM,sp500,Consumer Staples
+SKE,nyse,Materials
+SKM,nyse,Communication Services
 SKT,sp600,Real Estate
+SKWD,nasdaq,Financials
 SKY,sp600,Consumer Discretionary
 SKYW,sp600,Industrials
 SLAB,sp400,Information Technology
 SLB,sp500,Energy
+SLDB,nasdaq,Health Care
+SLDE,nasdaq,Financials
+SLDP,nasdaq,
+SLF,nyse,Financials
 SLG,sp600,Real Estate
 SLGN,sp400,Materials
 SLM,sp400,Financials
+SLS,nasdaq,Health Care
 SLVM,sp600,Materials
 SM,sp600,Energy
+SMA,nyse,Real Estate
+SMBC,nasdaq,Financials
+SMBK,nyse,Financials
 SMCI,sp500,Information Technology
 SMG,sp400,Materials
+SMMT,nasdaq,Health Care
 SMP,sp600,Consumer Discretionary
 SMPL,sp600,Consumer Staples
+SMR,nyse,Industrials
 SMTC,sp400,Information Technology
 SN,sp400,Consumer Discretionary
 SNA,sp500,Industrials
+SNAP,nyse,Information Technology
+SNDA,nyse,Health Care
 SNDK,sp500,Information Technology
 SNDR,sp600,Industrials
+SNDX,nasdaq,Health Care
 SNEX,sp600,Financials
+SNN,nyse,Health Care
+SNOW,nyse,Information Technology
 SNPS,sp500,Information Technology
 SNX,sp400,Information Technology
 SO,sp500,Utilities
+SOBO,nyse,Energy
+SOC,nyse,Energy
+SOFI,nasdaq,Financials
 SOLS,sp400,Materials
 SOLV,sp500,Health Care
 SON,sp400,Materials
 SONO,sp600,Consumer Discretionary
+SOPH,nasdaq,Information Technology
+SOUN,nasdaq,Information Technology
+SPB,nyse,
+SPCX,nasdaq,Information Technology
+SPFI,nasdaq,Financials
 SPG,sp500,Real Estate
 SPGI,sp500,Financials
+SPH,nyse,Consumer Discretionary
 SPHR,sp600,Communication Services
 SPNT,sp600,Financials
+SPOT,nyse,Consumer Discretionary
 SPSC,sp600,Information Technology
+SPT,nasdaq,Information Technology
+SPTX,nasdaq,Health Care
 SPXC,sp400,Industrials
+SQM,nyse,Industrials
 SR,sp400,Utilities
+SRAD,nasdaq,Information Technology
+SRCE,nasdaq,Financials
 SRE,sp500,Utilities
 SRPT,sp600,Health Care
+SRRK,nasdaq,Health Care
 SSB,sp400,Financials
 SSD,sp400,Industrials
+SSNC,nasdaq,Information Technology
+SSRM,nasdaq,Industrials
+SSYS,nasdaq,Information Technology
 ST,sp400,Industrials
 STAA,sp600,Health Care
 STAG,sp400,Real Estate
@@ -1268,95 +2166,176 @@ STBA,sp600,Financials
 STC,sp600,Financials
 STE,sp500,Health Care
 STEP,sp600,Financials
+STGW,nasdaq,Consumer Discretionary
+STLA,nyse,Industrials
 STLD,sp500,Materials
+STLN,nasdaq,Health Care
+STM,nyse,Information Technology
+STN,nyse,Consumer Discretionary
+STNE,nasdaq,Information Technology
+STNG,nyse,Consumer Discretionary
+STOK,nasdaq,Health Care
 STRA,sp600,Consumer Discretionary
 STRL,sp400,Industrials
 STT,sp500,Financials
+STTK,nasdaq,Health Care
+STUB,nyse,Consumer Discretionary
 STWD,sp400,Financials
 STX,sp500,Information Technology
 STZ,sp500,Consumer Staples
+SU,nyse,Energy
 SUI,sp400,Real Estate
+SUNB,nyse,Consumer Discretionary
 SUPN,sp600,Health Care
+SVRA,nasdaq,Health Care
+SVV,nyse,Consumer Discretionary
 SW,sp500,Materials
+SWBI,nasdaq,Industrials
 SWK,sp500,Industrials
 SWKS,sp500,Information Technology
 SWX,sp400,Utilities
+SXC,nyse,Industrials
 SXI,sp600,Industrials
 SXT,sp600,Materials
+SYBT,nasdaq,Financials
 SYF,sp500,Financials
 SYK,sp500,Health Care
+SYM,nasdaq,Industrials
 SYNA,sp400,Information Technology
+SYRE,nasdaq,Health Care
 SYY,sp500,Consumer Staples
 T,sp500,Communication Services
+TAC,nyse,Utilities
 TALO,sp600,Energy
+TAP,nyse,Consumer Staples
+TARS,nasdaq,Health Care
+TBBB,nyse,Consumer Staples
 TBBK,sp600,Financials
+TBLA,nasdaq,Information Technology
+TBN,nyse,Energy
 TCBI,sp400,Financials
+TCBK,nasdaq,Financials
+TD,nyse,Financials
+TDAY,nyse,Consumer Discretionary
 TDC,sp600,Information Technology
 TDG,sp500,Industrials
+TDOC,nyse,Health Care
 TDS,sp600,Communication Services
 TDW,sp600,Energy
 TDY,sp500,Information Technology
+TE,nyse,Information Technology
+TEAM,nasdaq,Information Technology
 TECH,sp500,Health Care
+TECK,nyse,Industrials
 TEL,sp500,Information Technology
+TEM,nasdaq,Information Technology
+TEN,nyse,Consumer Discretionary
+TENB,nasdaq,Information Technology
 TER,sp500,Information Technology
+TEVA,nyse,Health Care
 TEX,sp400,Industrials
 TFC,sp500,Financials
+TFII,nyse,Industrials
 TFIN,sp600,Financials
+TFPM,nyse,Industrials
+TFSL,nasdaq,Financials
 TFX,sp600,Health Care
+TGLS,nyse,Consumer Discretionary
+TGS,nyse,Utilities
 TGT,sp500,Consumer Staples
 TGTX,sp600,Health Care
+TH,nasdaq,Consumer Discretionary
 THC,sp400,Health Care
+THFF,nasdaq,Financials
 THG,sp400,Financials
 THO,sp400,Consumer Discretionary
 THRM,sp600,Consumer Discretionary
+TIC,nyse,Consumer Discretionary
+TIGO,nasdaq,Communication Services
 TILE,sp600,Industrials
 TJX,sp500,Consumer Discretionary
+TK,nyse,Consumer Discretionary
+TKC,nyse,Communication Services
 TKO,sp500,Communication Services
 TKR,sp400,Industrials
 TLN,sp400,Utilities
+TLRY,nasdaq,Health Care
+TM,nyse,Industrials
+TMC,nasdaq,Materials
 TMDX,sp600,Health Care
 TMO,sp500,Health Care
 TMP,sp600,Financials
 TMUS,sp500,Communication Services
 TNC,sp600,Industrials
 TNDM,sp600,Health Care
+TNET,nyse,Consumer Discretionary
+TNGX,nasdaq,Health Care
 TNL,sp400,Consumer Discretionary
 TOL,sp400,Consumer Discretionary
 TOST,sp400,Financials
+TOWN,nasdaq,Financials
+TPB,nyse,Consumer Discretionary
 TPC,sp600,Industrials
+TPG,nasdaq,Financials
 TPL,sp500,Energy
 TPR,sp500,Consumer Discretionary
 TR,sp600,Consumer Staples
+TRAX,nasdaq,Health Care
 TREX,sp400,Industrials
 TRGP,sp500,Energy
+TRI,nasdaq,Consumer Discretionary
+TRIN,nyse,Financials
 TRIP,sp600,Communication Services
 TRMB,sp500,Information Technology
+TRMD,nasdaq,Consumer Discretionary
 TRMK,sp600,Financials
 TRN,sp600,Industrials
 TRNO,sp600,Real Estate
+TRNS,nasdaq,Industrials
 TROW,sp500,Financials
+TROX,nyse,Materials
+TRP,nyse,Utilities
+TRS,nasdaq,Industrials
 TRST,sp600,Financials
 TRU,sp400,Industrials
 TRUP,sp600,Financials
 TRV,sp500,Financials
+TRVI,nasdaq,Health Care
 TSCO,sp500,Consumer Discretionary
+TSEM,nasdaq,Information Technology
+TSHA,nasdaq,Health Care
 TSLA,sp500,Consumer Discretionary
+TSLX,nyse,Financials
 TSN,sp500,Consumer Staples
 TT,sp500,Industrials
+TTAN,nasdaq,Information Technology
 TTC,sp400,Industrials
+TTD,nasdaq,Information Technology
+TTE,nyse,Energy
 TTEK,sp400,Industrials
+TTI,nyse,Energy
 TTMI,sp400,Information Technology
 TTWO,sp500,Communication Services
+TU,nyse,Communication Services
+TVTX,nasdaq,Health Care
+TW,nasdaq,Financials
+TWFG,nasdaq,Financials
 TWLO,sp400,Information Technology
+TWST,nasdaq,Health Care
+TXG,nasdaq,Industrials
 TXN,sp500,Information Technology
 TXNM,sp400,Utilities
 TXRH,sp400,Consumer Discretionary
 TXT,sp500,Industrials
 TYL,sp500,Information Technology
+TYRA,nasdaq,Health Care
+U,nyse,Information Technology
 UA,sp600,Consumer Discretionary
 UAA,sp600,Consumer Discretionary
 UAL,sp500,Industrials
+UAMY,nyse,Industrials
 UBER,sp500,Industrials
+UBS,nyse,Financials
 UBSI,sp400,Financials
 UCB,sp600,Financials
 UCTT,sp600,Information Technology
@@ -1366,10 +2345,16 @@ UFCS,sp600,Financials
 UFPI,sp400,Industrials
 UFPT,sp600,Health Care
 UGI,sp400,Utilities
+UHAL,nyse,Consumer Discretionary
 UHS,sp500,Health Care
+UHT,nyse,Real Estate
+UI,nyse,Information Technology
+ULCC,nasdaq,Consumer Discretionary
 ULS,sp400,Industrials
 ULTA,sp500,Consumer Discretionary
 UMBF,sp400,Financials
+UMC,nyse,Information Technology
+UMH,nyse,Real Estate
 UNF,sp600,Industrials
 UNFI,sp600,Consumer Staples
 UNH,sp500,Health Care
@@ -1378,9 +2363,13 @@ UNM,sp400,Financials
 UNP,sp500,Industrials
 UPBD,sp600,Consumer Discretionary
 UPS,sp500,Industrials
+UPST,nasdaq,Financials
 UPWK,sp600,Industrials
 URBN,sp600,Consumer Discretionary
+URGN,nasdaq,Health Care
 URI,sp500,Industrials
+UROY,nasdaq,Financials
+USAR,nasdaq,Materials
 USB,sp500,Financials
 USFD,sp400,Consumer Staples
 USLM,sp600,Materials
@@ -1388,7 +2377,11 @@ USPH,sp600,Health Care
 UTHR,sp400,Health Care
 UTI,sp600,Consumer Discretionary
 UTL,sp600,Utilities
+UTZ,nyse,Consumer Staples
+UVE,nyse,Financials
+UVSP,nasdaq,Financials
 UVV,sp600,Consumer Staples
+UWMC,nyse,Financials
 V,sp500,Financials
 VAC,sp600,Consumer Discretionary
 VAL,sp400,Energy
@@ -1398,13 +2391,21 @@ VCTR,sp600,Financials
 VCYT,sp600,Health Care
 VECO,sp600,Information Technology
 VEEV,sp500,Health Care
+VEL,nyse,Financials
+VERA,nasdaq,Health Care
+VERX,nasdaq,Information Technology
 VFC,sp400,Consumer Discretionary
+VG,nyse,Utilities
 VGNT,sp600,Consumer Discretionary
+VIA,nyse,Information Technology
 VIAV,sp400,Information Technology
 VICI,sp500,Real Estate
 VICR,sp400,Industrials
+VIK,nyse,Consumer Discretionary
 VIR,sp600,Health Care
 VIRT,sp600,Financials
+VISN,nasdaq,Information Technology
+VKTX,nasdaq,Health Care
 VLO,sp500,Energy
 VLTO,sp500,Industrials
 VLY,sp400,Financials
@@ -1414,7 +2415,13 @@ VMRK,sp500,Real Estate
 VNO,sp400,Real Estate
 VNOM,sp400,Energy
 VNT,sp400,Information Technology
+VOR,nasdaq,Health Care
 VOYA,sp400,Financials
+VOYG,nyse,Industrials
+VPG,nyse,Information Technology
+VRDN,nasdaq,Health Care
+VREX,nasdaq,Information Technology
+VRNS,nasdaq,Information Technology
 VRRM,sp600,Industrials
 VRSK,sp500,Industrials
 VRSN,sp500,Information Technology
@@ -1426,15 +2433,18 @@ VSEC,sp600,Industrials
 VSH,sp600,Information Technology
 VSNT,sp600,Communication Services
 VST,sp500,Utilities
+VSTM,nasdaq,Health Care
 VSTS,sp600,Industrials
 VSXY,sp600,Consumer Discretionary
 VTOL,sp600,Energy
 VTR,sp500,Real Estate
 VTRS,sp500,Health Care
+VTS,nyse,Energy
 VVV,sp400,Consumer Discretionary
 VVX,sp600,Industrials
 VYX,sp600,Information Technology
 VZ,sp500,Communication Services
+W,nyse,Consumer Discretionary
 WAB,sp500,Industrials
 WABC,sp600,Financials
 WAFD,sp600,Financials
@@ -1442,70 +2452,117 @@ WAL,sp400,Financials
 WAT,sp500,Health Care
 WAY,sp600,Health Care
 WBD,sp500,Communication Services
+WBI,nyse,Energy
 WCC,sp400,Industrials
+WCN,nyse,Utilities
 WD,sp600,Financials
 WDAY,sp500,Information Technology
 WDC,sp500,Information Technology
 WDFC,sp600,Consumer Staples
+WEAV,nyse,Information Technology
 WEC,sp500,Utilities
 WELL,sp500,Real Estate
 WEN,sp600,Consumer Discretionary
 WERN,sp600,Industrials
 WEX,sp400,Financials
 WFC,sp500,Financials
+WFG,nyse,Materials
 WFRD,sp400,Energy
 WGO,sp600,Consumer Discretionary
+WGS,nasdaq,Health Care
 WH,sp400,Consumer Discretionary
 WHD,sp600,Energy
+WHK,nyse,Energy
 WHR,sp400,Consumer Discretionary
 WINA,sp600,Consumer Discretionary
 WING,sp400,Consumer Discretionary
+WIT,nyse,Information Technology
+WIX,nasdaq,Information Technology
+WK,nyse,Information Technology
 WKC,sp600,Energy
+WLDN,nasdaq,Consumer Discretionary
+WLFC,nasdaq,Consumer Discretionary
 WLK,sp400,Materials
+WLTH,nasdaq,Financials
 WLY,sp600,Communication Services
 WM,sp500,Industrials
 WMB,sp500,Energy
 WMG,sp400,Communication Services
+WMK,nyse,Consumer Staples
 WMS,sp400,Industrials
 WMT,sp500,Consumer Staples
+WNC,nyse,Industrials
+WOLF,nyse,Information Technology
+WOOF,nasdaq,Consumer Discretionary
 WOR,sp600,Industrials
 WPC,sp400,Real Estate
+WPM,nyse,Materials
 WRB,sp500,Financials
 WRBY,sp600,Consumer Discretionary
 WRLD,sp600,Financials
 WS,sp600,Materials
 WSBC,sp600,Financials
 WSC,sp600,Industrials
+WSE,nasdaq,Industrials
 WSFS,sp600,Financials
 WSM,sp500,Consumer Discretionary
 WSO,sp400,Industrials
 WST,sp500,Health Care
 WT,sp600,Financials
 WTFC,sp400,Financials
+WTI,nyse,Energy
+WTM,nyse,Financials
 WTRG,sp400,Utilities
 WTS,sp400,Industrials
+WTTR,nyse,Energy
 WTW,sp500,Financials
 WU,sp600,Financials
+WULF,nasdaq,Financials
+WVE,nasdaq,Health Care
 WWD,sp400,Industrials
 WWW,sp600,Consumer Discretionary
 WY,sp500,Real Estate
+WYFI,nasdaq,Financials
 WYNN,sp500,Consumer Discretionary
+XE,nasdaq,Industrials
 XEL,sp500,Utilities
+XENE,nasdaq,Health Care
+XERS,nasdaq,Health Care
 XHR,sp600,Real Estate
+XMTR,nasdaq,Consumer Discretionary
 XNCR,sp600,Health Care
+XNDU,nasdaq,Information Technology
 XOM,sp500,Energy
+XP,nasdaq,Financials
 XPEL,sp600,Consumer Discretionary
 XPO,sp400,Industrials
+XPRO,nyse,Energy
 XRAY,sp400,Health Care
+XXI,nyse,Financials
 XYL,sp500,Industrials
 XYZ,sp500,Financials
+XZO,nyse,Information Technology
 YELP,sp600,Communication Services
 YETI,sp400,Consumer Discretionary
+YEXT,nyse,Information Technology
 YOU,sp600,Information Technology
+YSS,nyse,Industrials
+YSWY,nasdaq,Consumer Staples
 YUM,sp500,Consumer Discretionary
+YUMC,nyse,Consumer Discretionary
+Z,nasdaq,Consumer Discretionary
 ZBH,sp500,Health Care
+ZBIO,nasdaq,Health Care
 ZBRA,sp500,Information Technology
 ZD,sp600,Communication Services
+ZETA,nyse,Information Technology
+ZG,nasdaq,Consumer Discretionary
+ZGN,nyse,Consumer Discretionary
+ZIM,nyse,Consumer Discretionary
 ZION,sp400,Financials
+ZM,nasdaq,Information Technology
+ZS,nasdaq,Information Technology
 ZTS,sp500,Health Care
+ZVRA,nasdaq,Health Care
 ZWS,sp600,Industrials
+ZYME,nasdaq,Health Care

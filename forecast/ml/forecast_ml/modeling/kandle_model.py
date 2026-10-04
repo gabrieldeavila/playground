@@ -49,7 +49,7 @@ SESSIONS_PER_CANDLE = {"daily": 1, "weekly": 5}
 COMPARE_VARIANTS = {
     "sp500_only": ("sp500",),
     "pooled": None,
-    "small_mid_only": ("sp400", "sp600", "r2000"),
+    "small_mid_only": ("sp400", "sp600", "r2000", "nyse", "nasdaq"),
 }
 # Same score, different odds: S&P 600 signals win less than S&P 500 ones. An index with
 # this many test trades shows its own band win rates; smaller ones use the overall table.
@@ -87,7 +87,7 @@ def universe_table() -> pd.DataFrame:
 
 
 def build_dataset(candles: pd.DataFrame, timeframe: str = "daily") -> pd.DataFrame:
-    dataset = add_features(simulate_trades(candles), candles)
+    dataset = add_features(simulate_trades(candles), candles, min_dollar_volume(timeframe))
     dataset["index"] = dataset["ticker"].map(universe_table()["index"]).fillna(OTHER_INDEX)
     # Judged on the signal candle only, so the filter never peeks at the future.
     dataset["liquid"] = dataset["dollar_volume_20d"] >= min_dollar_volume(timeframe)

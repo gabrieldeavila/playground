@@ -1,4 +1,4 @@
-"""Load and validate the raw market-data CSV files."""
+"""Load and validate the raw market-data files (Parquet from download.py, CSV from the API)."""
 
 import argparse
 from pathlib import Path
@@ -23,18 +23,18 @@ COLUMN_ORDER = ["ticker", "date", *PRICE_COLUMNS]
 
 
 def load_market_data(data_dir: Path = RAW_DATA_DIR) -> pd.DataFrame:
-    """Read all ticker CSVs and return unique, chronologically ordered candles.
+    """Read all ticker Parquet/CSV files and return unique, chronologically ordered candles.
 
     Identical rows for the same ticker/date are deduplicated. Conflicting rows are
     rejected rather than choosing an arbitrary value based on file ordering.
     """
-    paths = sorted(Path(data_dir).glob("*.csv"))
+    paths = sorted([*Path(data_dir).glob("*.parquet"), *Path(data_dir).glob("*.csv")])
     if not paths:
-        raise FileNotFoundError(f"Nenhum CSV encontrado em {data_dir}")
+        raise FileNotFoundError(f"Nenhum Parquet ou CSV encontrado em {data_dir}")
 
     frames = []
     for path in paths:
-        frame = pd.read_csv(path)
+        frame = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
         frame.columns = [str(column).strip().lower() for column in frame.columns]
         missing = REQUIRED_COLUMNS - set(frame.columns)
         if missing:

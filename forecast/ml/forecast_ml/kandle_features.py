@@ -42,7 +42,7 @@ def dollar_volume(group: pd.DataFrame) -> pd.Series:
     return traded.rolling(LIQUIDITY_WINDOW, min_periods=LIQUIDITY_WINDOW).mean()
 
 
-def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
+def _per_candle(candles: pd.DataFrame, min_dollar_volume: float = 0.0) -> pd.DataFrame:
     frames = []
     for _, group in candles.sort_values(["ticker", "date"]).groupby("ticker", sort=False):
         prices = adjusted_ohlc(group)
@@ -92,19 +92,25 @@ def _per_candle(candles: pd.DataFrame) -> pd.DataFrame:
             )
         )
     table = pd.concat(frames, ignore_index=True)
-    # Share of the universe closing above its own EMA 100 on the same candle.
-    table["market_breadth_100"] = table.groupby("date")["above_ema_100"].transform("mean")
+    # Share of the liquid universe closing above its own EMA 100 on the same candle;
+    # thousands of illiquid small caps would otherwise drown out the real market.
+    liquid_above = table["above_ema_100"].where(table["dollar_volume_20d"] >= min_dollar_volume)
+    table["market_breadth_100"] = liquid_above.groupby(table["date"]).transform("mean")
     return table.drop(columns="above_ema_100")
 
 
-def add_features(trades: pd.DataFrame, candles: pd.DataFrame) -> pd.DataFrame:
+def add_features(
+    trades: pd.DataFrame, candles: pd.DataFrame, min_dollar_volume: float = 0.0
+) -> pd.DataFrame:
     """Attach signal-candle features to each trade.
+
+    ``market_breadth_100`` counts only candles trading at least ``min_dollar_volume``.
 
     ``previous_trade_return`` and ``failed_signals_180d`` only use the same ticker's
     trades that had already closed before this signal, never an unfinished one.
     """
     table = trades.merge(
-        _per_candle(candles).rename(columns={"date": "signal_date"}),
+        _per_candle(candles, min_dollar_volume).rename(columns={"date": "signal_date"}),
         on=["ticker", "signal_date"],
         how="left",
         validate="one_to_one",

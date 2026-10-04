@@ -182,3 +182,21 @@ def test_market_breadth_is_the_share_of_tickers_above_their_ema_100_that_day():
     assert features.loc["AAA", "market_breadth_100"] == pytest.approx(2 / 3)
     # Before EMA 100 exists no ticker counts, so breadth is unknown, not zero.
     assert np.isnan(features.loc["BBB", "market_breadth_100"])
+
+
+def test_market_breadth_ignores_illiquid_tickers():
+    up = _candles(100 * 1.01 ** np.arange(150))
+    down = _candles(100 * 0.99 ** np.arange(150), ticker="BBB")
+    illiquid_up = _candles(100 * 1.002 ** np.arange(150), ticker="CCC").assign(volume=1)
+    candles = pd.concat([up, down, illiquid_up], ignore_index=True)
+    trades = pd.DataFrame(
+        {
+            "ticker": ["CCC"],
+            "signal_date": [up["date"].iloc[-1]],
+            "exit_date": [pd.NaT],
+            "return_pct": [0.0],
+        }
+    )
+    features = add_features(trades, candles, min_dollar_volume=10_000)
+    # Only AAA (above) and BBB (below) count, even on CCC's own signal.
+    assert features.loc[0, "market_breadth_100"] == pytest.approx(1 / 2)

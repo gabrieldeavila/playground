@@ -108,6 +108,8 @@ const INDEXES: MarketIndex[] = [
   "sp400",
   "sp600",
   "r2000",
+  "nyse",
+  "nasdaq",
   "watchlist",
   "other",
 ];

@@ -6,6 +6,8 @@ export const MARKET_INDEXES = [
   'sp400',
   'sp600',
   'r2000',
+  'nyse',
+  'nasdaq',
   'watchlist',
   'other',
 ] as const;

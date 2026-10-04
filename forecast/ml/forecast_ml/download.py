@@ -2,7 +2,12 @@
 
 Mirrors the API's YahooFinanceAdapter. Each ticker file is rewritten from a full
 download, because Yahoo re-adjusts the whole adjusted_close history after every
-dividend/split; merging old and new rows would mix two adjustment bases.
+dividend/split; merging old and new rows would mix two adjustment bases. Files are
+Parquet, several times smaller than CSV; a ticker's older CSV is replaced, never kept
+next to it, because its stale adjustment would conflict with the new download.
+
+--missing-only skips tickers that already have a file, and --convert-csv rewrites the
+existing CSVs as Parquet without downloading anything.
 """
 
 import argparse
@@ -86,7 +91,7 @@ def download(
 
     def save(ticker: str) -> int:
         frame, name = fetch_daily(ticker, start, end)
-        frame.to_csv(output_dir / f"{ticker}.csv", index=False)
+        write_candles(frame, output_dir, ticker)
         if name:
             names[ticker] = name
         return len(frame)
@@ -105,6 +110,23 @@ def download(
     return errors
 
 
+def write_candles(frame: pd.DataFrame, output_dir: Path, ticker: str) -> None:
+    frame = frame.assign(date=pd.to_datetime(frame["date"]))
+    frame.to_parquet(output_dir / f"{ticker}.parquet", index=False, compression="zstd")
+    (output_dir / f"{ticker}.csv").unlink(missing_ok=True)
+
+
+def stored_tickers(data_dir: Path) -> set[str]:
+    return {path.stem for pattern in ("*.parquet", "*.csv") for path in data_dir.glob(pattern)}
+
+
+def convert_csvs(data_dir: Path) -> int:
+    paths = sorted(data_dir.glob("*.csv"))
+    for path in paths:
+        write_candles(pd.read_csv(path)[COLUMN_ORDER], data_dir, path.stem)
+    return len(paths)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Baixa candles diários do Yahoo Finance.")
     parser.add_argument("--tickers", nargs="*", help="Padrão: references/universe.csv")
@@ -112,10 +134,22 @@ def main() -> None:
     parser.add_argument("--end", default=datetime.now(timezone.utc).date().isoformat())
     parser.add_argument("--data-dir", type=Path, default=RAW_DATA_DIR)
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument(
+        "--missing-only", action="store_true", help="Só tickers ainda sem arquivo em data-dir"
+    )
+    parser.add_argument(
+        "--convert-csv", action="store_true", help="Converte os CSVs de data-dir para Parquet"
+    )
     args = parser.parse_args()
+    if args.convert_csv:
+        print(f"{convert_csvs(args.data_dir)} CSVs convertidos para Parquet")
+        return
     tickers = (
         [t.upper() for t in args.tickers] if args.tickers else read_universe()["ticker"].tolist()
     )
+    if args.missing_only:
+        stored = stored_tickers(args.data_dir)
+        tickers = [ticker for ticker in tickers if ticker not in stored]
     errors = download(tickers, args.data_dir, args.start, args.end, args.workers)
     if errors:
         print(f"{len(errors)} falhas: {errors}")
