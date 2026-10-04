@@ -25,6 +25,8 @@ make train-kandle    # prints the test tables; models/kandle_model.joblib
 make predict-kandle  # data/processed/kandle_signals.json for the API
 ```
 
+`make predict-kandle` also writes `data/processed/kandle_trades*.parquet`: every simulated trade since 2010 with its score, entry and exit prices, and the test start date in the file's metadata. The UI's ticker page (`/signals/<TICKER>`) charts it. The API runs `uv run python -m forecast_ml.chart <TICKER> --timeframe daily`, which returns that ticker's adjusted candles, EMA 9/20/50 and trades as JSON. By default the chart marks only test trades (2022 on). Training trades can be switched on and are drawn faded, because the model learned from them and their scores look better than they are.
+
 Russell 2000: iShares blocks scripted downloads, so save the IWM holdings CSV from the fund page in a browser and run `uv run python -m forecast_ml.universe --russell-holdings IWM_holdings.csv`. Russell names already in an S&P index keep the S&P label. `--exchanges` with no names leaves NYSE/Nasdaq out; `--min-market-cap` and `--min-dollar-volume` change the US$ 500M and US$ 5M floors.
 
 Test results on 60,385 daily signals from 2022-01 to 2026-09, which the model never saw. The bands are model scores:

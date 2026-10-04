@@ -16,8 +16,10 @@ import {
   type SignalRefreshRunner,
   type Timeframe,
 } from '../domain/signal-snapshot.js';
+import type { TickerChartReader } from '../domain/ticker-chart.js';
 
 export const SIGNAL_REFRESH_RUNNER = 'SIGNAL_REFRESH_RUNNER';
+export const TICKER_CHART_READER = 'TICKER_CHART_READER';
 
 @Controller('signals')
 export class SignalsController {
@@ -25,6 +27,8 @@ export class SignalsController {
     private readonly listSignals: ListSignals,
     @Inject(SIGNAL_REFRESH_RUNNER)
     private readonly refreshRunner: SignalRefreshRunner,
+    @Inject(TICKER_CHART_READER)
+    private readonly chartReader: TickerChartReader,
   ) {}
 
   @Get()
@@ -58,14 +62,28 @@ export class SignalsController {
     return this.refreshRunner.start({ download });
   }
 
+  /** Candles, EMAs and every simulated trade since the first candle. */
+  @Get(':ticker/chart')
+  async chart(
+    @Param('ticker') ticker: string,
+    @Query('timeframe') timeframe?: string,
+  ) {
+    const result = await this.chartReader.read(
+      parseTicker(ticker),
+      parseTimeframe(timeframe),
+    );
+    if (!result) {
+      throw new NotFoundException(`Sem candles para ${ticker.toUpperCase()}`);
+    }
+    return result;
+  }
+
   @Get(':ticker')
   async ticker(
     @Param('ticker') ticker: string,
     @Query('timeframe') timeframe?: string,
   ) {
-    if (!/^[a-zA-Z0-9.^_-]{1,20}$/.test(ticker)) {
-      throw new BadRequestException('Ticker inválido');
-    }
+    parseTicker(ticker);
     const result = await this.listSignals.findTicker(
       ticker,
       parseTimeframe(timeframe),
@@ -75,6 +93,13 @@ export class SignalsController {
     }
     return result;
   }
+}
+
+function parseTicker(value: string): string {
+  if (!/^[a-zA-Z0-9.^_-]{1,20}$/.test(value)) {
+    throw new BadRequestException('Ticker inválido');
+  }
+  return value.toUpperCase();
 }
 
 function parseTimeframe(value = 'daily'): Timeframe {

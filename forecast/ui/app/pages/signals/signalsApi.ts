@@ -143,3 +143,47 @@ export const startRefresh = (download: boolean) =>
     method: "POST",
     body: JSON.stringify({ download }),
   });
+
+/** Column arrays, one entry per candle; EMAs are null during their warm-up. */
+export type ChartCandles = {
+  time: string[];
+  open: number[];
+  high: number[];
+  low: number[];
+  close: number[];
+  ema_9: (number | null)[];
+  ema_20: (number | null)[];
+  ema_50: (number | null)[];
+};
+
+export type ChartTrade = {
+  signal_date: string;
+  entry_date: string;
+  entry_price: number;
+  /** Null while open; exit_price then marks the trade to the last close. */
+  exit_date: string | null;
+  exit_price: number;
+  days: number;
+  return_pct: number;
+  exit_reason: "stop" | "cruzamento" | null;
+  stop_price: number;
+  score: number;
+  trend_start: boolean;
+  liquid: boolean;
+  /** Signal on or after test_start: the model never saw it while training. */
+  test: boolean;
+};
+
+export type TickerChart = {
+  ticker: string;
+  timeframe: Timeframe;
+  session: string;
+  test_start: string;
+  candles: ChartCandles;
+  trades: ChartTrade[];
+};
+
+export const fetchChart = (ticker: string, timeframe: Timeframe) =>
+  request<TickerChart>(
+    `/signals/${encodeURIComponent(ticker)}/chart?timeframe=${timeframe}`,
+  );

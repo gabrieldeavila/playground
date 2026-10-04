@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { spawn } from 'node:child_process';
 import {
   RefreshStatus,
   SignalRefreshRunner,
   TIMEFRAMES,
 } from '../domain/signal-snapshot.js';
-import { mlDirectory } from './json-signal-snapshot.repository.js';
+import { runPython } from './python-process.js';
 
 /** Runs the ML CLI (optional download, then a snapshot per timeframe), one job at a time. */
 @Injectable()
@@ -42,7 +41,8 @@ export class PythonSignalRefreshRunner implements SignalRefreshRunner {
     ];
     void steps
       .reduce(
-        (previous, step) => previous.then(() => run(step)),
+        (previous, step) =>
+          previous.then(async () => void (await runPython(step))),
         Promise.resolve(),
       )
       .then(() => (this.current.error = null))
@@ -56,23 +56,4 @@ export class PythonSignalRefreshRunner implements SignalRefreshRunner {
       });
     return this.status();
   }
-}
-
-function run(args: string[]): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn('uv', ['run', 'python', ...args], {
-      cwd: mlDirectory(),
-      stdio: ['ignore', 'ignore', 'pipe'],
-    });
-    let stderr = '';
-    child.stderr.on('data', (chunk: Buffer) => {
-      stderr = (stderr + chunk.toString()).slice(-2000);
-    });
-    child.on('error', reject);
-    child.on('close', (code) =>
-      code === 0
-        ? resolve()
-        : reject(new Error(`${args.join(' ')} falhou (${code}): ${stderr}`)),
-    );
-  });
 }

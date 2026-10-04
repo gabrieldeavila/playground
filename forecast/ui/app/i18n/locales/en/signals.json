@@ -37,7 +37,8 @@
     "title": "Signals in the last 2 years",
     "empty": "No signals in the last 2 years.",
     "selectTitle": "Select a ticker",
-    "selectDescription": "Click a row or search a ticker to see each signal, its score and result."
+    "selectDescription": "Click a row or search a ticker to see each signal, its score and result.",
+    "openChart": "Open chart"
   },
   "test": {
     "title": "How the model did in testing",
@@ -74,5 +75,30 @@
     "nasdaq": "Other Nasdaq",
     "watchlist": "Watchlist",
     "other": "Other"
+  },
+  "chart": {
+    "back": "Back to signals",
+    "subtitle": "Adjusted candles since {{from}} · session {{session}}",
+    "showTrain": "Show training (before {{date}})",
+    "onlyTrendStarts": "Trend starts only",
+    "trainNote": "Shaded area: training, before {{date}}. The model learned from these trades, so their scores look better than they are.",
+    "legendBuy": "Buy (score)",
+    "legendSell": "Sell (result)",
+    "legendOpen": "Open position stop",
+    "buy": "BUY",
+    "sell": "SELL",
+    "trades_one": "{{count}} trade",
+    "trades_other": "{{count}} trades",
+    "entry": "Entry",
+    "exit": "Exit",
+    "stop": "Stop",
+    "test": "Test",
+    "train": "Training",
+    "period": "Period",
+    "noTrades": "No signals with these filters.",
+    "tradesTitle": "Simulated trades",
+    "tradesDescription": "Entry at the open after the signal; exit when EMA 9 closes below EMA 20 for 2 candles or at the 3×ATR stop. Click a row (or a marker) to center the trade.",
+    "summaryTitle": "Results on this ticker",
+    "notFound": "No candles for {{ticker}}."
   }
 }

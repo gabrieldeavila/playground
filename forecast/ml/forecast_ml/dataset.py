@@ -22,13 +22,15 @@ PRICE_COLUMNS = ["open", "high", "low", "close", "adjusted_close", "volume"]
 COLUMN_ORDER = ["ticker", "date", *PRICE_COLUMNS]
 
 
-def load_market_data(data_dir: Path = RAW_DATA_DIR) -> pd.DataFrame:
+def load_market_data(data_dir: Path = RAW_DATA_DIR, ticker: str | None = None) -> pd.DataFrame:
     """Read all ticker Parquet/CSV files and return unique, chronologically ordered candles.
 
+    ``ticker`` reads only that ticker's files (named ``<TICKER>.parquet``/``.csv``).
     Identical rows for the same ticker/date are deduplicated. Conflicting rows are
     rejected rather than choosing an arbitrary value based on file ordering.
     """
-    paths = sorted([*Path(data_dir).glob("*.parquet"), *Path(data_dir).glob("*.csv")])
+    stem = ticker or "*"
+    paths = sorted([*Path(data_dir).glob(f"{stem}.parquet"), *Path(data_dir).glob(f"{stem}.csv")])
     if not paths:
         raise FileNotFoundError(f"Nenhum Parquet ou CSV encontrado em {data_dir}")
 

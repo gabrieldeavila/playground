@@ -7,10 +7,16 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { FiArrowDown, FiArrowUp, FiRefreshCw } from "react-icons/fi";
+import {
+  FiArrowDown,
+  FiArrowUp,
+  FiBarChart2,
+  FiRefreshCw,
+} from "react-icons/fi";
+import { Link } from "react-router";
 
 import { Alert } from "@/ui/components/primitives/alert";
-import { Badge, type BadgeVariant } from "@/ui/components/primitives/badge";
+import { Badge } from "@/ui/components/primitives/badge";
 import { Button } from "@/ui/components/primitives/button";
 import { Card } from "@/ui/components/primitives/card";
 import { EmptyState } from "@/ui/components/primitives/empty-state";
@@ -30,60 +36,8 @@ import {
   type TickerOption,
   type Timeframe,
 } from "./signalsApi";
+import { Score, Signed, SignalType, rate, scoreVariant } from "./shared";
 import { TickerSearch } from "./TickerSearch";
-
-const percent = (value: number) =>
-  `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
-
-const rate = (value: number | null) =>
-  value == null ? "—" : `${value.toFixed(1)}%`;
-
-const Signed = ({ value }: { value: number }) => (
-  <span
-    className={
-      value >= 0 ? "text-(--color-success)" : "text-(--color-danger)"
-    }
-  >
-    {percent(value)}
-  </span>
-);
-
-const scoreVariant = (score: number): BadgeVariant =>
-  score >= 70 ? "success" : score >= 50 ? "warning" : "default";
-
-/** Score badge plus the real win rate its band had in the test period. */
-const Score = ({
-  value,
-  winRate,
-}: {
-  value: number;
-  winRate: number | null;
-}) => (
-  <span className="inline-flex items-center gap-2 whitespace-nowrap">
-    <Badge size="sm" variant={scoreVariant(value)}>
-      {value}
-    </Badge>
-    {winRate != null && (
-      <span className="text-xs text-(--color-text-muted)">
-        {Math.round(winRate)}%
-      </span>
-    )}
-  </span>
-);
-
-/** Trend start = first COMPRA after a base; sideways = repeated COMPRA in chop. */
-const SignalType = ({ trendStart }: { trendStart: boolean }) => {
-  const { t } = useTranslation("signals");
-  return (
-    <Badge
-      size="sm"
-      variant={trendStart ? "success" : "default"}
-      className="whitespace-nowrap"
-    >
-      {trendStart ? t("type.trendStart") : t("type.sideways")}
-    </Badge>
-  );
-};
 
 const OutcomeRow = ({
   label,
@@ -307,12 +261,30 @@ const TickerHistory = memo(({ detail, timeframe }: TickerHistoryProps) => {
   return (
     <Card>
       <Card.Header>
-        <Card.Title>
-          {detail.ticker} · {t("history.title")}
-        </Card.Title>
-        {detail.name && (
-          <p className="text-sm text-(--color-text-muted)">{detail.name}</p>
-        )}
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <Card.Title>
+              {detail.ticker} · {t("history.title")}
+            </Card.Title>
+            {detail.name && (
+              <p className="text-sm text-(--color-text-muted)">
+                {detail.name}
+              </p>
+            )}
+          </div>
+          <Button
+            asChild
+            size="sm"
+            variant="secondary"
+            leftIcon={<FiBarChart2 aria-hidden="true" />}
+          >
+            <Link
+              to={`/signals/${encodeURIComponent(detail.ticker)}?timeframe=${timeframe}`}
+            >
+              {t("history.openChart")}
+            </Link>
+          </Button>
+        </div>
       </Card.Header>
       <Card.Body className="overflow-x-auto">
         {detail.history.length === 0 ? (
@@ -606,7 +578,20 @@ const Signals = memo(() => {
                           onClick={() => void openTicker(signal.ticker)}
                         >
                           <Table.Cell>
-                            <div className="font-semibold">{signal.ticker}</div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">
+                                {signal.ticker}
+                              </span>
+                              <Link
+                                to={`/signals/${encodeURIComponent(signal.ticker)}?timeframe=${timeframe}`}
+                                title={t("history.openChart")}
+                                aria-label={`${t("history.openChart")} ${signal.ticker}`}
+                                className="rounded-(--radius-xs) p-1 text-(--color-text-muted) hover:bg-(--color-surface-3) hover:text-(--color-primary)"
+                                onClick={(event) => event.stopPropagation()}
+                              >
+                                <FiBarChart2 aria-hidden="true" />
+                              </Link>
+                            </div>
                             {signal.name && (
                               <div className="max-w-40 truncate text-xs text-(--color-text-muted)">
                                 {signal.name}

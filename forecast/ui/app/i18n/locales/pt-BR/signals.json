@@ -37,7 +37,8 @@
     "title": "COMPRAs dos últimos 2 anos",
     "empty": "Nenhuma COMPRA nos últimos 2 anos.",
     "selectTitle": "Selecione um ticker",
-    "selectDescription": "Clique numa linha ou busque um ticker para ver cada COMPRA, a nota e o resultado."
+    "selectDescription": "Clique numa linha ou busque um ticker para ver cada COMPRA, a nota e o resultado.",
+    "openChart": "Ver gráfico"
   },
   "test": {
     "title": "Como o modelo foi no teste",
@@ -74,5 +75,30 @@
     "nasdaq": "Outras Nasdaq",
     "watchlist": "Lista própria",
     "other": "Outros"
+  },
+  "chart": {
+    "back": "Voltar aos sinais",
+    "subtitle": "Candles ajustados desde {{from}} · sessão {{session}}",
+    "showTrain": "Mostrar treino (antes de {{date}})",
+    "onlyTrendStarts": "Só inícios de tendência",
+    "trainNote": "Área sombreada: treino, antes de {{date}}. O modelo aprendeu com esses trades, então as notas deles parecem melhores do que são.",
+    "legendBuy": "Compra (nota)",
+    "legendSell": "Venda (resultado)",
+    "legendOpen": "Stop da posição aberta",
+    "buy": "COMPRA",
+    "sell": "VENDA",
+    "trades_one": "{{count}} trade",
+    "trades_other": "{{count}} trades",
+    "entry": "Entrada",
+    "exit": "Saída",
+    "stop": "Stop",
+    "test": "Teste",
+    "train": "Treino",
+    "period": "Período",
+    "noTrades": "Nenhuma COMPRA com esses filtros.",
+    "tradesTitle": "Trades simulados",
+    "tradesDescription": "Entrada no open seguinte à COMPRA; saída quando a EMA 9 fecha abaixo da EMA 20 por 2 candles ou no stop de 3×ATR. Clique numa linha (ou num marcador) para centralizar o trade.",
+    "summaryTitle": "Resultado neste ticker",
+    "notFound": "Sem candles para {{ticker}}."
   }
 }

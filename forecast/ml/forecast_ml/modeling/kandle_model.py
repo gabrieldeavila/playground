@@ -23,6 +23,8 @@ from pathlib import Path
 import joblib
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import roc_auc_score
 
@@ -67,6 +69,46 @@ def model_path(timeframe: str) -> Path:
 
 def snapshot_path(timeframe: str) -> Path:
     return PROCESSED_DATA_DIR / f"kandle_signals{_suffix(timeframe)}.json"
+
+
+def trades_path(timeframe: str) -> Path:
+    return PROCESSED_DATA_DIR / f"kandle_trades{_suffix(timeframe)}.parquet"
+
+
+# Every simulated trade since the first candle, read per ticker by forecast_ml.chart.
+TRADE_COLUMNS = [
+    "ticker",
+    "signal_date",
+    "entry_date",
+    "entry_price",
+    "exit_date",
+    "exit_price",
+    "days",
+    "return_pct",
+    "exit_reason",
+    "stop_price",
+    "trend_start",
+    "liquid",
+    "score",
+]
+
+
+def test_start_of(report: dict) -> str:
+    """First test date; reports written before ``test_start`` existed only had the range."""
+    return report.get("test_start") or report["test_signals"][:10]
+
+
+def write_trades(dataset: pd.DataFrame, path: Path, test_start: str) -> None:
+    """Parquet with the test start in its metadata, so the chart knows where the
+    model's training ends without loading the model."""
+    table = pa.Table.from_pandas(dataset[TRADE_COLUMNS], preserve_index=False)
+    table = table.replace_schema_metadata(
+        {**(table.schema.metadata or {}), b"test_start": test_start.encode()}
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(".tmp")
+    pq.write_table(table, temporary)
+    temporary.replace(path)
 
 
 def load_candles(data_dir: Path, timeframe: str) -> pd.DataFrame:
@@ -229,6 +271,7 @@ def train(
         f"custo 0,1% por lado; só candles com média de US$ {min_dollar_volume(timeframe):,.0f} "
         "negociados",
         "train_universe": list(universe) if universe else "all",
+        "test_start": test_start,
         "train_signals": f"{train_set['signal_date'].min().date()} a "
         f"{train_set['signal_date'].max().date()} ({len(train_set)} trades)",
         "test_signals": f"{test_set['signal_date'].min().date()} a "
@@ -291,6 +334,7 @@ def predict(
     output_path: Path,
     timeframe: str = "daily",
     history_days: int = 730,
+    trades_output_path: Path | None = None,
 ) -> dict:
     # Load only trusted local artifacts: joblib/pickle is executable, not a wire format.
     artifact = joblib.load(model_path)
@@ -304,6 +348,7 @@ def predict(
         artifact["model"], artifact["reference"], dataset[artifact["features"]]
     )
     report = artifact["report"]
+    write_trades(dataset, trades_output_path or trades_path(timeframe), test_start_of(report))
     bands_by_index = {
         row["index"]: row["by_score_band"]
         for row in report.get("test_by_index", [])
@@ -368,6 +413,7 @@ def predict(
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "session": str(session.date()),
         "timeframe": timeframe,
+        "test_start": test_start_of(report),
         "model": artifact["report"],
         "tickers": tickers,
     }

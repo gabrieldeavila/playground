@@ -82,6 +82,9 @@ def simulate_trades(candles: pd.DataFrame) -> pd.DataFrame:
                     "entry_date": dates[signal + 1],
                     "exit_date": exit_date,
                     "days": days,
+                    # Adjusted prices, the same scale the chart draws its candles in.
+                    "entry_price": entry,
+                    "exit_price": price,
                     "return_pct": net * 100,
                     "exit_reason": reason,
                     "stop_price": stop / prices["close"].iloc[-1] * group["close"].iloc[-1],
