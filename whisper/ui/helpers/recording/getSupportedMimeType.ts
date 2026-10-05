@@ -1,19 +1,21 @@
-export const getSupportedMimeType = () => {
-  const candidates = [
-    "video/webm;codecs=vp8,opus",
-    "video/webm;codecs=vp9,opus",
-    "video/webm",
-    "audio/webm;codecs=opus",
-    "audio/webm",
-    "audio/mp4",
-    "audio/ogg;codecs=opus",
-  ];
+const AUDIO_MIME_TYPES = [
+  "audio/webm;codecs=opus",
+  "audio/webm",
+  "audio/mp4",
+  "audio/ogg;codecs=opus",
+];
 
-  if (typeof MediaRecorder === "undefined") {
-    return "";
-  }
+export const getSupportedMimeType = () => {
+  if (typeof MediaRecorder === "undefined") return "";
 
   return (
-    candidates.find((mimeType) => MediaRecorder.isTypeSupported(mimeType)) ?? ""
+    AUDIO_MIME_TYPES.find((mimeType) => MediaRecorder.isTypeSupported(mimeType)) ??
+    ""
   );
+};
+
+export const getExtensionForMimeType = (mimeType: string) => {
+  if (mimeType.includes("mp4")) return "mp4";
+  if (mimeType.includes("ogg")) return "ogg";
+  return "webm";
 };

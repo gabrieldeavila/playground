@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "npm install --prefix api && npm install --prefix ui",
-    "build": "npm run build --prefix api && npm run build --prefix ui",
-    "dev": "concurrently \"npm run dev --prefix ui\" \"npm run start:dev --prefix api\"",
-    "start": "concurrently \"npm run preview --prefix ui\" \"npm run start:prod --prefix api\""
+    "postinstall": "pnpm --dir api install && pnpm --dir ui install",
+    "build": "pnpm --dir api build && pnpm --dir ui build",
+    "dev": "concurrently \"pnpm --dir ui dev\" \"pnpm --dir api start:dev\"",
+    "start": "concurrently \"pnpm --dir ui preview\" \"pnpm --dir api start:prod\""
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,6 @@
   "homepage": "https://github.com/gabrieldeavila/react-quickie#readme",
   "devDependencies": {
     "concurrently": "^10.0.5"
-  }
+  },
+  "packageManager": "pnpm@10.14.0"
 }

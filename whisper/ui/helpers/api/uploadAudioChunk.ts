@@ -2,7 +2,13 @@ import { AUDIO_RECORDER_UPLOAD_ENDPOINT } from "@/types/consts/audio-recorder.co
 import { buildChunkFormData } from "@/helpers/recording/buildChunkFormData";
 import type { AudioChunk } from "@/types/interface/audio-recorder.interface";
 
-export const uploadAudioChunk = async (chunk: AudioChunk) => {
+type UploadAudioChunkResponse = {
+  text?: string;
+};
+
+export const uploadAudioChunk = async (
+  chunk: AudioChunk,
+): Promise<UploadAudioChunkResponse | null> => {
   const formData = buildChunkFormData(chunk);
 
   const response = await fetch(AUDIO_RECORDER_UPLOAD_ENDPOINT, {

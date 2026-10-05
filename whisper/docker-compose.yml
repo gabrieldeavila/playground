@@ -1,8 +1,9 @@
-version: "3.8"
-
 services:
   ui:
-    build: ./ui
+    build:
+      context: ./ui
+      args:
+        VITE_API_URL: http://localhost:3099
     ports:
       - "3100:3100"
     restart: always
@@ -12,4 +13,21 @@ services:
       - "3099:3099"
     env_file:
       - ./api/.env
+    volumes:
+      # Downloaded models survive rebuilds instead of being fetched again.
+      - whisper-models:/models
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3099/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     restart: always
+
+volumes:
+  whisper-models:

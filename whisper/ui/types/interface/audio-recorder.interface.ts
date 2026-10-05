@@ -1,5 +1,6 @@
-export type AudioRecorderStatus =
-  "idle" | "recording" | "pausing" | "paused" | "sending" | "error";
+import type { RecordingText } from "~types/interface/recording.interface";
+
+export type AudioRecorderStatus = "idle" | "recording" | "paused";
 
 export interface AudioRecorderSession {
   id: string;
@@ -10,7 +11,7 @@ export interface AudioRecorderSession {
 
 export interface AudioChunk {
   id: string;
-  sessionId: string;
+  recordingId: string;
   index: number;
   blob: Blob;
   durationMs: number;
@@ -20,27 +21,20 @@ export interface AudioChunk {
   errorMessage?: string;
 }
 
-export interface UploadAudioChunkInput {
-  chunk: AudioChunk;
-}
-
 export interface AudioRecorderBaseContextValue {
   session: AudioRecorderSession;
-  pendingChunks: AudioChunk[];
+  chunks: AudioChunk[];
   lastError: string | null;
   elapsedSeconds: number;
-  isSupported: boolean;
-  hasPermission: boolean;
-  transcribedTexts: string[];
-  setTranscribedTexts: React.Dispatch<React.SetStateAction<string[]>>;
+  transcripts: RecordingText[];
+  setTranscripts: React.Dispatch<React.SetStateAction<RecordingText[]>>;
 }
 
 export interface AudioRecorderServicesContextValue {
   startRecording: () => Promise<void>;
-  pauseRecording: () => Promise<void>;
-  resumeRecording: () => Promise<void>;
-  stopRecording: () => Promise<void>;
+  pauseRecording: () => void;
+  resumeRecording: () => void;
+  stopRecording: () => void;
   retryChunk: (chunkId: string) => Promise<void>;
-  requestDisplayMediaPermission: () => Promise<boolean>;
   downloadChunk: (chunk: AudioChunk) => void;
 }

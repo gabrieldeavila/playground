@@ -2,15 +2,15 @@ import { memo } from "react";
 
 interface RecorderStatusProps {
   label: string;
-  pendingChunks: number;
+  chunkCount: number;
 }
 
-const RecorderStatus = memo(({ label, pendingChunks }: RecorderStatusProps) => {
+const RecorderStatus = memo(({ label, chunkCount }: RecorderStatusProps) => {
   return (
     <div className="audio-recorder__status" aria-live="polite">
       <span className="audio-recorder__dot" />
       <span>{label}</span>
-      <span className="audio-recorder__badge">{pendingChunks} chunks</span>
+      <span className="audio-recorder__badge">{chunkCount} chunks</span>
     </div>
   );
 });

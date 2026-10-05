@@ -1,18 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { WhisperModule } from './whisper/whisper.module';
 import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { WhisperModule } from './whisper/whisper.module';
 
 @Module({
   imports: [
-    WhisperModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
+    WhisperModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

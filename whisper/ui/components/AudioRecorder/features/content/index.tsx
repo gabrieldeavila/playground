@@ -2,7 +2,7 @@ import { memo, useEffect, useState } from "react";
 import { FiEdit3 } from "react-icons/fi";
 import "./history-toggle.css";
 import {
-  listRecordings,
+  getRecordingById,
   listRecordingTexts,
   updateRecordingName,
   updateRecordingText,
@@ -28,11 +28,11 @@ const AudioRecorderContent = memo(
   ({ recordingId }: AudioRecorderContentProps) => {
     const {
       session,
-      pendingChunks,
+      chunks,
       lastError,
       elapsedSeconds,
-      transcribedTexts,
-      setTranscribedTexts,
+      transcripts,
+      setTranscripts,
     } = useAudioRecorderBaseContext();
     const navigate = useNavigate();
 
@@ -54,26 +54,26 @@ const AudioRecorderContent = memo(
       void (async () => {
         if (!recordingId) {
           setRecording(null);
-          setTranscribedTexts([]);
+          setTranscripts([]);
           return;
         }
 
-        const recordings = await listRecordings();
-        const found =
-          recordings.find((item) => item.id === recordingId) ?? null;
-        const storedTexts = await listRecordingTexts(recordingId);
+        const [found, storedTexts] = await Promise.all([
+          getRecordingById(recordingId),
+          listRecordingTexts(recordingId),
+        ]);
 
         if (isMounted) {
-          setRecording(found);
+          setRecording(found ?? null);
           setDraftTitle(found?.name ?? "");
-          setTranscribedTexts(storedTexts.map((item) => item.text));
+          setTranscripts(storedTexts);
         }
       })();
 
       return () => {
         isMounted = false;
       };
-    }, [recordingId, setTranscribedTexts]);
+    }, [recordingId, setTranscripts]);
 
     const isRecording = session.status === "recording";
     const isPaused = session.status === "paused";
@@ -156,42 +156,37 @@ const AudioRecorderContent = memo(
                     ? "Pausado"
                     : "Pronto para iniciar a captura"
             }
-            pendingChunks={pendingChunks.length}
+            chunkCount={chunks.length}
           />
           <RecorderTimer elapsedSeconds={elapsedSeconds} />
           <RecorderControls
             isRecording={isRecording}
             isPaused={isPaused}
             onStart={() => void startRecording()}
-            onPause={() => void pauseRecording()}
-            onStop={() => void stopRecording()}
-            onResume={() => void resumeRecording()}
+            onPause={pauseRecording}
+            onStop={stopRecording}
+            onResume={resumeRecording}
             onBack={() => {
-              void stopRecording();
+              stopRecording();
               navigate("/");
             }}
           />
           <RecorderErrorBanner error={lastError} />
           <TranscribedTextList
-            texts={transcribedTexts}
-            recordingId={recordingId}
-            onUpdateText={async (currentRecordingId, index, text) => {
-              const currentTexts = await listRecordingTexts(currentRecordingId);
-              const target = currentTexts[index];
-              if (target) {
-                await updateRecordingText(target.id, text);
-              }
-              setTranscribedTexts((current) => {
-                const nextTexts = [...current];
-                nextTexts[index] = text;
-                return nextTexts;
-              });
+            transcripts={transcripts}
+            onUpdateText={async (id, text) => {
+              await updateRecordingText(id, text);
+              setTranscripts((current) =>
+                current.map((item) =>
+                  item.id === id ? { ...item, text } : item,
+                ),
+              );
             }}
           />
           <ChunkAccordion
-            chunks={pendingChunks}
+            chunks={chunks}
             onRetry={(chunkId) => void retryChunk(chunkId)}
-            onDownload={(chunk) => void downloadChunk(chunk)}
+            onDownload={downloadChunk}
           />
         </div>
       </section>

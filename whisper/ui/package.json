@@ -6,7 +6,8 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "preview": "vite preview --outDir build/client"
   },
   "dependencies": {
     "@react-router/node": "^8",
@@ -27,5 +28,6 @@
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
     "vite": "^8.0.3"
-  }
+  },
+  "packageManager": "pnpm@10.14.0"
 }

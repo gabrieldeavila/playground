@@ -1,4 +1,9 @@
 .react-router
 build
+dist
 node_modules
+coverage
 README.md
+.env
+.env.*
+!.env.example

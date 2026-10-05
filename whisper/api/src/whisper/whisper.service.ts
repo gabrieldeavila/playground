@@ -1,76 +1,98 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
-import { writeFile, mkdtemp, unlink } from 'node:fs/promises';
+import { ConfigService } from '@nestjs/config';
+import { execFile } from 'node:child_process';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { promisify } from 'node:util';
 import { nodewhisper } from 'nodejs-whisper';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { cleanTranscript } from './clean-transcript';
+import { SerialQueue } from './serial-queue';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+
+export type UploadedAudio = {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+  size: number;
+};
 
 @Injectable()
 export class WhisperService {
-  async translate(file: any) {
-    if (!file) {
-      throw new BadRequestException('Arquivo de áudio/vídeo não enviado.');
-    }
+  private readonly logger = new Logger(WhisperService.name);
+  private readonly queue = new SerialQueue();
 
-    const id = randomUUID();
+  constructor(private readonly config: ConfigService) {}
+
+  transcribe(file: UploadedAudio) {
+    return this.queue.run(() => this.runTranscription(file));
+  }
+
+  private async runTranscription(file: UploadedAudio) {
     const tempDir = await mkdtemp(join(tmpdir(), 'whisper-'));
-    const tempFilePath = join(tempDir, `${id}-${file.originalname}`);
-    const wavFilePath = join(tempDir, `${id}-pronto-para-whisper.wav`);
-
-    console.log({ file: file.buffer, tempFilePath });
+    // Never put client-provided names in paths: they end up in shell commands.
+    const inputPath = join(tempDir, 'input');
+    const wavPath = join(tempDir, 'audio.wav');
+    const model = this.config.get<string>('WHISPER_MODEL', 'small');
+    const startedAt = Date.now();
 
     try {
-      console.log('Escrevendo arquivo temporário:', tempFilePath);
+      await writeFile(inputPath, file.buffer);
 
-      await writeFile(tempFilePath, file.buffer);
+      await execFileAsync('ffmpeg', [
+        '-nostats',
+        '-loglevel',
+        'error',
+        '-y',
+        '-i',
+        inputPath,
+        '-ar',
+        '16000',
+        '-ac',
+        '1',
+        '-c:a',
+        'pcm_s16le',
+        wavPath,
+      ]);
 
-      await execAsync(
-        `ffmpeg -y -i "${tempFilePath}" -ar 16000 -ac 1 -c:a pcm_s16le "${wavFilePath}"`,
-      );
-
-      const whisper = await nodewhisper(wavFilePath, {
-        modelName: 'small',
+      const raw = await nodewhisper(wavPath, {
+        modelName: model,
+        autoDownloadModelName: model,
+        modelRootPath: this.config.get<string>('WHISPER_MODEL_DIR'),
+        logger: {
+          debug: () => undefined,
+          log: () => undefined,
+          error: (...args: unknown[]) => this.logger.error(args.join(' ')),
+        },
         whisperOptions: {
-          outputInText: true,
-          outputInJson: false,
-          outputInCsv: false,
-          outputInSrt: false,
-          outputInVtt: false,
+          outputInText: false,
           translateToEnglish: false,
+          language: this.config.get<string>('WHISPER_LANGUAGE', 'pt'),
         },
       });
 
-      const resultText = Array.isArray(whisper)
-        ? whisper
-            .map((item: any) =>
-              String(item?.transcript ?? item?.text ?? '')
-                .replace(/\[[^\]]*\]\s*/g, '')
-                .trim(),
-            )
-            .filter(Boolean)
-            .join(' ')
-            .trim()
-        : typeof whisper === 'string'
-          ? whisper.replace(/\[[^\]]*\]\s*/g, '').trim()
-          : String((whisper as any)?.transcript ?? (whisper as any)?.text ?? '')
-              .replace(/\[[^\]]*\]\s*/g, '')
-              .trim();
+      const text = cleanTranscript(raw);
 
-      return { text: resultText, whisper };
+      this.logger.log(
+        `Transcribed ${file.size} bytes (${file.mimetype}) in ${Date.now() - startedAt}ms`,
+      );
+
+      return { text };
     } catch (error) {
+      this.logger.error(
+        'Failed to transcribe audio',
+        error instanceof Error ? error.stack : String(error),
+      );
       throw new InternalServerErrorException(
         'Falha ao processar o arquivo com Whisper.',
       );
     } finally {
-      await unlink(tempFilePath).catch(() => undefined);
+      await rm(tempDir, { recursive: true, force: true });
     }
   }
 }

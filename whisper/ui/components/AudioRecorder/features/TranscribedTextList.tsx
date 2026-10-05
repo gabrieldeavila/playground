@@ -1,25 +1,21 @@
 import { memo, useEffect, useRef, useState } from "react";
+import type { RecordingText } from "~types/interface/recording.interface";
 
 interface TranscribedTextListProps {
-  texts: string[];
-  recordingId: string | null;
-  onUpdateText: (
-    recordingId: string,
-    index: number,
-    text: string,
-  ) => Promise<void> | void;
+  transcripts: RecordingText[];
+  onUpdateText: (id: string, text: string) => Promise<void> | void;
 }
 
 const TranscribedTextList = memo(
-  ({ texts, recordingId, onUpdateText }: TranscribedTextListProps) => {
-    const [editingIndex, setEditingIndex] = useState<number | null>(null);
-    const editableRefs = useRef<Record<number, HTMLDivElement | null>>({});
-    const originalTextRef = useRef<Record<number, string>>({});
-    const savingRef = useRef<Record<number, boolean>>({});
+  ({ transcripts, onUpdateText }: TranscribedTextListProps) => {
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const editableRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const originalTextRef = useRef<Record<string, string>>({});
+    const savingRef = useRef<Record<string, boolean>>({});
 
     useEffect(() => {
-      if (editingIndex === null) return;
-      const node = editableRefs.current[editingIndex];
+      if (editingId === null) return;
+      const node = editableRefs.current[editingId];
       if (!node) return;
 
       requestAnimationFrame(() => {
@@ -33,45 +29,46 @@ const TranscribedTextList = memo(
         selection?.removeAllRanges();
         selection?.addRange(range);
       });
-    }, [editingIndex]);
+    }, [editingId]);
 
     useEffect(() => {
-      if (editingIndex === null) return;
-      if (!editableRefs.current[editingIndex]) return;
-      editableRefs.current[editingIndex]!.textContent =
-        texts[editingIndex] ?? "";
-    }, [editingIndex, texts]);
+      if (editingId === null) return;
+      const node = editableRefs.current[editingId];
+      if (!node) return;
+      node.textContent =
+        transcripts.find((item) => item.id === editingId)?.text ?? "";
+    }, [editingId, transcripts]);
 
-    if (texts.length === 0) return null;
+    if (transcripts.length === 0) return null;
 
-    const handleStartEdit = (index: number, text: string) => {
-      originalTextRef.current[index] = text;
-      setEditingIndex(index);
+    const handleStartEdit = (id: string, text: string) => {
+      originalTextRef.current[id] = text;
+      setEditingId(id);
     };
 
-    const handleCommit = async (index: number) => {
-      if (!recordingId || savingRef.current[index]) return;
-      const node = editableRefs.current[index];
-      const originalText = originalTextRef.current[index] ?? texts[index] ?? "";
+    const handleCommit = async (id: string, text: string) => {
+      if (savingRef.current[id]) return;
+      const node = editableRefs.current[id];
+      const originalText = originalTextRef.current[id] ?? text;
       const nextValue = (node?.textContent ?? "").trim();
 
       if (!nextValue) {
         if (node) node.textContent = originalText;
-        setEditingIndex(null);
+        setEditingId(null);
         return;
       }
 
       if (nextValue !== originalText) {
-        savingRef.current[index] = true;
+        savingRef.current[id] = true;
         try {
-          await onUpdateText(recordingId, index, nextValue);
-          originalTextRef.current[index] = nextValue;
+          await onUpdateText(id, nextValue);
+          originalTextRef.current[id] = nextValue;
         } finally {
-          savingRef.current[index] = false;
+          savingRef.current[id] = false;
         }
       }
 
-      setEditingIndex(null);
+      setEditingId(null);
     };
 
     return (
@@ -84,17 +81,14 @@ const TranscribedTextList = memo(
         </header>
 
         <ul className="audio-recorder__transcriptions-list">
-          {texts.map((text, index) => {
-            const isEditing = editingIndex === index;
+          {transcripts.map(({ id, text }) => {
+            const isEditing = editingId === id;
 
             return (
-              <li
-                key={`${index}-${text}`}
-                className="audio-recorder__transcriptions-item"
-              >
+              <li key={id} className="audio-recorder__transcriptions-item">
                 <div
                   ref={(node) => {
-                    editableRefs.current[index] = node;
+                    editableRefs.current[id] = node;
                   }}
                   className="audio-recorder__transcriptions-editable"
                   contentEditable={isEditing}
@@ -105,13 +99,13 @@ const TranscribedTextList = memo(
                   tabIndex={0}
                   spellCheck={false}
                   onClick={() => {
-                    if (!isEditing) handleStartEdit(index, text);
+                    if (!isEditing) handleStartEdit(id, text);
                   }}
                   onFocus={() => {
-                    if (!isEditing) handleStartEdit(index, text);
+                    if (!isEditing) handleStartEdit(id, text);
                   }}
                   onBlur={() => {
-                    if (isEditing) void handleCommit(index);
+                    if (isEditing) void handleCommit(id, text);
                   }}
                   onKeyDown={(event) => {
                     if (!isEditing) return;
@@ -125,9 +119,9 @@ const TranscribedTextList = memo(
                     if (event.key === "Escape") {
                       event.preventDefault();
                       const originalText =
-                        originalTextRef.current[index] ?? text;
+                        originalTextRef.current[id] ?? text;
                       event.currentTarget.textContent = originalText;
-                      setEditingIndex(null);
+                      setEditingId(null);
                     }
                   }}
                 >

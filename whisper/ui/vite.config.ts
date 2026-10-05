@@ -14,5 +14,9 @@ export default defineConfig(({ mode }) => {
       port: Number(env.PORT) || 5173,
       host: env.HOST || true,
     },
+    preview: {
+      port: Number(env.PORT) || 4173,
+      host: env.HOST || true,
+    },
   };
 });
