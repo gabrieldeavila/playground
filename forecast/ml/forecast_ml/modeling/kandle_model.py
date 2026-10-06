@@ -15,10 +15,11 @@ candles (see MIN_DOLLAR_VOLUME) are left out of training and testing.
 """
 
 import argparse
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
 from itertools import pairwise
 import json
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import joblib
 import numpy as np
@@ -56,6 +57,8 @@ COMPARE_VARIANTS = {
 # Same score, different odds: S&P 600 signals win less than S&P 500 ones. An index with
 # this many test trades shows its own band win rates; smaller ones use the overall table.
 MIN_INDEX_BAND_TRADES = 1000
+NEW_YORK = ZoneInfo("America/New_York")
+MARKET_CLOSE = time(16)
 
 
 def _suffix(timeframe: str) -> str:
@@ -90,6 +93,7 @@ TRADE_COLUMNS = [
     "trend_start",
     "liquid",
     "score",
+    "pending",
 ]
 
 
@@ -114,6 +118,14 @@ def write_trades(dataset: pd.DataFrame, path: Path, test_start: str) -> None:
 def load_candles(data_dir: Path, timeframe: str) -> pd.DataFrame:
     candles = load_market_data(data_dir)
     return resample_weekly(candles) if timeframe == "weekly" else candles
+
+
+def session_closed(session: pd.Timestamp, timeframe: str, now: datetime | None = None) -> bool:
+    """Whether the candle dated ``session`` is final. Yahoo serves today's daily candle
+    while the market trades, and the weekly candle includes the week still open."""
+    now = (now or datetime.now(timezone.utc)).astimezone(NEW_YORK)
+    last_day = session.to_period("W-FRI").end_time if timeframe == "weekly" else session
+    return (now.date(), now.time()) >= (last_day.date(), MARKET_CLOSE)
 
 
 def min_dollar_volume(timeframe: str) -> float:
@@ -344,6 +356,10 @@ def predict(
     candles = load_candles(data_dir, timeframe)
     session = candles["date"].max()
     dataset = build_dataset(candles, timeframe)
+    # A pending COMPRA is only real on a finished candle of the current session; on an
+    # unfinished one it can still vanish, and a stale ticker has no next open coming.
+    keep_pending = (dataset["signal_date"] == session) & session_closed(session, timeframe)
+    dataset = dataset.loc[~dataset["pending"] | keep_pending].reset_index(drop=True)
     dataset["score"] = to_score(
         artifact["model"], artifact["reference"], dataset[artifact["features"]]
     )
@@ -376,14 +392,15 @@ def predict(
         rows = recent.loc[recent["ticker"] == ticker].sort_values("signal_date", ascending=False)
         index = universe["index"].get(ticker, OTHER_INDEX)
         bands = bands_by_index.get(index, report["test_by_score_band"])
-        open_trade = rows.loc[rows["exit_date"].isna()].head(1)
+        open_trade = rows.loc[rows["exit_date"].isna() & ~rows["pending"]].head(1)
         tickers[ticker] = {
             "name": names.get(ticker),
             "index": index,
             "sector": universe["sector"].get(ticker) or None,
             # Illiquid tickers stay searchable but are left out of the signals list.
             "liquid": bool(liquidity[ticker] >= min_dollar_volume(timeframe)),
-            "signal_today": bool((rows["signal_date"] == session).any()),
+            # Signal on the last closed candle: buy at the next open.
+            "signal_today": bool(rows["pending"].any()),
             "position": None
             if open_trade.empty
             else {
@@ -399,12 +416,13 @@ def predict(
                 {
                     "signal_date": date(row.signal_date),
                     "exit_date": date(row.exit_date),
-                    "days": int(row.days),
-                    "return_pct": round(float(row.return_pct), 2),
+                    "days": None if row.pending else int(row.days),
+                    "return_pct": None if row.pending else round(float(row.return_pct), 2),
                     "exit_reason": None if pd.isna(row.exit_reason) else row.exit_reason,
                     "score": round(float(row.score)),
                     "win_rate_pct": band_win_rate(float(row.score), bands),
                     "trend_start": bool(row.trend_start),
+                    "pending": bool(row.pending),
                 }
                 for row in rows.itertuples()
             ],
@@ -469,7 +487,10 @@ def main() -> None:
         )
         positions = sum(t["position"] is not None for t in snapshot["tickers"].values())
         today = sum(t["signal_today"] for t in snapshot["tickers"].values())
-        print(f"Sessão {snapshot['session']}: {today} COMPRAs hoje, {positions} em posição")
+        print(
+            f"Sessão {snapshot['session']}: {today} COMPRAs para a próxima abertura, "
+            f"{positions} em posição"
+        )
 
 
 if __name__ == "__main__":

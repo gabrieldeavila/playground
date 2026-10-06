@@ -4,6 +4,7 @@
   "subtitle_weekly": "COMPRAs EMA 9/20/50 no semanal · sessão {{session}}",
   "subtitleEmpty": "COMPRAs do Kandle com a nota do modelo",
   "refresh": "Recalcular",
+  "stale": "Os dados vão só até {{session}}, mas o pregão de {{expected}} já fechou. Use \"Baixar dados e recalcular\" para buscar os candles novos.",
   "refreshWithDownload": "Baixar dados e recalcular",
   "search": "Buscar por código ou empresa (ex.: KODK, Kodak)",
   "empty": {
@@ -14,7 +15,8 @@
     "title": "COMPRAs de hoje e trades abertos",
     "description": "Início de tendência: primeira COMPRA depois de uma base (setup desligado em 50 dos 60 dias anteriores e EMA 9 abrindo acima da EMA 20). Ao lado da nota, o acerto real da faixa no teste.",
     "description_weekly": "Início de tendência: primeira COMPRA depois de uma base (setup desligado em 50 das 60 semanas anteriores e EMA 9 abrindo acima da EMA 20). Ao lado da nota, o acerto real da faixa no teste.",
-    "today": "Hoje",
+    "buyNextOpen": "Compra amanhã na abertura",
+    "buyNextOpen_weekly": "Compra na abertura da próxima semana",
     "trendStarts": "Inícios de tendência ({{count}})",
     "all": "Todas ({{count}})"
   },
@@ -92,6 +94,9 @@
     "entry": "Entrada",
     "exit": "Saída",
     "stop": "Stop",
+    "stopEstimate": "Stop est.",
+    "pending": "{{score}} · próx. abertura",
+    "pendingTooltip": "COMPRA na próxima abertura · Nota {{score}} · Stop est. {{stop}}",
     "test": "Teste",
     "train": "Treino",
     "period": "Período",

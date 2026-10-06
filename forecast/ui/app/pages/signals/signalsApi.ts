@@ -13,12 +13,16 @@ export type MarketIndex =
 export type SignalTrade = {
   signal_date: string;
   exit_date: string | null;
-  days: number;
-  return_pct: number;
+  /** Null while pending. */
+  days: number | null;
+  /** Null while pending. */
+  return_pct: number | null;
   exit_reason: "stop" | "cruzamento" | null;
   score: number;
   win_rate_pct: number | null;
   trend_start: boolean;
+  /** COMPRA on the last closed candle: buy at the next open. */
+  pending?: boolean;
 };
 
 export type OpenPosition = {
@@ -174,6 +178,15 @@ export type ChartTrade = {
   test: boolean;
 };
 
+/** COMPRA on the last closed candle; its trade starts at the next open. */
+export type ChartPending = {
+  signal_date: string;
+  score: number;
+  trend_start: boolean;
+  /** Estimated from the signal close; the real stop uses the entry open. */
+  stop_price: number;
+};
+
 export type TickerChart = {
   ticker: string;
   timeframe: Timeframe;
@@ -181,6 +194,7 @@ export type TickerChart = {
   test_start: string;
   candles: ChartCandles;
   trades: ChartTrade[];
+  pending?: ChartPending | null;
 };
 
 export const fetchChart = (ticker: string, timeframe: Timeframe) =>

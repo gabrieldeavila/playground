@@ -4,6 +4,7 @@
   "subtitle_weekly": "EMA 9/20/50 weekly COMPRA signals · session {{session}}",
   "subtitleEmpty": "Kandle COMPRA signals scored by the model",
   "refresh": "Recompute",
+  "stale": "Data only goes up to {{session}}, but the {{expected}} session has already closed. Use \"Download data and recompute\" to fetch the new candles.",
   "refreshWithDownload": "Download data and recompute",
   "search": "Search by ticker or company (e.g. KODK, Kodak)",
   "empty": {
@@ -14,7 +15,8 @@
     "title": "Today's signals and open trades",
     "description": "Trend start: first COMPRA after a base (setup off on 50 of the previous 60 days and EMA 9 opening above EMA 20). Next to the score, the band's real win rate in testing.",
     "description_weekly": "Trend start: first COMPRA after a base (setup off on 50 of the previous 60 weeks and EMA 9 opening above EMA 20). Next to the score, the band's real win rate in testing.",
-    "today": "Today",
+    "buyNextOpen": "Buy at tomorrow's open",
+    "buyNextOpen_weekly": "Buy at next week's open",
     "trendStarts": "Trend starts ({{count}})",
     "all": "All ({{count}})"
   },
@@ -92,6 +94,9 @@
     "entry": "Entry",
     "exit": "Exit",
     "stop": "Stop",
+    "stopEstimate": "Est. stop",
+    "pending": "{{score}} · next open",
+    "pendingTooltip": "COMPRA at the next open · Score {{score}} · Est. stop {{stop}}",
     "test": "Test",
     "train": "Training",
     "period": "Period",

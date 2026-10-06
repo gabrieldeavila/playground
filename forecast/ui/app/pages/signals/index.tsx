@@ -58,6 +58,28 @@ const OutcomeRow = ({
 );
 
 const TIMEFRAMES: Timeframe[] = ["daily", "weekly"];
+
+const NEW_YORK_PARTS = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/New_York",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  hourCycle: "h23",
+});
+
+/** Latest weekday (YYYY-MM-DD) whose US session has closed; ignores holidays. */
+const lastClosedSession = (now = new Date()) => {
+  const parts = Object.fromEntries(
+    NEW_YORK_PARTS.formatToParts(now).map((part) => [part.type, part.value]),
+  );
+  const day = new Date(Date.UTC(+parts.year, +parts.month - 1, +parts.day));
+  // Yahoo publishes the daily candle shortly after the 16:00 ET close.
+  if (+parts.hour < 17) day.setUTCDate(day.getUTCDate() - 1);
+  while (day.getUTCDay() === 0 || day.getUTCDay() === 6)
+    day.setUTCDate(day.getUTCDate() - 1);
+  return day.toISOString().slice(0, 10);
+};
 const INDEXES: MarketIndex[] = [
   "sp500",
   "sp400",
@@ -314,14 +336,20 @@ const TickerHistory = memo(({ detail, timeframe }: TickerHistoryProps) => {
                   <Table.Cell>
                     <Score value={trade.score} winRate={trade.win_rate_pct} />
                   </Table.Cell>
-                  <Table.Cell>{trade.days}</Table.Cell>
+                  <Table.Cell>{trade.days ?? "—"}</Table.Cell>
                   <Table.Cell>
-                    <Signed value={trade.return_pct} />
+                    {trade.return_pct == null ? (
+                      "—"
+                    ) : (
+                      <Signed value={trade.return_pct} />
+                    )}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap text-(--color-text-muted)">
-                    {trade.exit_reason
-                      ? t(`exit.${trade.exit_reason}`)
-                      : t("exit.open")}
+                    {trade.pending
+                      ? t("list.buyNextOpen", { context: timeframe })
+                      : trade.exit_reason
+                        ? t(`exit.${trade.exit_reason}`)
+                        : t("exit.open")}
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -484,6 +512,11 @@ const Signals = memo(() => {
         </header>
 
         {error && <Alert variant="danger">{error}</Alert>}
+        {data && !refreshing && data.session < lastClosedSession() && (
+          <Alert variant="warning">
+            {t("stale", { session: data.session, expected: lastClosedSession() })}
+          </Alert>
+        )}
 
         {loading && !data ? (
           <div className="flex justify-center py-16">
@@ -606,18 +639,19 @@ const Signals = memo(() => {
                             )}
                           </Table.Cell>
                           <Table.Cell className="whitespace-nowrap">
-                            <div>
-                              {signal.signal_today ? (
+                            <div>{signal.latest.signal_date}</div>
+                            <div className="mt-1 flex flex-col items-start gap-1">
+                              {signal.signal_today && (
                                 <Badge size="sm" variant="info">
-                                  {t("list.today")}
+                                  {t("list.buyNextOpen", {
+                                    context: timeframe,
+                                  })}
                                 </Badge>
-                              ) : (
-                                signal.latest.signal_date
                               )}
+                              <SignalType
+                                trendStart={signal.latest.trend_start}
+                              />
                             </div>
-                            <SignalType
-                              trendStart={signal.latest.trend_start}
-                            />
                           </Table.Cell>
                           <Table.Cell>
                             <Score

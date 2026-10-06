@@ -5,7 +5,8 @@ Rules (decided a priori, all on daily adjusted candles):
 - Stop: a close at or below entry - 3 x ATR(14) of the signal candle.
 - Exit: EMA 9 closes below EMA 20 for 2 consecutive candles.
 - Both exits execute at the next open. Costs: 10 bps per side.
-A trade is a success (label 1) when its net return is positive.
+A trade is a success (label 1) when its net return is positive. A signal on the last
+candle is pending: no entry, exit or label yet, and its stop is estimated on the close.
 
 Trend start: the signal is the first COMPRA after a base, i.e. the setup was off on
 at least 50 of the 60 previous candles, and EMA 9 is already more than 1% above
@@ -53,10 +54,13 @@ def simulate_trades(candles: pd.DataFrame) -> pd.DataFrame:
             .to_numpy()
         )
         for signal in np.flatnonzero(flags["kandle_signal"].to_numpy() == 1):
-            if signal + 1 >= n or not np.isfinite(atr[signal]):
+            if not np.isfinite(atr[signal]):
                 continue
-            entry = open_[signal + 1]
-            stop = entry * (1 - STOP_ATR * atr[signal])
+            # A COMPRA on the last candle enters at an open that does not exist yet.
+            pending = signal + 1 >= n
+            entry = np.nan if pending else open_[signal + 1]
+            # Pending stops are estimated from the signal close until the entry is known.
+            stop = (close[signal] if pending else entry) * (1 - STOP_ATR * atr[signal])
             exit_index, reason, below = None, None, 0
             for day in range(signal + 1, n - 1):
                 below = below + 1 if ema_9[day] < ema_20[day] else 0
@@ -66,7 +70,9 @@ def simulate_trades(candles: pd.DataFrame) -> pd.DataFrame:
                     exit_index, reason = day + 1, "cruzamento"
                 if exit_index is not None:
                     break
-            if exit_index is None:  # still open: mark to the last close
+            if pending:
+                price, exit_date, days = np.nan, pd.NaT, np.nan
+            elif exit_index is None:  # still open: mark to the last close
                 price, exit_date, days = close[-1], pd.NaT, n - 1 - (signal + 1)
             else:
                 price, exit_date, days = (
@@ -79,7 +85,7 @@ def simulate_trades(candles: pd.DataFrame) -> pd.DataFrame:
                 {
                     "ticker": ticker,
                     "signal_date": dates[signal],
-                    "entry_date": dates[signal + 1],
+                    "entry_date": pd.NaT if pending else dates[signal + 1],
                     "exit_date": exit_date,
                     "days": days,
                     # Adjusted prices, the same scale the chart draws its candles in.
@@ -89,6 +95,7 @@ def simulate_trades(candles: pd.DataFrame) -> pd.DataFrame:
                     "exit_reason": reason,
                     "stop_price": stop / prices["close"].iloc[-1] * group["close"].iloc[-1],
                     "label": np.nan if exit_index is None else float(net > 0),
+                    "pending": pending,
                     "setup_off_days_60": off_days[signal],
                     "trend_start": bool(
                         off_days[signal] >= BASE_MIN_OFF_DAYS
