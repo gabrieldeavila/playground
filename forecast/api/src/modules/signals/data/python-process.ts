@@ -10,16 +10,29 @@ export class PythonProcessError extends Error {
   }
 }
 
-/** Runs `uv run python <args>` in the ML project and resolves with its stdout. */
-export function runPython(args: string[]): Promise<string> {
+/**
+ * Runs `uv run python <args>` in the ML project and resolves with its stdout.
+ * `onLine` sees each complete stdout line as it arrives, for progress reporting.
+ */
+export function runPython(
+  args: string[],
+  onLine?: (line: string) => void,
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn('uv', ['run', 'python', ...args], {
       cwd: mlDirectory(),
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const stdout: Buffer[] = [];
+    let pending = '';
     let stderr = '';
-    child.stdout.on('data', (chunk: Buffer) => stdout.push(chunk));
+    child.stdout.on('data', (chunk: Buffer) => {
+      stdout.push(chunk);
+      if (!onLine) return;
+      const lines = (pending + chunk.toString('utf8')).split('\n');
+      pending = lines.pop() ?? '';
+      lines.forEach(onLine);
+    });
     child.stderr.on('data', (chunk: Buffer) => {
       stderr = (stderr + chunk.toString()).slice(-2000);
     });

@@ -97,11 +97,25 @@ export interface SignalSnapshotRepository {
   read(timeframe: Timeframe): Promise<SignalSnapshot | null>;
 }
 
+export type RefreshPhase = 'download' | 'predict';
+
+export interface RefreshProgress {
+  phase: RefreshPhase;
+  /** Timeframe being scored; null while downloading. */
+  timeframe: Timeframe | null;
+  /** Tickers downloaded or timeframes scored so far, out of `total`. */
+  done: number;
+  total: number;
+  /** Whole job, 0–100; never goes back when the phase changes. */
+  percent: number;
+}
+
 export interface RefreshStatus {
   running: boolean;
   startedAt: string | null;
   finishedAt: string | null;
   error: string | null;
+  progress: RefreshProgress | null;
 }
 
 export interface SignalRefreshRunner {

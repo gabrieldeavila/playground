@@ -102,10 +102,10 @@ def download(
             ticker = futures[future]
             try:
                 rows = future.result()
-                print(f"[{done}/{len(tickers)}] {ticker}: {rows} candles")
+                print(f"[{done}/{len(tickers)}] {ticker}: {rows} candles", flush=True)
             except Exception as error:  # noqa: BLE001 - report and keep downloading
                 errors[ticker] = str(error)
-                print(f"[{done}/{len(tickers)}] {ticker}: ERRO {error}")
+                print(f"[{done}/{len(tickers)}] {ticker}: ERRO {error}", flush=True)
     TICKER_NAMES_PATH.write_text(json.dumps(names, indent=0, sort_keys=True), encoding="utf-8")
     return errors
 

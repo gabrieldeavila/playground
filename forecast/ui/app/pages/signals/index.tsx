@@ -30,6 +30,7 @@ import {
   startRefresh,
   type MarketIndex,
   type ModelSummary,
+  type RefreshProgress,
   type SignalSummary,
   type SignalsResponse,
   type TickerDetail,
@@ -363,12 +364,53 @@ const TickerHistory = memo(({ detail, timeframe }: TickerHistoryProps) => {
 
 TickerHistory.displayName = "TickerHistory";
 
+const RefreshProgressBar = ({ progress }: { progress: RefreshProgress }) => {
+  const { t } = useTranslation("signals");
+  const label =
+    progress.phase === "download"
+      ? progress.total
+        ? t("progress.download", {
+            done: progress.done.toLocaleString(),
+            total: progress.total.toLocaleString(),
+          })
+        : t("progress.downloadStarting")
+      : t("progress.predict", {
+          timeframe: t(`timeframe.${progress.timeframe ?? "daily"}`),
+          step: progress.done + 1,
+          total: progress.total,
+        });
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between text-sm text-(--color-text-muted)">
+        <span>{label}</span>
+        <span className="tabular-nums text-(--color-text)">
+          {progress.percent}%
+        </span>
+      </div>
+      <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress.percent}
+        className="h-1.5 overflow-hidden rounded-full bg-(--color-surface)"
+      >
+        <div
+          className="h-full rounded-full bg-(--color-primary) transition-[width] duration-700 ease-out"
+          style={{ width: `${progress.percent}%` }}
+        />
+      </div>
+    </div>
+  );
+};
+
 const Signals = memo(() => {
   const { t } = useTranslation("signals");
   const [data, setData] = useState<SignalsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [progress, setProgress] = useState<RefreshProgress | null>(null);
   const [tickers, setTickers] = useState<TickerOption[]>([]);
   const [detail, setDetail] = useState<TickerDetail | null>(null);
   const [onlyTrendStarts, setOnlyTrendStarts] = useState(true);
@@ -396,7 +438,10 @@ const Signals = memo(() => {
   useEffect(() => {
     void load();
     void fetchRefreshStatus()
-      .then((status) => setRefreshing(status.running))
+      .then((status) => {
+        setRefreshing(status.running);
+        setProgress(status.progress);
+      })
       .catch(() => undefined);
   }, [load]);
 
@@ -404,17 +449,21 @@ const Signals = memo(() => {
     if (!refreshing) return;
     const timer = window.setInterval(async () => {
       const status = await fetchRefreshStatus().catch(() => null);
-      if (!status || status.running) return;
+      if (!status) return;
+      setProgress(status.progress);
+      if (status.running) return;
       setRefreshing(false);
       if (status.error) setError(status.error);
       else void load();
-    }, 3000);
+    }, 1000);
     return () => window.clearInterval(timer);
   }, [refreshing, load]);
 
   const refresh = async (download: boolean) => {
     try {
-      setRefreshing((await startRefresh(download)).running);
+      const status = await startRefresh(download);
+      setRefreshing(status.running);
+      setProgress(status.progress);
     } catch (refreshError) {
       setError((refreshError as Error).message);
     }
@@ -506,10 +555,14 @@ const Signals = memo(() => {
               disabled={refreshing}
               onClick={() => void refresh(true)}
             >
-              {t("refreshWithDownload")}
+              {refreshing && progress
+                ? t("progress.button", { percent: progress.percent })
+                : t("refreshWithDownload")}
             </Button>
           </div>
         </header>
+
+        {refreshing && progress && <RefreshProgressBar progress={progress} />}
 
         {error && <Alert variant="danger">{error}</Alert>}
         {data && !refreshing && data.session < lastClosedSession() && (

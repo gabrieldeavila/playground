@@ -105,11 +105,22 @@ export type TickerDetail = {
   history: SignalTrade[];
 };
 
+export type RefreshProgress = {
+  phase: "download" | "predict";
+  /** Timeframe being scored; null while downloading. */
+  timeframe: Timeframe | null;
+  done: number;
+  total: number;
+  /** Whole job, 0–100. */
+  percent: number;
+};
+
 export type RefreshStatus = {
   running: boolean;
   startedAt: string | null;
   finishedAt: string | null;
   error: string | null;
+  progress: RefreshProgress | null;
 };
 
 const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5001";

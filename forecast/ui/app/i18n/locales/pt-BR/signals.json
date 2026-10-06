@@ -6,6 +6,12 @@
   "refresh": "Recalcular",
   "stale": "Os dados vão só até {{session}}, mas o pregão de {{expected}} já fechou. Use \"Baixar dados e recalcular\" para buscar os candles novos.",
   "refreshWithDownload": "Baixar dados e recalcular",
+  "progress": {
+    "button": "Atualizando… {{percent}}%",
+    "downloadStarting": "Baixando dados…",
+    "download": "Baixando dados · {{done}}/{{total}} tickers",
+    "predict": "Recalculando sinais · {{timeframe}} ({{step}}/{{total}})"
+  },
   "search": "Buscar por código ou empresa (ex.: KODK, Kodak)",
   "empty": {
     "title": "Nenhum snapshot gerado",
