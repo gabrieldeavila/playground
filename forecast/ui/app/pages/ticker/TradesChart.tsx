@@ -19,7 +19,12 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { percent } from "../signals/shared";
-import type { ChartTrade, TickerChart, Timeframe } from "../signals/signalsApi";
+import type {
+  ChartPending,
+  ChartTrade,
+  TickerChart,
+  Timeframe,
+} from "../signals/signalsApi";
 
 // Same palette as the Kandle chart, so both read the same way.
 const UP = "#61d6a3";
@@ -37,6 +42,8 @@ const TRADE_PADDING = 30;
 type Props = {
   chart: TickerChart;
   trades: ChartTrade[];
+  /** COMPRA on the last candle, drawn on its signal candle until the entry exists. */
+  pending: ChartPending | null;
   selected: string | null;
   onSelect: (signalDate: string) => void;
 };
@@ -44,7 +51,11 @@ type Props = {
 const price = (value: number) => value.toFixed(2);
 
 /** Buys at the entry candle, sells grouped by exit candle (several COMPRAs often exit together). */
-const buildMarkers = (trades: ChartTrade[], selected: string | null) => {
+const buildMarkers = (
+  trades: ChartTrade[],
+  selected: string | null,
+  pending: { time: string; text: string } | null,
+) => {
   const markers: SeriesMarker<Time>[] = trades.map((trade) => ({
     id: `buy:${trade.signal_date}`,
     time: trade.entry_date as Time,
@@ -73,11 +84,20 @@ const buildMarkers = (trades: ChartTrade[], selected: string | null) => {
       size: group.some((trade) => trade.signal_date === selected) ? 2 : 1,
     });
   }
+  if (pending)
+    markers.push({
+      id: "pending",
+      time: pending.time as Time,
+      position: "belowBar",
+      shape: "arrowUp",
+      color: UP,
+      text: pending.text,
+    });
   return markers.sort((a, b) => String(a.time).localeCompare(String(b.time)));
 };
 
 export const TradesChart = memo(
-  ({ chart, trades, selected, onSelect }: Props) => {
+  ({ chart, trades, pending, selected, onSelect }: Props) => {
     const { t } = useTranslation("signals");
     const containerRef = useRef<HTMLDivElement>(null);
     const apiRef = useRef<IChartApi | null>(null);
@@ -220,7 +240,16 @@ export const TradesChart = memo(
     useEffect(() => {
       const series = candleRef.current;
       if (!series) return;
-      markersRef.current?.setMarkers(buildMarkers(trades, selected));
+      markersRef.current?.setMarkers(
+        buildMarkers(
+          trades,
+          selected,
+          pending && {
+            time: pending.signal_date,
+            text: t("chart.pending", { score: pending.score }),
+          },
+        ),
+      );
       priceLinesRef.current.forEach((line) => series.removePriceLine(line));
       const lines: Parameters<typeof series.createPriceLine>[0][] = [];
       const pick = trades.find((trade) => trade.signal_date === selected);
@@ -248,6 +277,13 @@ export const TradesChart = memo(
             title: t("chart.stop"),
           });
       }
+      if (pending)
+        lines.push({
+          price: pending.stop_price,
+          color: DOWN,
+          lineStyle: LineStyle.Dotted,
+          title: t("chart.stopEstimate"),
+        });
       priceLinesRef.current = lines.map((line) =>
         series.createPriceLine({
           lineWidth: 1,
@@ -255,7 +291,7 @@ export const TradesChart = memo(
           ...line,
         }),
       );
-    }, [trades, selected, t]);
+    }, [trades, pending, selected, t]);
 
     // Bring the selected trade into view unless it already is.
     useEffect(() => {
@@ -346,6 +382,15 @@ export const TradesChart = memo(
                 {t("chart.buy")} {trade.entry_date}
               </div>
             ),
+          )}
+          {pending?.signal_date === time && (
+            <div className="text-(--color-success)">
+              △{" "}
+              {t("chart.pendingTooltip", {
+                score: pending.score,
+                stop: price(pending.stop_price),
+              })}
+            </div>
           )}
         </div>
         <div

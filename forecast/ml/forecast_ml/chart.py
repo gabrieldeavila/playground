@@ -1,5 +1,7 @@
 """Chart data for one ticker: adjusted candles, EMA 9/20/50 and every Kandle trade.
 
+A COMPRA on the last candle has no trade yet; it comes apart as ``pending``.
+
 The API runs ``python -m forecast_ml.chart TICKER --timeframe daily`` and serves its
 stdout. Trades come from data/processed/kandle_trades*.parquet, written by
 ``kandle_model predict``, so the scores are the same ones the signals list shows.
@@ -59,6 +61,10 @@ def chart(
     test_start = pq.read_schema(trades_file).metadata[b"test_start"].decode()
     trades = pd.read_parquet(trades_file, filters=[("ticker", "==", ticker)])
     trades = trades.sort_values("signal_date")
+    if "pending" not in trades:  # written before pending COMPRAs existed
+        trades["pending"] = False
+    pending = trades.loc[trades["pending"]].tail(1)
+    trades = trades.loc[~trades["pending"]]
     # stop_price is in today's unadjusted scale; the chart draws adjusted prices.
     to_adjusted = candles["adjusted_close"].iloc[-1] / candles["close"].iloc[-1]
 
@@ -93,6 +99,14 @@ def chart(
             }
             for row in trades.itertuples()
         ],
+        "pending": None
+        if pending.empty
+        else {
+            "signal_date": _date(pending["signal_date"].iloc[0]),
+            "score": round(float(pending["score"].iloc[0])),
+            "trend_start": bool(pending["trend_start"].iloc[0]),
+            "stop_price": round(float(pending["stop_price"].iloc[0] * to_adjusted), 4),
+        },
     }
 
 

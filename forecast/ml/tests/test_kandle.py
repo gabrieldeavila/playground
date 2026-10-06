@@ -1,9 +1,13 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import numpy as np
 import pandas as pd
 import pytest
 
 from forecast_ml.kandle_features import add_features
 from forecast_ml.kandle_signals import build_kandle_signals
+from forecast_ml.modeling.kandle_model import session_closed
 from forecast_ml.trades import simulate_trades
 
 
@@ -67,6 +71,36 @@ def test_stop_uses_the_close_not_the_intraday_low():
 def test_open_trade_has_no_label():
     trade = simulate_trades(_candles(_flat_rise(80))).iloc[0]
     assert pd.isna(trade["exit_date"]) and pd.isna(trade["label"])
+
+
+def test_signal_on_the_last_candle_is_pending_until_the_next_open():
+    candles = _candles(_flat_rise())
+    signal = np.flatnonzero(build_kandle_signals(candles)["kandle_signal"] == 1)[0]
+    pending = simulate_trades(candles.iloc[: signal + 1]).iloc[0]
+    assert pending["pending"] and pd.isna(pending["label"])
+    assert pd.isna(pending["entry_date"]) and pd.isna(pending["return_pct"])
+    assert pending["stop_price"] < candles.loc[signal, "close"]
+
+    trade = simulate_trades(candles.iloc[: signal + 2]).iloc[0]
+    assert not trade["pending"]
+    assert trade["signal_date"] == pending["signal_date"]
+    assert trade["entry_date"] == candles.loc[signal + 1, "date"]
+
+
+@pytest.mark.parametrize(
+    ("timeframe", "now", "closed"),
+    [
+        ("daily", "2026-10-06 15:59", False),  # today's candle still trading
+        ("daily", "2026-10-06 16:00", True),
+        ("daily", "2026-10-07 09:00", True),
+        ("weekly", "2026-10-06 18:00", False),  # Tuesday: the week is still open
+        ("weekly", "2026-10-09 16:00", True),  # Friday close
+        ("weekly", "2026-10-12 09:00", True),
+    ],
+)
+def test_session_is_closed_only_after_its_last_market_close(timeframe, now, closed):
+    now = datetime.fromisoformat(now).replace(tzinfo=ZoneInfo("America/New_York"))
+    assert session_closed(pd.Timestamp("2026-10-06"), timeframe, now) is closed
 
 
 def test_previous_trade_return_only_uses_trades_closed_before_the_signal():

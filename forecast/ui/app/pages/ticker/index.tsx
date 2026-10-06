@@ -306,6 +306,15 @@ const Ticker = memo(() => {
     () => unscored.filter((trade) => trade.score >= minScore),
     [unscored, minScore],
   );
+  // Always a test-period signal; it follows the trend-start and score filters.
+  const pending = useMemo(() => {
+    const signal = chart?.pending;
+    return signal &&
+      (!onlyTrendStarts || signal.trend_start) &&
+      signal.score >= minScore
+      ? signal
+      : null;
+  }, [chart, onlyTrendStarts, minScore]);
   const chartRef = useRef<HTMLDivElement>(null);
   const select = useCallback(
     (signalDate: string) => setSelected(signalDate),
@@ -421,6 +430,7 @@ const Ticker = memo(() => {
                   <TradesChart
                     chart={chart}
                     trades={trades}
+                    pending={pending}
                     selected={selected}
                     onSelect={select}
                   />

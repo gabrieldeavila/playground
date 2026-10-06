@@ -16,12 +16,16 @@ export type MarketIndex = (typeof MARKET_INDEXES)[number];
 export interface SignalTrade {
   signal_date: string;
   exit_date: string | null;
-  days: number;
-  return_pct: number;
+  /** Null while pending. */
+  days: number | null;
+  /** Null while pending. */
+  return_pct: number | null;
   exit_reason: 'stop' | 'cruzamento' | null;
   score: number;
   win_rate_pct: number | null;
   trend_start: boolean;
+  /** COMPRA on the last closed candle: buy at the next open. Absent in older snapshots. */
+  pending?: boolean;
 }
 
 export interface OpenPosition {
@@ -41,6 +45,7 @@ export interface TickerSignals {
   sector?: string | null;
   /** False when recent traded value is below the model's liquidity floor. */
   liquid?: boolean;
+  /** The latest history entry is a pending COMPRA. */
   signal_today: boolean;
   position: OpenPosition | null;
   history: SignalTrade[];

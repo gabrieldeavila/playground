@@ -30,6 +30,15 @@ export interface ChartTrade {
   test: boolean;
 }
 
+/** COMPRA on the last closed candle; its trade starts at the next open. */
+export interface ChartPending {
+  signal_date: string;
+  score: number;
+  trend_start: boolean;
+  /** Estimated from the signal close; the real stop uses the entry open. */
+  stop_price: number;
+}
+
 export interface TickerChart {
   ticker: string;
   timeframe: Timeframe;
@@ -37,6 +46,8 @@ export interface TickerChart {
   test_start: string;
   candles: ChartCandles;
   trades: ChartTrade[];
+  /** Absent in charts written before pending COMPRAs existed. */
+  pending?: ChartPending | null;
 }
 
 export interface TickerChartReader {

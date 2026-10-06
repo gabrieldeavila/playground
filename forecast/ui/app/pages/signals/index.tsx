@@ -336,14 +336,20 @@ const TickerHistory = memo(({ detail, timeframe }: TickerHistoryProps) => {
                   <Table.Cell>
                     <Score value={trade.score} winRate={trade.win_rate_pct} />
                   </Table.Cell>
-                  <Table.Cell>{trade.days}</Table.Cell>
+                  <Table.Cell>{trade.days ?? "—"}</Table.Cell>
                   <Table.Cell>
-                    <Signed value={trade.return_pct} />
+                    {trade.return_pct == null ? (
+                      "—"
+                    ) : (
+                      <Signed value={trade.return_pct} />
+                    )}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap text-(--color-text-muted)">
-                    {trade.exit_reason
-                      ? t(`exit.${trade.exit_reason}`)
-                      : t("exit.open")}
+                    {trade.pending
+                      ? t("list.buyNextOpen", { context: timeframe })
+                      : trade.exit_reason
+                        ? t(`exit.${trade.exit_reason}`)
+                        : t("exit.open")}
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -633,18 +639,19 @@ const Signals = memo(() => {
                             )}
                           </Table.Cell>
                           <Table.Cell className="whitespace-nowrap">
-                            <div>
-                              {signal.signal_today ? (
+                            <div>{signal.latest.signal_date}</div>
+                            <div className="mt-1 flex flex-col items-start gap-1">
+                              {signal.signal_today && (
                                 <Badge size="sm" variant="info">
-                                  {t("list.today")}
+                                  {t("list.buyNextOpen", {
+                                    context: timeframe,
+                                  })}
                                 </Badge>
-                              ) : (
-                                signal.latest.signal_date
                               )}
+                              <SignalType
+                                trendStart={signal.latest.trend_start}
+                              />
                             </div>
-                            <SignalType
-                              trendStart={signal.latest.trend_start}
-                            />
                           </Table.Cell>
                           <Table.Cell>
                             <Score

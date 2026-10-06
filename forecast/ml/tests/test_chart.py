@@ -68,6 +68,22 @@ def test_trades_from_test_start_on_are_marked_as_test(market):
         assert trade["test"] is expected
 
 
+def test_pending_compra_comes_apart_from_the_trades(tmp_path, market):
+    data_dir, _, candles = market
+    trades = simulate_trades(candles)
+    signal = candles.index[candles["date"] == trades["signal_date"].iloc[0]][0]
+    candles.iloc[: signal + 1].to_parquet(data_dir / "AAA.parquet")
+    trades_file = tmp_path / "pending.parquet"
+    pending_trades = simulate_trades(candles.iloc[: signal + 1])
+    write_trades(pending_trades.assign(liquid=True, score=75.0), trades_file, "2022-01-01")
+
+    result = chart("AAA", data_dir=data_dir, trades_file=trades_file)
+    assert result["trades"] == []
+    assert result["pending"]["signal_date"] == result["session"]
+    assert result["pending"]["score"] == 75
+    assert result["pending"]["stop_price"] < result["candles"]["close"][-1]
+
+
 def test_unknown_ticker_has_no_chart(market):
     data_dir, trades_file, _ = market
     assert chart("ZZZ", data_dir=data_dir, trades_file=trades_file) is None
