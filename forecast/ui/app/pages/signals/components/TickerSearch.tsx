@@ -4,7 +4,7 @@ import { FiSearch } from "react-icons/fi";
 
 import { Input } from "@/ui/components/primitives/input";
 import { cn } from "@/ui/helpers/cn";
-import type { TickerOption } from "./signalsApi";
+import type { TickerOption } from "../signalsApi";
 
 const MAX_SUGGESTIONS = 8;
 
