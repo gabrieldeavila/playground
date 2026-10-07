@@ -10,6 +10,7 @@ const TITLE = `
     <dt>← → / A D</dt><dd>Steer</dd>
     <dt>J / Z</dt><dd>Punch</dd>
     <dt>K / X</dt><dd>Kick</dd>
+    <dt>C</dt><dd>Camera</dd>
   </dl>
   <p class="cta">Press ENTER to race</p>
 `

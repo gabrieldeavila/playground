@@ -8,7 +8,7 @@ import type { Track } from '../domain/track/types'
 const BEHIND = 6.5
 const AHEAD = 14
 const HEIGHT = 2.5
-const STIFFNESS = 7
+const STIFFNESS = 18 // alto o bastante para não ficar metros para trás em alta velocidade
 
 // Câmera atrás do piloto, suavizada; o FOV abre com a velocidade.
 export class ChaseCamera {
@@ -22,6 +22,13 @@ export class ChaseCamera {
 
   reset(): void {
     this.snapped = false
+  }
+
+  // Começa a perseguição de onde a câmera está agora, para recuar suave.
+  continueFrom(camera: PerspectiveCamera): void {
+    this.position.copy(camera.position)
+    this.look.copy(camera.position).add(camera.getWorldDirection(this.wantedLook).multiplyScalar(10))
+    this.snapped = true
   }
 
   update(rider: Rider, track: Track, dt: number): void {

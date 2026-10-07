@@ -17,6 +17,10 @@ export class RidersView {
     race.riders.forEach((rider, i) => poseBike(this.models[i], rider, race.track))
   }
 
+  setVisible(riderId: number, visible: boolean): void {
+    this.models[riderId].root.visible = visible
+  }
+
   positionOf(riderId: number): Vector3 {
     return this.models[riderId].root.position
   }

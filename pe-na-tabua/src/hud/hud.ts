@@ -16,6 +16,7 @@ export class Hud {
   private readonly place = byId('hud-place')
   private readonly time = byId('hud-time')
   private readonly speed = byId('hud-speed')
+  private readonly speedPanel = byId('hud-speed-panel')
   private readonly health = byId('hud-health')
   private readonly rival = byId('hud-rival')
   private readonly rivalName = byId('hud-rival-name')
@@ -28,6 +29,11 @@ export class Hud {
 
   setVisible(visible: boolean): void {
     this.root.hidden = !visible
+  }
+
+  // Na primeira pessoa a velocidade já está no painel da moto.
+  setSpeedPanelVisible(visible: boolean): void {
+    this.speedPanel.hidden = !visible
   }
 
   reset(race: Race): void {
