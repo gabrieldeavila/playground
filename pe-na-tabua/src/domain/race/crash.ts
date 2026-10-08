@@ -8,6 +8,7 @@ export function knockOff(rider: Rider, side: Side): void {
   rider.crashTimer = CRASH_TIME
   rider.crashSide = side
   rider.attack = null
+  rider.weapon = null // a arma fica para trás no tombo
   rider.steer = 0
   rider.pushVel = 0
 }

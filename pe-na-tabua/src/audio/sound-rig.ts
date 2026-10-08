@@ -2,6 +2,7 @@ import { EngineSound } from './engine-sound'
 import { createNoiseBuffer } from './noise-buffer'
 import { NoiseLoop } from './noise-loop'
 import type { PassSound } from './pass-bys'
+import { playClang } from './play-clang'
 import { playHorn } from './play-horn'
 import { playImpact } from './play-impact'
 import { playWhoosh } from './play-whoosh'
@@ -33,6 +34,10 @@ export class SoundRig {
 
   whoosh(gain: number, pan: number, sound: PassSound): void {
     if (gain > 0.01) playWhoosh(this.ctx, this.master, this.noise, gain, pan, sound)
+  }
+
+  clang(gain: number, pan: number): void {
+    if (gain > 0.01) playClang(this.ctx, this.master, gain, pan)
   }
 
   horn(gain: number, pan: number): void {

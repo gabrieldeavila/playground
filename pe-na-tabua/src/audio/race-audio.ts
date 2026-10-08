@@ -6,6 +6,7 @@ import { PassBys } from './pass-bys'
 import { SoundRig } from './sound-rig'
 
 const VEHICLE_BOOST = 1.6 // carro é maior: passa fazendo mais barulho
+const WEAPON_BOOST = 1.4 // golpe de arma bate mais forte
 
 // Liga a corrida aos sons. O AudioContext só nasce no primeiro gesto do usuário.
 export class RaceAudio {
@@ -52,7 +53,11 @@ export class RaceAudio {
     if (!this.rig || target === null) return
     const player = race.riders[race.playerId]
     const rider = race.riders[target]
-    this.rig.impact(impactGain(Math.abs(rider.s - player.s)), panFor(rider.x - player.x))
+    const weapon = event.kind === 'hit' && (event.attack === 'club' || event.attack === 'chain') ? event.attack : null
+    const gain = impactGain(Math.abs(rider.s - player.s))
+    const pan = panFor(rider.x - player.x)
+    this.rig.impact(gain * (weapon ? WEAPON_BOOST : 1), pan)
+    if (weapon === 'chain') this.rig.clang(gain, pan)
   }
 
   private updateEngine(rig: SoundRig, race: Race, player: Rider, throttle: number): void {

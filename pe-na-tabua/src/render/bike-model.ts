@@ -17,6 +17,7 @@ export interface BikeModel {
   lean: Group // inclinação nas curvas e queda
   wheels: Group[]
   arms: [Group, Group] // esquerdo, direito (pivô no ombro)
+  hands: [Group, Group] // ponto da luva, onde vai a arma
   hips: [Group, Group] // pivô no quadril
   knees: [Group, Group]
 }
@@ -33,7 +34,8 @@ export function createBikeModel(colors: RiderColors): BikeModel {
   lean.add(...wheels)
   addBody(lean, m)
   addTorso(lean, m)
-  const arms = ([-1, 1] as const).map((side) => createArm(m.jacket, m.dark, side)) as [Group, Group]
+  const [left, right] = ([-1, 1] as const).map((side) => createArm(m.jacket, m.dark, side))
+  const arms: [Group, Group] = [left.shoulder, right.shoulder]
   const legs = ([-1, 1] as const).map((side) => createLeg(m.pants, m.dark, side))
   lean.add(...arms, ...legs.map((l) => l.hip))
 
@@ -42,6 +44,7 @@ export function createBikeModel(colors: RiderColors): BikeModel {
     lean,
     wheels,
     arms,
+    hands: [left.hand, right.hand],
     hips: [legs[0].hip, legs[1].hip],
     knees: [legs[0].knee, legs[1].knee],
   }
@@ -113,11 +116,13 @@ function addTorso(lean: Group, m: Materials): void {
   )
 }
 
-function createArm(jacket: Material, glove: Material, side: -1 | 1): Group {
+function createArm(jacket: Material, glove: Material, side: -1 | 1): { shoulder: Group; hand: Group } {
   const shoulder = new Group()
   shoulder.position.set(side * 0.24, 1.5, -0.04)
-  shoulder.add(part(new BoxGeometry(0.11, 0.11, 0.6), jacket, 0, 0, -0.3), part(new BoxGeometry(0.12, 0.12, 0.12), glove, 0, 0, -0.62))
-  return shoulder
+  const hand = new Group()
+  hand.position.z = -0.62
+  shoulder.add(part(new BoxGeometry(0.11, 0.11, 0.6), jacket, 0, 0, -0.3), part(new BoxGeometry(0.12, 0.12, 0.12), glove, 0, 0, -0.62), hand)
+  return { shoulder, hand }
 }
 
 function createLeg(pants: Material, boot: Material, side: -1 | 1): { hip: Group; knee: Group } {

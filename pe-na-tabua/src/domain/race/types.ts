@@ -10,7 +10,10 @@ export interface RiderInput {
   kick: boolean
 }
 
-export type AttackKind = 'punch' | 'kick'
+export type WeaponKind = 'club' | 'chain'
+// Soco com arma na mão vira golpe de arma.
+export type AttackKind = 'punch' | 'kick' | WeaponKind
+export type Move = 'punch' | 'kick' // o que o controle pede
 export type Side = -1 | 1
 
 export interface Attack {
@@ -43,6 +46,7 @@ export interface Rider {
   crashSide: Side
   scraping: boolean // encostado no guard-rail neste passo
   attack: Attack | null
+  weapon: WeaponKind | null
   cooldown: number
   finishTime: number | null
 }
@@ -52,6 +56,7 @@ export type RacePhase = 'countdown' | 'racing' | 'finished'
 export type RaceEvent =
   | { kind: 'hit'; attackerId: number; targetId: number; attack: AttackKind }
   | { kind: 'knockout'; attackerId: number; targetId: number }
+  | { kind: 'disarm'; attackerId: number; targetId: number; weapon: WeaponKind } // atacante tomou a arma do alvo
   | { kind: 'crash'; riderId: number; car: CarKind | null } // car = em quem bateu, se foi num carro
   | { kind: 'finish'; riderId: number; place: number }
 

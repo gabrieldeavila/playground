@@ -31,6 +31,7 @@
       .health.rival { right: 20px; text-align: right; }
       .bar { height: 12px; margin-top: 6px; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.6); border-radius: 8px; overflow: hidden; }
       .bar > div { height: 100%; width: 100%; background: linear-gradient(90deg, var(--danger), var(--accent) 50%, #ffd34d); transition: width 0.15s; }
+      .weapon { margin-left: 6px; color: var(--accent); }
       .rival .bar > div { margin-left: auto; background: linear-gradient(90deg, #ffd34d, var(--accent) 50%, var(--danger)); }
 
       .progress { position: absolute; top: 28px; left: 50%; width: min(40vw, 420px); height: 6px; transform: translateX(-50%); background: rgba(0, 0, 0, 0.45); border-radius: 3px; }
@@ -71,7 +72,7 @@
         <div class="label">km/h</div>
       </div>
       <div class="health you">
-        <div>You</div>
+        <div>You <span class="weapon" id="hud-weapon"></span></div>
         <div class="bar"><div id="hud-health"></div></div>
       </div>
       <div class="health rival" id="hud-rival">

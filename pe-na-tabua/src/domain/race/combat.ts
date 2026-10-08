@@ -1,11 +1,11 @@
-import { ATTACKS, type AttackSpec } from './attacks'
+import { ATTACKS, type AttackSpec, attackFor } from './attacks'
 import { knockOff } from './crash'
-import type { AttackKind, RaceEvent, Rider, Side } from './types'
+import type { AttackKind, Move, RaceEvent, Rider, Side } from './types'
 
-export function startAttack(rider: Rider, kind: AttackKind, riders: Rider[]): void {
+export function startAttack(rider: Rider, move: Move, riders: Rider[]): void {
   if (rider.attack || rider.cooldown > 0 || rider.crashTimer > 0 || rider.finishTime !== null) return
   const target = nearestOpponent(rider, riders, 4)
-  rider.attack = { kind, side: sideToward(rider, target), elapsed: 0, landed: false }
+  rider.attack = { kind: attackFor(rider, move), side: sideToward(rider, target), elapsed: 0, landed: false }
 }
 
 // Piloto de pé mais próximo dentro de `range` metros.
@@ -36,7 +36,7 @@ export function stepAttack(rider: Rider, riders: Rider[], dt: number): RaceEvent
   if (!attack.landed && attack.elapsed >= spec.impactAt) {
     attack.landed = true
     const target = findTarget(rider, attack.side, spec, riders)
-    if (target) events.push(landHit(rider, target, attack.kind, attack.side))
+    if (target) events.push(...landHit(rider, target, attack.kind, attack.side))
   }
   if (attack.elapsed >= spec.duration) {
     rider.attack = null
@@ -63,12 +63,27 @@ function findTarget(rider: Rider, side: Side, spec: AttackSpec, riders: Rider[])
   return best
 }
 
-function landHit(attacker: Rider, target: Rider, kind: AttackKind, side: Side): RaceEvent {
+function landHit(attacker: Rider, target: Rider, kind: AttackKind, side: Side): RaceEvent[] {
   const spec = ATTACKS[kind]
   target.health = Math.max(0, target.health - spec.damage)
   target.pushVel = side * spec.push
   target.speed *= spec.slow
-  if (target.health > 0) return { kind: 'hit', attackerId: attacker.id, targetId: target.id, attack: kind }
-  knockOff(target, side)
-  return { kind: 'knockout', attackerId: attacker.id, targetId: target.id }
+  const disarm = kind === 'punch' ? steal(attacker, target) : null
+  const events: RaceEvent[] = []
+  if (target.health > 0) events.push({ kind: 'hit', attackerId: attacker.id, targetId: target.id, attack: kind })
+  else {
+    knockOff(target, side)
+    events.push({ kind: 'knockout', attackerId: attacker.id, targetId: target.id })
+  }
+  if (disarm) events.push(disarm)
+  return events
+}
+
+// Soco de mão vazia num piloto armado arranca a arma dele.
+function steal(attacker: Rider, target: Rider): RaceEvent | null {
+  const weapon = target.weapon
+  if (!weapon || attacker.weapon) return null
+  attacker.weapon = weapon
+  target.weapon = null
+  return { kind: 'disarm', attackerId: attacker.id, targetId: target.id, weapon }
 }

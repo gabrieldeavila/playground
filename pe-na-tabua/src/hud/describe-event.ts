@@ -1,5 +1,7 @@
-import type { Race, RaceEvent } from '../domain/race/types'
+import type { AttackKind, Race, RaceEvent } from '../domain/race/types'
 import { ordinal } from './format-time'
+
+const HIT_TEXT: Record<AttackKind, string> = { punch: 'PUNCH!', kick: 'KICK!', club: 'WHACK!', chain: 'CHAIN!' }
 
 // Texto de destaque para eventos que envolvem o jogador; null para os outros.
 export function describeEvent(event: RaceEvent, race: Race): string | null {
@@ -7,8 +9,10 @@ export function describeEvent(event: RaceEvent, race: Race): string | null {
   const name = (id: number) => race.riders[id].name.toUpperCase()
   switch (event.kind) {
     case 'hit':
-      if (event.attackerId !== me) return null
-      return event.attack === 'kick' ? 'KICK!' : 'PUNCH!'
+      return event.attackerId === me ? HIT_TEXT[event.attack] : null
+    case 'disarm':
+      if (event.attackerId === me) return `GOT A ${event.weapon.toUpperCase()}!`
+      return event.targetId === me ? `LOST YOUR ${event.weapon.toUpperCase()}!` : null
     case 'knockout':
       if (event.targetId === me) return 'KNOCKED OFF!'
       return event.attackerId === me ? `${name(event.targetId)} IS DOWN!` : null

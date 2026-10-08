@@ -65,7 +65,7 @@ export class Cockpit {
     this.speedometer.set(this.shownKmh)
     this.tachometer.set(this.shownRpm / 1000)
     this.display.show(gearFor(rider.speed), Math.round(rider.speed * 3.6))
-    this.limbs.pose(rider.attack)
+    this.limbs.pose(rider.attack, rider.weapon)
     // Vibração do motor, mais forte com velocidade.
     const shake = 0.3 + rider.speed / MAX_SPEED
     this.rig.position.y = -HALF_HEIGHT + Math.sin(time * 47) * 0.0012 * shake

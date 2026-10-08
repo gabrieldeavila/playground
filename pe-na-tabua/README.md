@@ -20,7 +20,7 @@ pnpm dev
 | ↑ / W | Throttle |
 | ↓ / S | Brake |
 | ← → / A D | Steer |
-| J / Z | Punch |
+| J / Z | Punch — or swing your club/chain. Punch an armed rider bare-handed to steal it |
 | K / X | Kick |
 | C | Switch between chase and cockpit view |
 | M | Mute |

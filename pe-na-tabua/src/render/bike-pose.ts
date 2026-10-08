@@ -1,4 +1,4 @@
-import { ATTACKS } from '../domain/race/attacks'
+import { ATTACKS, usesArm } from '../domain/race/attacks'
 import { CRASH_TIME } from '../domain/race/constants'
 import type { Attack, Rider } from '../domain/race/types'
 import { poseAt } from '../domain/track/pose'
@@ -28,12 +28,12 @@ function restLimbs(model: BikeModel): void {
   for (const knee of model.knees) knee.rotation.set(KNEE_REST, 0, 0)
 }
 
-// Soco abre o braço para o lado; chute estica a perna para o lado.
+// Soco e arma abrem o braço para o lado; chute estica a perna para o lado.
 function poseAttack(model: BikeModel, attack: Attack): void {
   const progress = Math.min(1, attack.elapsed / ATTACKS[attack.kind].duration)
   const swing = Math.sin(progress * Math.PI)
   const limb = attack.side === 1 ? 1 : 0
-  if (attack.kind === 'punch') {
+  if (usesArm(attack.kind)) {
     model.arms[limb].rotation.set(ARM_REST * (1 - swing), -attack.side * 1.45 * swing, 0)
     return
   }

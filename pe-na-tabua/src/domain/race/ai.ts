@@ -2,15 +2,19 @@ import { clamp } from '../math'
 import type { Rng } from '../random'
 import { ROAD_HALF_WIDTH } from '../track/constants'
 import { curveAt } from '../track/pose'
+import { ATTACKS, attackFor } from './attacks'
 import { nearestOpponent } from './combat'
 import { CENTRIFUGAL, MAX_SPEED, STEER_SPEED } from './constants'
 import { dodgeLine } from './dodge-cars'
-import type { AiProfile, AttackKind, Race, Rider, RiderInput } from './types'
+import type { AiProfile, Move, Race, Rider, RiderInput } from './types'
 
 const FIGHT_RADIUS = 6
 const FIGHTER_AGGRESSION = 0.35
 const ATTACKS_PER_SECOND = 1.8 // com agressividade 1, encostado no alvo
 const KICK_CHANCE = 0.35
+const ARMED_KICK_CHANCE = 0.15 // com arma na mão, prefere a arma
+const ARMED_GAP = 2.1 // distância lateral do alvo quando armado (m)
+const BARE_GAP = 1.3
 const RUBBER_BAND_GAP = 120
 
 export function aiInput(rider: Rider, race: Race, dt: number): RiderInput {
@@ -45,10 +49,11 @@ function cruiseLine(ai: AiProfile, time: number): number {
   return Math.sin(time * ai.wander + ai.phase) * (ROAD_HALF_WIDTH - 2)
 }
 
-// Encosta ao lado do alvo, do lado em que já está.
+// Encosta ao lado do alvo, do lado em que já está. Armado, fica mais longe: a arma alcança.
 function besideLine(rider: Rider, foe: Rider): number {
   const side = rider.x >= foe.x ? 1 : -1
-  return clamp(foe.x + side * 1.3, -ROAD_HALF_WIDTH + 0.8, ROAD_HALF_WIDTH - 0.8)
+  const gap = rider.weapon ? ARMED_GAP : BARE_GAP
+  return clamp(foe.x + side * gap, -ROAD_HALF_WIDTH + 0.8, ROAD_HALF_WIDTH - 0.8)
 }
 
 // Bots muito à frente aliviam e os muito atrás apertam, para a corrida ficar junta.
@@ -60,9 +65,15 @@ function rubberBand(rider: Rider, race: Race): number {
   return 1
 }
 
-function chooseAttack(rider: Rider, foe: Rider | null, ai: AiProfile, rng: Rng, dt: number): AttackKind | null {
+function chooseAttack(rider: Rider, foe: Rider | null, ai: AiProfile, rng: Rng, dt: number): Move | null {
   if (!foe || rider.attack || rider.cooldown > 0) return null
-  if (Math.abs(foe.s - rider.s) > 2 || Math.abs(foe.x - rider.x) > 1.9) return null
   if (rng() >= ai.aggression * ATTACKS_PER_SECOND * dt) return null
-  return rng() < KICK_CHANCE ? 'kick' : 'punch'
+  const move: Move = rng() < (rider.weapon ? ARMED_KICK_CHANCE : KICK_CHANCE) ? 'kick' : 'punch'
+  return inReach(rider, foe, move) ? move : null
+}
+
+// Só ataca se o golpe escolhido alcança (um pouco antes do limite, para não errar).
+function inReach(rider: Rider, foe: Rider, move: Move): boolean {
+  const spec = ATTACKS[attackFor(rider, move)]
+  return Math.abs(foe.s - rider.s) <= spec.reachS * 0.9 && Math.abs(foe.x - rider.x) <= spec.reachX * 0.9
 }

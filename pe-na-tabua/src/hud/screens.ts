@@ -8,7 +8,7 @@ const TITLE = `
     <dt>↑ / W</dt><dd>Throttle</dd>
     <dt>↓ / S</dt><dd>Brake</dd>
     <dt>← → / A D</dt><dd>Steer</dd>
-    <dt>J / Z</dt><dd>Punch</dd>
+    <dt>J / Z</dt><dd>Punch (swings your weapon if you have one)</dd>
     <dt>K / X</dt><dd>Kick</dd>
     <dt>C</dt><dd>Chase / cockpit view</dd>
     <dt>M</dt><dd>Mute</dd>

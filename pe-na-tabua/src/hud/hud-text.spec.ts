@@ -39,6 +39,13 @@ describe('describeEvent', () => {
     expect(describeEvent({ kind: 'crash', riderId: 0, car: 'sedan' }, race)).toBeNull()
   })
 
+  it('anuncia golpes de arma e armas tomadas', () => {
+    expect(describeEvent({ kind: 'hit', attackerId: me, targetId: 0, attack: 'club' }, race)).toBe('WHACK!')
+    expect(describeEvent({ kind: 'disarm', attackerId: me, targetId: 0, weapon: 'chain' }, race)).toBe('GOT A CHAIN!')
+    expect(describeEvent({ kind: 'disarm', attackerId: 0, targetId: me, weapon: 'club' }, race)).toBe('LOST YOUR CLUB!')
+    expect(describeEvent({ kind: 'disarm', attackerId: 0, targetId: 1, weapon: 'club' }, race)).toBeNull()
+  })
+
   it('golpe recebido machuca o jogador', () => {
     expect(hurtsPlayer({ kind: 'hit', attackerId: 0, targetId: me, attack: 'punch' }, race)).toBe(true)
     expect(hurtsPlayer({ kind: 'hit', attackerId: me, targetId: 0, attack: 'punch' }, race)).toBe(false)

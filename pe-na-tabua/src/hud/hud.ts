@@ -18,6 +18,7 @@ export class Hud {
   private readonly speed = byId('hud-speed')
   private readonly speedPanel = byId('hud-speed-panel')
   private readonly health = byId('hud-health')
+  private readonly weapon = byId('hud-weapon')
   private readonly rival = byId('hud-rival')
   private readonly rivalName = byId('hud-rival-name')
   private readonly rivalHealth = byId('hud-rival-health')
@@ -59,6 +60,7 @@ export class Hud {
     this.time.textContent = formatTime(player.finishTime ?? race.time)
     this.speed.textContent = String(Math.round(player.speed * 3.6))
     this.health.style.width = `${(player.health / MAX_HEALTH) * 100}%`
+    this.weapon.textContent = player.weapon ? `· ${player.weapon}` : ''
     this.updateRival(race)
     race.riders.forEach((rider, i) => (this.dots[i].style.left = `${Math.min(1, rider.s / race.track.finishS) * 100}%`))
     this.updateMessage(race, dt)

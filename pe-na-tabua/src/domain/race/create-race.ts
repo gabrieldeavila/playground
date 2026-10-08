@@ -39,6 +39,7 @@ export function createRider(id: number, setup: RiderSetup, slot: { s: number; x:
     crashSide: 1,
     scraping: false,
     attack: null,
+    weapon: setup.weapon ?? null,
     cooldown: 0,
     finishTime: null,
   }
