@@ -33,6 +33,12 @@ describe('describeEvent', () => {
     expect(describeEvent({ kind: 'knockout', attackerId: 0, targetId: me }, race)).toBe('KNOCKED OFF!')
   })
 
+  it('diz em que o jogador bateu', () => {
+    expect(describeEvent({ kind: 'crash', riderId: me, car: 'taxi' }, race)).toBe('HIT A TAXI!')
+    expect(describeEvent({ kind: 'crash', riderId: me, car: null }, race)).toBe('WIPEOUT!')
+    expect(describeEvent({ kind: 'crash', riderId: 0, car: 'sedan' }, race)).toBeNull()
+  })
+
   it('golpe recebido machuca o jogador', () => {
     expect(hurtsPlayer({ kind: 'hit', attackerId: 0, targetId: me, attack: 'punch' }, race)).toBe(true)
     expect(hurtsPlayer({ kind: 'hit', attackerId: me, targetId: 0, attack: 'punch' }, race)).toBe(false)

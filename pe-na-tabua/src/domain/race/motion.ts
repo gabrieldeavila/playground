@@ -19,6 +19,7 @@ import type { Rider, RiderInput } from './types'
 
 // Avança um piloto em coordenadas de pista. `curve` é a curvatura onde ele está.
 export function stepMotion(rider: Rider, input: RiderInput, curve: number, dt: number): void {
+  rider.grace = Math.max(0, rider.grace - dt)
   if (rider.crashTimer > 0) return stepCrashed(rider, dt)
   const offRoad = Math.abs(rider.x) > ROAD_HALF_WIDTH
   rider.speed = nextSpeed(rider.speed, input, offRoad, dt)

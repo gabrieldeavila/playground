@@ -32,6 +32,9 @@ export function whooshGain(speed: number, lateral: number): number {
   return 0.5 * ratio(speed) * (1 - distance / HEARING_RANGE) ** 2
 }
 
+// Buzina mais alta quanto mais perto o carro está.
+export const hornGain = (distance: number) => 0.22 * clamp(1 - distance / 150, 0.3, 1)
+
 // -1 esquerda .. 1 direita.
 export const panFor = (lateral: number) => clamp(lateral / 5, -1, 1)
 

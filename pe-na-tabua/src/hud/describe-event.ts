@@ -13,7 +13,8 @@ export function describeEvent(event: RaceEvent, race: Race): string | null {
       if (event.targetId === me) return 'KNOCKED OFF!'
       return event.attackerId === me ? `${name(event.targetId)} IS DOWN!` : null
     case 'crash':
-      return event.riderId === me ? 'WIPEOUT!' : null
+      if (event.riderId !== me) return null
+      return event.car ? `HIT A ${event.car === 'taxi' ? 'TAXI' : 'CAR'}!` : 'WIPEOUT!'
     case 'finish':
       return event.riderId === me ? `FINISHED ${ordinal(event.place).toUpperCase()}` : null
   }

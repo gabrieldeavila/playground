@@ -15,6 +15,7 @@ export const BUMP_PUSH = 3
 export const MAX_HEALTH = 100
 export const RECOVER_HEALTH = 40 // vida mínima ao subir de volta na moto
 export const CRASH_TIME = 2.6
+export const REMOUNT_GRACE = 2 // s sem ser derrubado por carro depois de subir na moto
 export const CRASH_DECEL = 28
 export const PROP_CRASH_DAMAGE = 20
 export const PROP_CRASH_MIN_SPEED = 8

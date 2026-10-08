@@ -1,8 +1,11 @@
 import { IDLE_RPM, gearFor, rpmFor } from '../domain/race/gearbox'
 import type { Race, RaceEvent, Rider } from '../domain/race/types'
-import { impactGain, panFor, revRpm, scrapeGain, whooshGain, windCutoff, windGain } from './levels'
+import { Horns } from './horns'
+import { hornGain, impactGain, panFor, revRpm, scrapeGain, whooshGain, windCutoff, windGain } from './levels'
 import { PassBys } from './pass-bys'
 import { SoundRig } from './sound-rig'
+
+const VEHICLE_BOOST = 1.6 // carro é maior: passa fazendo mais barulho
 
 // Liga a corrida aos sons. O AudioContext só nasce no primeiro gesto do usuário.
 export class RaceAudio {
@@ -10,6 +13,7 @@ export class RaceAudio {
   private muted = false
   private gear = 1
   private readonly passBys = new PassBys()
+  private readonly horns = new Horns()
 
   // Navegadores só liberam áudio dentro de um evento do usuário: chamar no keydown.
   unlock(): void {
@@ -23,6 +27,7 @@ export class RaceAudio {
 
   reset(): void {
     this.passBys.reset()
+    this.horns.reset()
     this.gear = 1
   }
 
@@ -35,7 +40,11 @@ export class RaceAudio {
     this.updateEngine(rig, race, player, throttle)
     rig.wind.set(windGain(player.speed), windCutoff(player.speed))
     rig.scrape.set(player.scraping ? scrapeGain(player.speed) : 0)
-    for (const pass of this.passBys.take(race)) rig.whoosh(whooshGain(player.speed, pass.lateral), panFor(pass.lateral), pass.overhead)
+    for (const pass of this.passBys.take(race)) {
+      const boost = pass.sound === 'vehicle' ? VEHICLE_BOOST : 1
+      rig.whoosh(whooshGain(pass.speed, pass.lateral) * boost, panFor(pass.lateral), pass.sound)
+    }
+    for (const car of this.horns.take(race)) rig.horn(hornGain(car.s - player.s), panFor(car.x - player.x))
   }
 
   onEvent(event: RaceEvent, race: Race): void {

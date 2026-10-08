@@ -1,6 +1,8 @@
 import { EngineSound } from './engine-sound'
 import { createNoiseBuffer } from './noise-buffer'
 import { NoiseLoop } from './noise-loop'
+import type { PassSound } from './pass-bys'
+import { playHorn } from './play-horn'
 import { playImpact } from './play-impact'
 import { playWhoosh } from './play-whoosh'
 
@@ -29,8 +31,12 @@ export class SoundRig {
     this.master.gain.setTargetAtTime(on ? MASTER : 0, this.ctx.currentTime, FADE)
   }
 
-  whoosh(gain: number, pan: number, overhead: boolean): void {
-    if (gain > 0.01) playWhoosh(this.ctx, this.master, this.noise, gain, pan, overhead)
+  whoosh(gain: number, pan: number, sound: PassSound): void {
+    if (gain > 0.01) playWhoosh(this.ctx, this.master, this.noise, gain, pan, sound)
+  }
+
+  horn(gain: number, pan: number): void {
+    playHorn(this.ctx, this.master, gain, pan)
   }
 
   impact(gain: number, pan: number): void {

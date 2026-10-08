@@ -1,4 +1,7 @@
 import { curveAt } from '../track/pose'
+import { hitCar } from '../traffic/car-collisions'
+import { CAR_CRASH_DAMAGE } from '../traffic/constants'
+import { stepTraffic } from '../traffic/step-traffic'
 import { aiInput, coastInput } from './ai'
 import { hitsProp, resolveBumps } from './collisions'
 import { startAttack, stepAttack } from './combat'
@@ -9,7 +12,9 @@ import { scrapeRails } from './rails'
 import type { Race, RaceEvent, Rider, RiderInput } from './types'
 
 // Avança a corrida um passo fixo. Continua rodando depois da chegada do jogador.
+// O trânsito anda desde a contagem regressiva.
 export function stepRace(race: Race, playerInput: RiderInput, dt: number): RaceEvent[] {
+  stepTraffic(race.cars, race.track.length, dt)
   if (race.phase === 'countdown') {
     race.countdown -= dt
     if (race.countdown <= 0) race.phase = 'racing'
@@ -39,12 +44,23 @@ function stepRider(race: Race, rider: Rider, input: RiderInput, dt: number): Rac
   rider.s = Math.min(rider.s, race.track.length - 1)
   scrapeRails(race.track, rider, dt)
   const events = stepAttack(rider, race.riders, dt)
-  if (hitsProp(race.track, rider)) {
-    rider.health = Math.max(0, rider.health - PROP_CRASH_DAMAGE)
-    knockOff(rider, rider.x > 0 ? 1 : -1)
-    events.push({ kind: 'crash', riderId: rider.id })
-  }
+  const crash = checkCrash(race, rider)
+  if (crash) events.push(crash)
   return events
+}
+
+// Bateu num carro ou em algo na beira da estrada?
+function checkCrash(race: Race, rider: Rider): RaceEvent | null {
+  const car = hitCar(rider, race.cars)
+  if (car) {
+    rider.health = Math.max(0, rider.health - CAR_CRASH_DAMAGE)
+    knockOff(rider, rider.x >= car.x ? 1 : -1)
+    return { kind: 'crash', riderId: rider.id, car: car.kind }
+  }
+  if (!hitsProp(race.track, rider)) return null
+  rider.health = Math.max(0, rider.health - PROP_CRASH_DAMAGE)
+  knockOff(rider, rider.x > 0 ? 1 : -1)
+  return { kind: 'crash', riderId: rider.id, car: null }
 }
 
 function checkFinish(race: Race, rider: Rider): RaceEvent | null {

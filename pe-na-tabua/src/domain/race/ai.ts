@@ -4,6 +4,7 @@ import { ROAD_HALF_WIDTH } from '../track/constants'
 import { curveAt } from '../track/pose'
 import { nearestOpponent } from './combat'
 import { CENTRIFUGAL, MAX_SPEED, STEER_SPEED } from './constants'
+import { dodgeLine } from './dodge-cars'
 import type { AiProfile, AttackKind, Race, Rider, RiderInput } from './types'
 
 const FIGHT_RADIUS = 6
@@ -16,7 +17,8 @@ export function aiInput(rider: Rider, race: Race, dt: number): RiderInput {
   const ai = rider.ai!
   const curve = curveAt(race.track, rider.s)
   const foe = ai.aggression >= FIGHTER_AGGRESSION ? nearestOpponent(rider, race.riders, FIGHT_RADIUS) : null
-  const lineX = foe ? besideLine(rider, foe) : cruiseLine(ai, race.time)
+  const wanted = foe ? besideLine(rider, foe) : cruiseLine(ai, race.time)
+  const lineX = dodgeLine(rider, wanted, race.cars) ?? wanted
   const goal = MAX_SPEED * ai.pace * rubberBand(rider, race)
   const attack = chooseAttack(rider, foe, ai, race.rng, dt)
   return {

@@ -6,6 +6,7 @@ import { CameraDirector } from './game/camera-director'
 import { startLoop } from './game/fixed-loop'
 import { RidersView } from './game/riders-view'
 import { Session } from './game/session'
+import { TrafficView } from './game/traffic-view'
 import { buildWorld, followCamera } from './game/world-view'
 import { Hud } from './hud/hud'
 import { Screens } from './hud/screens'
@@ -21,6 +22,7 @@ const track = createTrack(SERRA)
 const world = buildWorld(stage.scene, track, stage.renderer.capabilities.getMaxAnisotropy())
 const session = new Session(track)
 const riders = new RidersView(stage.scene, session.race.riders)
+const traffic = new TrafficView(stage.scene)
 const director = new CameraDirector(stage.camera, riders)
 const cockpit = new Cockpit(stage.renderer, PLAYER_COLORS)
 const postFx = new PostFx(stage.renderer, stage.scene, stage.camera)
@@ -70,6 +72,7 @@ function frame(dt: number): void {
   const race = session.race
   const player = race.riders[race.playerId]
   riders.update(race)
+  traffic.update(race)
   director.update(race, dt)
   followCamera(world, stage.camera)
   followSun(stage.sun, riders.positionOf(race.playerId))

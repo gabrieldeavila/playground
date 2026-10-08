@@ -1,11 +1,16 @@
-const DURATION = 0.28 // s
-const OVERHEAD_DURATION = 0.45
+import type { PassSound } from './pass-bys'
 
-// "Vush" de ruído filtrado vindo de `pan`, caindo de tom como um Doppler. Por cima é mais grave e longo.
-export function playWhoosh(ctx: AudioContext, out: AudioNode, noise: AudioBuffer, gain: number, pan: number, overhead: boolean): void {
+// Objeto pequeno: agudo e curto. Pórtico por cima: grave. Carro: grave, longo e encorpado.
+const SHAPES: Record<PassSound, { pitch: number; duration: number }> = {
+  prop: { pitch: 1300, duration: 0.28 },
+  overhead: { pitch: 380, duration: 0.45 },
+  vehicle: { pitch: 620, duration: 0.5 },
+}
+
+// "Vush" de ruído filtrado vindo de `pan`, caindo de tom como um Doppler.
+export function playWhoosh(ctx: AudioContext, out: AudioNode, noise: AudioBuffer, gain: number, pan: number, sound: PassSound): void {
   const now = ctx.currentTime
-  const duration = overhead ? OVERHEAD_DURATION : DURATION
-  const pitch = overhead ? 380 : 1300
+  const { pitch, duration } = SHAPES[sound]
   const filter = new BiquadFilterNode(ctx, { type: 'bandpass', frequency: pitch, Q: 1.1 })
   filter.frequency.exponentialRampToValueAtTime(pitch * 0.45, now + duration)
   const amp = new GainNode(ctx, { gain: 0.0001 })
