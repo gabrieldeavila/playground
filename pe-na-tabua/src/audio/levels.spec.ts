@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MAX_SPEED } from '../domain/race/constants'
-import { HEARING_RANGE, engineHz, impactGain, panFor, whooshGain, windGain } from './levels'
+import { HEARING_RANGE, SIREN_RANGE, engineHz, impactGain, panFor, sirenGain, whooshGain, windGain } from './levels'
 
 describe('levels', () => {
   it('motor a 6000 rpm explode 200 vezes por segundo', () => {
@@ -16,6 +16,11 @@ describe('levels', () => {
     expect(whooshGain(MAX_SPEED, 1)).toBeGreaterThan(whooshGain(MAX_SPEED, 6))
     expect(whooshGain(MAX_SPEED, -HEARING_RANGE)).toBe(0)
     expect(whooshGain(0, 1)).toBe(0)
+  })
+
+  it('sirene cresce com o policial chegando perto', () => {
+    expect(sirenGain(SIREN_RANGE)).toBe(0)
+    expect(sirenGain(20)).toBeGreaterThan(sirenGain(120))
   })
 
   it('lado do som segue o lado do objeto', () => {

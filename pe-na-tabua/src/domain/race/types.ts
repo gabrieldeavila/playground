@@ -15,6 +15,7 @@ export type WeaponKind = 'club' | 'chain'
 export type AttackKind = 'punch' | 'kick' | WeaponKind
 export type Move = 'punch' | 'kick' // o que o controle pede
 export type Side = -1 | 1
+export type Role = 'racer' | 'cop' // policial não corre: caça o jogador
 
 export interface Attack {
   kind: AttackKind
@@ -35,6 +36,9 @@ export interface Rider {
   id: number
   name: string
   ai: AiProfile | null // null = jogador
+  role: Role
+  speedFactor: number // multiplica a velocidade máxima (moto melhor, polícia)
+  chasing: boolean // policial: já viu o jogador e está atrás dele
   s: number
   x: number
   speed: number
@@ -51,7 +55,7 @@ export interface Rider {
   finishTime: number | null
 }
 
-export type RacePhase = 'countdown' | 'racing' | 'finished'
+export type RacePhase = 'countdown' | 'racing' | 'finished' | 'busted'
 
 export type RaceEvent =
   | { kind: 'hit'; attackerId: number; targetId: number; attack: AttackKind }
@@ -59,6 +63,8 @@ export type RaceEvent =
   | { kind: 'disarm'; attackerId: number; targetId: number; weapon: WeaponKind } // atacante tomou a arma do alvo
   | { kind: 'crash'; riderId: number; car: CarKind | null } // car = em quem bateu, se foi num carro
   | { kind: 'finish'; riderId: number; place: number }
+  | { kind: 'chase'; copId: number } // policial saiu atrás do jogador
+  | { kind: 'busted'; copId: number }
 
 export interface Race {
   track: Track
@@ -69,5 +75,6 @@ export interface Race {
   countdown: number
   time: number
   finishOrder: number[]
+  bustTimer: number // há quanto tempo um policial está em cima do jogador parado (s)
   rng: Rng
 }

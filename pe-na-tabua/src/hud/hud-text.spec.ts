@@ -3,6 +3,7 @@ import { createRace } from '../domain/race/create-race'
 import { ROSTER } from '../domain/race/roster'
 import { SERRA } from '../domain/track/courses/serra'
 import { createTrack } from '../domain/track/create-track'
+import { copWarningText } from './cop-warning'
 import { describeEvent, hurtsPlayer } from './describe-event'
 import { formatTime, ordinal } from './format-time'
 
@@ -44,6 +45,16 @@ describe('describeEvent', () => {
     expect(describeEvent({ kind: 'disarm', attackerId: me, targetId: 0, weapon: 'chain' }, race)).toBe('GOT A CHAIN!')
     expect(describeEvent({ kind: 'disarm', attackerId: 0, targetId: me, weapon: 'club' }, race)).toBe('LOST YOUR CLUB!')
     expect(describeEvent({ kind: 'disarm', attackerId: 0, targetId: 1, weapon: 'club' }, race)).toBeNull()
+  })
+
+  it('aviso da polícia mostra de que lado e a que distância', () => {
+    expect(copWarningText(84.6)).toBe('POLICE ▲ 85 M')
+    expect(copWarningText(-40)).toBe('POLICE ▼ 40 M')
+  })
+
+  it('avisa da polícia e da prisão', () => {
+    expect(describeEvent({ kind: 'chase', copId: 0 }, race)).toBe('POLICE!')
+    expect(describeEvent({ kind: 'busted', copId: 0 }, race)).toBe('BUSTED!')
   })
 
   it('golpe recebido machuca o jogador', () => {

@@ -1,7 +1,8 @@
+import { nearestChasingCop } from '../domain/police/nearest-cop'
 import { IDLE_RPM, gearFor, rpmFor } from '../domain/race/gearbox'
 import type { Race, RaceEvent, Rider } from '../domain/race/types'
 import { Horns } from './horns'
-import { hornGain, impactGain, panFor, revRpm, scrapeGain, whooshGain, windCutoff, windGain } from './levels'
+import { SIREN_RANGE, hornGain, impactGain, panFor, revRpm, scrapeGain, sirenGain, whooshGain, windCutoff, windGain } from './levels'
 import { PassBys } from './pass-bys'
 import { SoundRig } from './sound-rig'
 
@@ -46,6 +47,8 @@ export class RaceAudio {
       rig.whoosh(whooshGain(pass.speed, pass.lateral) * boost, panFor(pass.lateral), pass.sound)
     }
     for (const car of this.horns.take(race)) rig.horn(hornGain(car.s - player.s), panFor(car.x - player.x))
+    const cop = nearestChasingCop(race, SIREN_RANGE)
+    rig.siren.set(cop ? sirenGain(Math.abs(cop.gap)) : 0, cop ? panFor(cop.cop.x - player.x) : 0)
   }
 
   onEvent(event: RaceEvent, race: Race): void {

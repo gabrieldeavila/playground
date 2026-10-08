@@ -35,6 +35,12 @@ export function whooshGain(speed: number, lateral: number): number {
 // Buzina mais alta quanto mais perto o carro está.
 export const hornGain = (distance: number) => 0.22 * clamp(1 - distance / 150, 0.3, 1)
 
+// Sirene começa a aparecer a SIREN_RANGE metros e cresce chegando perto.
+export const SIREN_RANGE = 200
+export function sirenGain(distance: number): number {
+  return distance >= SIREN_RANGE ? 0 : 0.16 * (1 - distance / SIREN_RANGE) ** 1.5
+}
+
 // -1 esquerda .. 1 direita.
 export const panFor = (lateral: number) => clamp(lateral / 5, -1, 1)
 

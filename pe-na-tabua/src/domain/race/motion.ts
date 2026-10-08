@@ -22,15 +22,16 @@ export function stepMotion(rider: Rider, input: RiderInput, curve: number, dt: n
   rider.grace = Math.max(0, rider.grace - dt)
   if (rider.crashTimer > 0) return stepCrashed(rider, dt)
   const offRoad = Math.abs(rider.x) > ROAD_HALF_WIDTH
-  rider.speed = nextSpeed(rider.speed, input, offRoad, dt)
+  rider.speed = nextSpeed(rider.speed, input, offRoad, dt, MAX_SPEED * rider.speedFactor)
   rider.steer = approach(rider.steer, clamp(input.steer, -1, 1), STEER_RESPONSE * dt)
   rider.x = clamp(rider.x + lateralVelocity(rider, curve) * dt, -RIDE_LIMIT, RIDE_LIMIT)
   rider.pushVel *= Math.exp(-PUSH_DAMPING * dt)
   rider.s += rider.speed * dt
 }
 
-export function nextSpeed(speed: number, input: RiderInput, offRoad: boolean, dt: number): number {
-  const top = MAX_SPEED * (offRoad ? OFFROAD_SPEED_FACTOR : 1)
+// `maxSpeed` é a máxima da moto no asfalto.
+export function nextSpeed(speed: number, input: RiderInput, offRoad: boolean, dt: number, maxSpeed = MAX_SPEED): number {
+  const top = maxSpeed * (offRoad ? OFFROAD_SPEED_FACTOR : 1)
   let next = speed
   if (input.brake > 0) next -= BRAKE * input.brake * dt
   else if (input.throttle > 0 && next < top) next += ACCEL * input.throttle * (1 - (next / top) ** 2) * dt

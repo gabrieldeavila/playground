@@ -64,7 +64,7 @@ function step(dt: number): void {
   if (session.mode === 'results' && !resultsShown) {
     resultsShown = true
     hud.setVisible(false)
-    screens.showResults(standings(session.race), session.race.playerId)
+    screens.showResults(standings(session.race), session.race.playerId, session.race.phase === 'busted')
   }
 }
 

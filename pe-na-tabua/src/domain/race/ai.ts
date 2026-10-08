@@ -2,7 +2,7 @@ import { clamp } from '../math'
 import type { Rng } from '../random'
 import { ROAD_HALF_WIDTH } from '../track/constants'
 import { curveAt } from '../track/pose'
-import { ATTACKS, attackFor } from './attacks'
+import { inReach } from './attacks'
 import { nearestOpponent } from './combat'
 import { CENTRIFUGAL, MAX_SPEED, STEER_SPEED } from './constants'
 import { dodgeLine } from './dodge-cars'
@@ -50,7 +50,7 @@ function cruiseLine(ai: AiProfile, time: number): number {
 }
 
 // Encosta ao lado do alvo, do lado em que já está. Armado, fica mais longe: a arma alcança.
-function besideLine(rider: Rider, foe: Rider): number {
+export function besideLine(rider: Rider, foe: Rider): number {
   const side = rider.x >= foe.x ? 1 : -1
   const gap = rider.weapon ? ARMED_GAP : BARE_GAP
   return clamp(foe.x + side * gap, -ROAD_HALF_WIDTH + 0.8, ROAD_HALF_WIDTH - 0.8)
@@ -72,8 +72,3 @@ function chooseAttack(rider: Rider, foe: Rider | null, ai: AiProfile, rng: Rng, 
   return inReach(rider, foe, move) ? move : null
 }
 
-// Só ataca se o golpe escolhido alcança (um pouco antes do limite, para não errar).
-function inReach(rider: Rider, foe: Rider, move: Move): boolean {
-  const spec = ATTACKS[attackFor(rider, move)]
-  return Math.abs(foe.s - rider.s) <= spec.reachS * 0.9 && Math.abs(foe.x - rider.x) <= spec.reachX * 0.9
-}
