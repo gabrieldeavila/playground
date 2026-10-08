@@ -11,6 +11,10 @@ from any commercial game.
 
 ## Play
 
+**Play it online: https://playground-mu-puce.vercel.app**
+
+Or run it locally:
+
 ```sh
 pnpm install
 pnpm dev
