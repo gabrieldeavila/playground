@@ -1,7 +1,8 @@
 # Pé na Tábua
 
 An open-source motorbike combat racer for the browser: eight riders on a mountain
-road, punching and kicking their way to the finish line through civilian traffic.
+road, punching and kicking their way to the finish line through civilian traffic —
+with the police waiting on the shoulder. Get knocked down next to a cop and you're busted.
 
 Inspired by the 90s road-combat racing genre. All code and art are original —
 every model, texture and sound is generated in code. This project is not
@@ -42,6 +43,7 @@ src/
     track/  course definition -> segments -> 3D centerline, props
     race/   motion, combat, collisions, AI, standings
     traffic/ civilian cars and taxis: lanes, movement, crashes, horns
+    police/ cops: patrol, chase, busting the player
   render/   three.js: road, terrain, sky, props, bikes, cameras, speed blur
   audio/    Web Audio: synthesized engine, wind, pass-by whooshes, impacts
   hud/      HTML overlay and screens

@@ -24,5 +24,11 @@ export function attackFor(rider: Rider, move: Move): AttackKind {
   return move === 'punch' ? (rider.weapon ?? 'punch') : 'kick'
 }
 
+// O golpe alcança o alvo? (um pouco antes do limite, para o bot não errar)
+export function inReach(rider: Rider, foe: Rider, move: Move): boolean {
+  const spec = ATTACKS[attackFor(rider, move)]
+  return Math.abs(foe.s - rider.s) <= spec.reachS * 0.9 && Math.abs(foe.x - rider.x) <= spec.reachX * 0.9
+}
+
 // Golpes dados com o braço (soco ou arma); o chute é a perna.
 export const usesArm = (kind: AttackKind) => kind !== 'kick'

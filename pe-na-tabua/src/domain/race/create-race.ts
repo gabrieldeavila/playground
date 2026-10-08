@@ -1,12 +1,14 @@
 import { createRng } from '../random'
 import type { Track } from '../track/types'
+import { COP_SPEED_FACTOR, PATROL_X } from '../police/constants'
 import { createTraffic } from '../traffic/create-traffic'
 import { COUNTDOWN, GRID_FRONT_S, GRID_HALF_SPACING, GRID_ROW_GAP, MAX_HEALTH } from './constants'
 import type { RiderSetup } from './roster'
 import type { Race, Rider } from './types'
 
+// Corredores largam no grid na ordem do roster; policiais esperam no ponto de patrulha.
 export function createRace(track: Track, roster: RiderSetup[], seed: number): Race {
-  const riders = roster.map((setup, i) => createRider(i, setup, gridSlot(i)))
+  const riders = roster.map((setup, i) => createRider(i, setup, setup.patrolAt === undefined ? gridSlot(i) : patrolSlot(track, setup.patrolAt)))
   const player = riders.find((r) => r.ai === null)
   if (!player) throw new Error('O grid precisa de um jogador')
   const rng = createRng(seed)
@@ -19,6 +21,7 @@ export function createRace(track: Track, roster: RiderSetup[], seed: number): Ra
     countdown: COUNTDOWN,
     time: 0,
     finishOrder: [],
+    bustTimer: 0,
     rng,
   }
 }
@@ -28,6 +31,9 @@ export function createRider(id: number, setup: RiderSetup, slot: { s: number; x:
     id,
     name: setup.name,
     ai: setup.ai,
+    role: setup.role ?? 'racer',
+    speedFactor: setup.role === 'cop' ? COP_SPEED_FACTOR : 1,
+    chasing: false,
     s: slot.s,
     x: slot.x,
     speed: 0,
@@ -43,6 +49,10 @@ export function createRider(id: number, setup: RiderSetup, slot: { s: number; x:
     cooldown: 0,
     finishTime: null,
   }
+}
+
+function patrolSlot(track: Track, patrolAt: number): { s: number; x: number } {
+  return { s: track.finishS * patrolAt, x: PATROL_X }
 }
 
 // Grid em duas colunas, fileiras de trás para a frente.

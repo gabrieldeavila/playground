@@ -35,15 +35,18 @@ commercial game.
       Bare-handed punch steals (`disarm` event), knockOff drops it. Bots keep a wider gap and
       only swing within reach. Held in hand in both views (`render/held-weapon.ts`), HUD label,
       "WHACK!/GOT A CLUB!" messages, chain clang sound.
+- [x] Police (`domain/police/`): cops are riders with `role: 'cop'` (left out of standings/finish),
+      parked on the shoulder at 30% / 65% of the course (`POLICE` in `roster.ts`). They start chasing
+      when the player gets within 70 m, ride 5% faster (`Rider.speedFactor`, reusable for bikes in
+      the shop), hold alongside without ever slowing the player, and swing a nightstick (a club, so
+      it can be stolen). Busted = a cop within ~4 m while the player is down or nearly stopped for
+      0.8 s → `phase: 'busted'`, "BUSTED!" results with the player as DNF. Light bar, HUD warning
+      "POLICE ▲ 85 M", blue progress dot, siren panned to the cop.
+      Tuning (20 simulated races): passive rider busted 8/20, rider who dodges and fights back 2/20.
 
 ## To do (in order)
 
-### 2. Police ← next
-- [ ] Cop bikes that ride in the pack and hunt the player
-- [ ] Caught while down or stopped → "busted": race lost + fine
-- [ ] Siren sound, cop model, HUD warning when a cop is close
-
-### 3. Career loop
+### 3. Career loop ← next
 - [ ] Prize money by finishing place
 - [ ] Qualify (top N) to advance a level; each level = longer course
 - [ ] Bike shop: 3–4 bikes (top speed, acceleration, handling, durability)
@@ -72,6 +75,8 @@ commercial game.
 - [ ] Synthesized rock soundtrack
 - [ ] Tune traffic density / bot car-crash rate after playtesting
   (simulated: bots hit a car 0–3 times per ~100 s race)
+- [ ] Police follow-ups: fine money once the career loop exists; cops could give up after being
+  knocked off; more cops on later levels.
 - [ ] Weapons follow-ups: weapons lying on the road to pick up, more kinds (pipe, cattle prod),
   weapon kept between races once the career loop exists. Bots almost never steal from each
   other (they rarely punch an armed rider bare-handed) — fine for now.

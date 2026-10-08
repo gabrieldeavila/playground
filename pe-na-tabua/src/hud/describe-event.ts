@@ -21,6 +21,10 @@ export function describeEvent(event: RaceEvent, race: Race): string | null {
       return event.car ? `HIT A ${event.car === 'taxi' ? 'TAXI' : 'CAR'}!` : 'WIPEOUT!'
     case 'finish':
       return event.riderId === me ? `FINISHED ${ordinal(event.place).toUpperCase()}` : null
+    case 'chase':
+      return 'POLICE!'
+    case 'busted':
+      return 'BUSTED!'
   }
 }
 

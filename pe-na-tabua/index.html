@@ -37,8 +37,11 @@
       .progress { position: absolute; top: 28px; left: 50%; width: min(40vw, 420px); height: 6px; transform: translateX(-50%); background: rgba(0, 0, 0, 0.45); border-radius: 3px; }
       .progress::after { content: ''; position: absolute; right: -2px; top: -6px; width: 4px; height: 18px; background: repeating-linear-gradient(#fff 0 3px, #111 3px 6px); }
       .dot { position: absolute; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #e8e8e8; }
+      .dot.cop { background: #4a7dff; box-shadow: 0 0 6px #ff3b2f; }
       .dot.me { width: 12px; height: 12px; margin: -6px 0 0 -6px; background: var(--accent); box-shadow: 0 0 8px var(--accent); z-index: 1; }
 
+      .cop-warning { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 6px; font-size: 18px; animation: siren 0.5s steps(1) infinite; }
+      @keyframes siren { 0% { background: rgba(232, 40, 30, 0.8); } 50% { background: rgba(40, 80, 230, 0.8); } }
       .message { position: absolute; top: 34%; width: 100%; text-align: center; font-size: clamp(36px, 7vw, 84px); color: #ffe7b0; transition: opacity 0.25s; opacity: 0; }
       .hurt { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(220, 30, 20, 0.85)); }
 
@@ -67,6 +70,7 @@
         <div class="small" id="hud-time">0:00.0</div>
       </div>
       <div class="progress" id="hud-progress"></div>
+      <div class="cop-warning" id="hud-cop" hidden></div>
       <div class="panel right" id="hud-speed-panel">
         <div class="big"><span id="hud-speed">0</span></div>
         <div class="label">km/h</div>

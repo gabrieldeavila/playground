@@ -6,6 +6,7 @@ import { playClang } from './play-clang'
 import { playHorn } from './play-horn'
 import { playImpact } from './play-impact'
 import { playWhoosh } from './play-whoosh'
+import { SirenSound } from './siren-sound'
 
 const MASTER = 0.8
 const FADE = 0.15 // s
@@ -15,6 +16,7 @@ export class SoundRig {
   readonly engine: EngineSound
   readonly wind: NoiseLoop
   readonly scrape: NoiseLoop
+  readonly siren: SirenSound
   private readonly master: GainNode
   private readonly noise: AudioBuffer
 
@@ -25,6 +27,7 @@ export class SoundRig {
     this.noise = createNoiseBuffer(ctx)
     this.engine = new EngineSound(ctx, this.master)
     this.wind = new NoiseLoop(ctx, this.master, this.noise, { type: 'lowpass', frequency: 300, Q: 0.5 })
+    this.siren = new SirenSound(ctx, this.master)
     this.scrape = new NoiseLoop(ctx, this.master, this.noise, { type: 'bandpass', frequency: 3200, Q: 4 })
   }
 

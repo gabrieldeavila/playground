@@ -1,8 +1,13 @@
 import type { Race, Rider } from './types'
 
-// Quem já chegou vem primeiro (por tempo); o resto por distância percorrida.
+// Só corredores (policial não disputa posição). Quem já chegou vem primeiro (por tempo);
+// o resto por distância percorrida.
 export function standings(race: Race): Rider[] {
-  return [...race.riders].sort(compareRiders)
+  return race.riders.filter((r) => r.role === 'racer').sort(compareRiders)
+}
+
+export function racerCount(race: Race): number {
+  return race.riders.filter((r) => r.role === 'racer').length
 }
 
 export function placeOf(race: Race, riderId: number): number {

@@ -21,6 +21,12 @@ describe('stepMotion', () => {
     expect(rider.speed).toBeGreaterThan(MAX_SPEED * 0.95)
   })
 
+  it('speedFactor muda a velocidade máxima da moto', () => {
+    const rider = testRider(0, { speedFactor: 1.1 })
+    run(40, () => stepMotion(rider, testInput({ throttle: 1 }), 0, DT))
+    expect(rider.speed).toBeGreaterThan(MAX_SPEED * 1.05)
+  })
+
   it('fora do asfalto a velocidade máxima cai', () => {
     const rider = testRider(0, { x: ROAD_HALF_WIDTH + 3, speed: MAX_SPEED })
     run(5, () => stepMotion(rider, testInput({ throttle: 1 }), 0, DT))

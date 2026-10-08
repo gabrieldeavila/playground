@@ -1,3 +1,6 @@
+import { alertCops } from '../police/alert'
+import { stepBust } from '../police/bust'
+import { copInput } from '../police/cop-ai'
 import { curveAt } from '../track/pose'
 import { hitCar } from '../traffic/car-collisions'
 import { CAR_CRASH_DAMAGE } from '../traffic/constants'
@@ -28,12 +31,24 @@ export function stepRace(race: Race, playerInput: RiderInput, dt: number): RaceE
     const finish = checkFinish(race, rider)
     if (finish) events.push(finish)
   }
-  if (race.riders[race.playerId].finishTime !== null) race.phase = 'finished'
+  events.push(...alertCops(race), ...checkBusted(race, dt))
+  if (race.phase === 'racing' && race.riders[race.playerId].finishTime !== null) race.phase = 'finished'
   return events
 }
 
+// Preso: a corrida do jogador acaba ali (os outros seguem até a chegada).
+function checkBusted(race: Race, dt: number): RaceEvent[] {
+  if (race.phase !== 'racing') return []
+  const cop = stepBust(race, dt)
+  if (!cop) return []
+  race.phase = 'busted'
+  return [{ kind: 'busted', copId: cop.id }]
+}
+
 function inputFor(race: Race, rider: Rider, playerInput: RiderInput, dt: number): RiderInput {
-  if (rider.finishTime !== null) return coastInput(rider, curveAt(race.track, rider.s))
+  const stopped = rider.ai === null && race.phase === 'busted'
+  if (rider.finishTime !== null || stopped) return coastInput(rider, curveAt(race.track, rider.s))
+  if (rider.role === 'cop') return copInput(rider, race, dt)
   return rider.ai ? aiInput(rider, race, dt) : playerInput
 }
 
@@ -64,7 +79,7 @@ function checkCrash(race: Race, rider: Rider): RaceEvent | null {
 }
 
 function checkFinish(race: Race, rider: Rider): RaceEvent | null {
-  if (rider.finishTime !== null || rider.s < race.track.finishS) return null
+  if (rider.role === 'cop' || rider.finishTime !== null || rider.s < race.track.finishS) return null
   rider.finishTime = race.time
   race.finishOrder.push(rider.id)
   return { kind: 'finish', riderId: rider.id, place: race.finishOrder.length }

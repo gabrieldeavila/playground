@@ -1,7 +1,8 @@
 import { nearestOpponent } from '../domain/race/combat'
 import { MAX_HEALTH } from '../domain/race/constants'
-import { placeOf } from '../domain/race/standings'
+import { placeOf, racerCount } from '../domain/race/standings'
 import type { Race, RaceEvent } from '../domain/race/types'
+import { CopWarning } from './cop-warning'
 import { describeEvent, hurtsPlayer } from './describe-event'
 import { formatTime } from './format-time'
 
@@ -25,6 +26,7 @@ export class Hud {
   private readonly progress = byId('hud-progress')
   private readonly message = byId('hud-message')
   private readonly hurt = byId('hud-hurt')
+  private readonly copWarning = new CopWarning(byId('hud-cop'))
   private dots: HTMLElement[] = []
   private messageTimer = 0
 
@@ -41,7 +43,7 @@ export class Hud {
     this.progress.replaceChildren()
     this.dots = race.riders.map((rider) => {
       const dot = document.createElement('div')
-      dot.className = rider.id === race.playerId ? 'dot me' : 'dot'
+      dot.className = rider.id === race.playerId ? 'dot me' : rider.role === 'cop' ? 'dot cop' : 'dot'
       this.progress.append(dot)
       return dot
     })
@@ -56,7 +58,7 @@ export class Hud {
 
   update(race: Race, dt: number): void {
     const player = race.riders[race.playerId]
-    this.place.textContent = `${placeOf(race, player.id)}/${race.riders.length}`
+    this.place.textContent = `${placeOf(race, player.id)}/${racerCount(race)}`
     this.time.textContent = formatTime(player.finishTime ?? race.time)
     this.speed.textContent = String(Math.round(player.speed * 3.6))
     this.health.style.width = `${(player.health / MAX_HEALTH) * 100}%`
@@ -64,6 +66,7 @@ export class Hud {
     this.updateRival(race)
     race.riders.forEach((rider, i) => (this.dots[i].style.left = `${Math.min(1, rider.s / race.track.finishS) * 100}%`))
     this.updateMessage(race, dt)
+    this.copWarning.update(race)
   }
 
   private updateRival(race: Race): void {

@@ -1,5 +1,5 @@
 import { createRace } from '../domain/race/create-race'
-import { ROSTER } from '../domain/race/roster'
+import { POLICE, ROSTER } from '../domain/race/roster'
 import { stepRace } from '../domain/race/step-race'
 import type { Race, RaceEvent, RiderInput } from '../domain/race/types'
 import type { Track } from '../domain/track/types'
@@ -28,7 +28,7 @@ export class Session {
   step(input: RiderInput, dt: number): RaceEvent[] {
     if (this.mode === 'title') return []
     const events = stepRace(this.race, input, dt)
-    if (this.mode === 'racing' && this.race.phase === 'finished') {
+    if (this.mode === 'racing' && (this.race.phase === 'finished' || this.race.phase === 'busted')) {
       this.sinceFinish += dt
       if (this.sinceFinish >= RESULTS_DELAY) this.mode = 'results'
     }
@@ -37,6 +37,6 @@ export class Session {
 
   private freshRace(): Race {
     this.races += 1
-    return createRace(this.track, ROSTER, this.races * 7919)
+    return createRace(this.track, [...ROSTER, ...POLICE], this.races * 7919)
   }
 }

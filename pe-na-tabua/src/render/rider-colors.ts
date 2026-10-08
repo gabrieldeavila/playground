@@ -6,6 +6,7 @@ export interface RiderColors {
 }
 
 export const PLAYER_COLORS: RiderColors = { bike: '#e8551c', jacket: '#1f2a44', helmet: '#f2c230', pants: '#2b2f38' }
+const COP_COLORS: RiderColors = { bike: '#f2f3f5', jacket: '#1b2a4a', helmet: '#f2f3f5', pants: '#1b2a4a' }
 
 const RIVAL_COLORS: RiderColors[] = [
   { bike: '#2a7de1', jacket: '#3a3a3a', helmet: '#e8e8e8', pants: '#1e2433' },
@@ -17,6 +18,7 @@ const RIVAL_COLORS: RiderColors[] = [
   { bike: '#16a5a5', jacket: '#24323a', helmet: '#e6e6e6', pants: '#1c262c' },
 ]
 
-export function riderColors(index: number, isPlayer: boolean): RiderColors {
+export function riderColors(index: number, isPlayer: boolean, isCop = false): RiderColors {
+  if (isCop) return COP_COLORS
   return isPlayer ? PLAYER_COLORS : RIVAL_COLORS[index % RIVAL_COLORS.length]
 }

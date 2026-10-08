@@ -24,14 +24,15 @@ export class Screens {
     this.show(TITLE)
   }
 
-  showResults(order: Rider[], playerId: number): void {
+  // Preso: o jogador não chega, aparece como DNF.
+  showResults(order: Rider[], playerId: number, busted: boolean): void {
     const rows = order.map((rider, i) => {
       const time = rider.finishTime === null ? 'DNF' : formatTime(rider.finishTime)
       const mine = rider.id === playerId ? ' class="me"' : ''
       return `<tr${mine}><td>${ordinal(i + 1)}</td><td>${rider.name}</td><td>${time}</td></tr>`
     })
     this.show(`
-      <h2>RESULTS</h2>
+      <h2>${busted ? 'BUSTED!' : 'RESULTS'}</h2>
       <table class="results">${rows.join('')}</table>
       <p class="cta">Press ENTER to race again</p>
     `)
