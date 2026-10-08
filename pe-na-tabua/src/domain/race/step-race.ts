@@ -5,6 +5,7 @@ import { startAttack, stepAttack } from './combat'
 import { PROP_CRASH_DAMAGE } from './constants'
 import { knockOff } from './crash'
 import { stepMotion } from './motion'
+import { scrapeRails } from './rails'
 import type { Race, RaceEvent, Rider, RiderInput } from './types'
 
 // Avança a corrida um passo fixo. Continua rodando depois da chegada do jogador.
@@ -36,6 +37,7 @@ function stepRider(race: Race, rider: Rider, input: RiderInput, dt: number): Rac
   else if (input.kick) startAttack(rider, 'kick', race.riders)
   stepMotion(rider, input, curveAt(race.track, rider.s), dt)
   rider.s = Math.min(rider.s, race.track.length - 1)
+  scrapeRails(race.track, rider, dt)
   const events = stepAttack(rider, race.riders, dt)
   if (hitsProp(race.track, rider)) {
     rider.health = Math.max(0, rider.health - PROP_CRASH_DAMAGE)

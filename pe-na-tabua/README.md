@@ -22,6 +22,8 @@ pnpm dev
 | ← → / A D | Steer |
 | J / Z | Punch |
 | K / X | Kick |
+| C | Switch between chase and cockpit view |
+| M | Mute |
 | R | Restart race |
 
 ## Develop
@@ -39,7 +41,8 @@ src/
   domain/   pure game rules, no three.js (tested)
     track/  course definition -> segments -> 3D centerline, props
     race/   motion, combat, collisions, AI, standings
-  render/   three.js: road, terrain, sky, props, bikes, camera
+  render/   three.js: road, terrain, sky, props, bikes, cameras, speed blur
+  audio/    Web Audio: synthesized engine, wind, pass-by whooshes, impacts
   hud/      HTML overlay and screens
   input/    keyboard
   game/     session flow and wiring between domain and render

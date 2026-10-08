@@ -13,6 +13,7 @@ import { lerp } from '../../domain/math'
 import { MAX_SPEED } from '../../domain/race/constants'
 import { IDLE_RPM, gearFor, rpmFor } from '../../domain/race/gearbox'
 import type { Rider } from '../../domain/race/types'
+import type { HeadAngles } from '../camera/speed-feel'
 import type { RiderColors } from '../rider-colors'
 import { CockpitLimbs } from './cockpit-limbs'
 import { createFairing } from './fairing'
@@ -56,7 +57,8 @@ export class Cockpit {
     this.fit()
   }
 
-  update(rider: Rider, dt: number, time: number): void {
+  // `head` é o mesmo balanço aplicado à câmera do mundo: painel e estrada mexem juntos.
+  update(rider: Rider, head: HeadAngles, dt: number, time: number): void {
     const k = 1 - Math.exp(-NEEDLE_RESPONSE * dt)
     this.shownKmh = lerp(this.shownKmh, rider.speed * 3.6, k)
     this.shownRpm = lerp(this.shownRpm, rpmFor(rider.speed), k)
@@ -68,6 +70,7 @@ export class Cockpit {
     const shake = 0.3 + rider.speed / MAX_SPEED
     this.rig.position.y = -HALF_HEIGHT + Math.sin(time * 47) * 0.0012 * shake
     this.rig.rotation.z = Math.sin(time * 31) * 0.002 * shake
+    this.camera.rotation.set(head.pitch, head.yaw, head.roll)
   }
 
   render(renderer: WebGLRenderer): void {

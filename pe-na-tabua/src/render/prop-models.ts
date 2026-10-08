@@ -1,6 +1,8 @@
 import { BoxGeometry, type BufferGeometry, ConeGeometry, CylinderGeometry, DodecahedronGeometry, IcosahedronGeometry } from 'three'
 import type { PropKind } from '../domain/track/types'
+import { createGantryModel } from './gantry-model'
 import { mergeParts, paint } from './painted-geometry'
+import { createRailModel } from './rail-model'
 
 // Modelos low-poly com a base em y = 0. Os troncos afundam para não flutuar em rampas.
 export const PROP_MODELS: Record<PropKind, () => BufferGeometry> = {
@@ -29,4 +31,6 @@ export const PROP_MODELS: Record<PropKind, () => BufferGeometry> = {
       paint(new BoxGeometry(1.3, 0.8, 0.08), '#f0c419', 0, 1.6),
       paint(new BoxGeometry(1.4, 0.9, 0.06), '#1e1e1e', 0, 1.6, -0.03),
     ]),
+  rail: createRailModel,
+  gantry: createGantryModel,
 }

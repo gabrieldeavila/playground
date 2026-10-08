@@ -1,13 +1,16 @@
 import { BufferGeometry, Color, Float32BufferAttribute, Mesh, MeshStandardMaterial } from 'three'
+import { SEGMENT_LENGTH } from '../domain/track/constants'
 import type { Track } from '../domain/track/types'
+import { GROUND_TEXTURE_METERS, createGroundTexture } from './ground-texture'
 import { gridIndices } from './grid-indices'
 import { ROAD_EDGE, TERRAIN_OFFSETS, terrainColor, terrainHeight } from './terrain-shape'
 
 const MAX_OFFSET = TERRAIN_OFFSETS[TERRAIN_OFFSETS.length - 1]
 
 // Dois barrancos, um de cada lado da pista.
-export function createTerrainMeshes(track: Track): Mesh[] {
-  const material = new MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1 })
+export function createTerrainMeshes(track: Track, anisotropy: number): Mesh[] {
+  const map = createGroundTexture(anisotropy)
+  const material = new MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1, map })
   return ([-1, 1] as const).map((side) => {
     const mesh = new Mesh(buildSide(track, side), material)
     mesh.receiveShadow = true
@@ -20,6 +23,7 @@ function buildSide(track: Track, side: -1 | 1): BufferGeometry {
   const offsets = side === 1 ? TERRAIN_OFFSETS : [...TERRAIN_OFFSETS].reverse()
   const positions: number[] = []
   const colors: number[] = []
+  const uvs: number[] = []
   const color = new Color()
   track.points.forEach((p, i) => {
     const squeeze = innerSqueeze(track, i, side)
@@ -34,11 +38,13 @@ function buildSide(track: Track, side: -1 | 1): BufferGeometry {
       positions.push(x, p.y + height, z)
       terrainColor(d, height, x, z, color)
       colors.push(color.r, color.g, color.b)
+      uvs.push(d / GROUND_TEXTURE_METERS, (i * SEGMENT_LENGTH) / GROUND_TEXTURE_METERS)
     }
   })
   const geometry = new BufferGeometry()
   geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
   geometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
+  geometry.setAttribute('uv', new Float32BufferAttribute(uvs, 2))
   geometry.setIndex(gridIndices(track.points.length, offsets.length))
   geometry.computeVertexNormals()
   return geometry

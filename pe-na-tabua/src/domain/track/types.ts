@@ -28,7 +28,8 @@ export interface CenterPoint {
   heading: number // 0 = olhando para -z; cresce virando à direita
 }
 
-export type PropKind = 'tree' | 'pine' | 'rock' | 'post' | 'sign'
+// rail = um lance de guard-rail; gantry = pórtico de placas por cima da pista.
+export type PropKind = 'tree' | 'pine' | 'rock' | 'post' | 'sign' | 'rail' | 'gantry'
 
 // Objeto de beira de estrada, em coordenadas de pista.
 export interface Prop {

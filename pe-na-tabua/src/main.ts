@@ -1,3 +1,4 @@
+import { RaceAudio } from './audio/race-audio'
 import { standings } from './domain/race/standings'
 import { SERRA } from './domain/track/courses/serra'
 import { createTrack } from './domain/track/create-track'
@@ -9,7 +10,9 @@ import { buildWorld, followCamera } from './game/world-view'
 import { Hud } from './hud/hud'
 import { Screens } from './hud/screens'
 import { Keyboard } from './input/keyboard'
+import { blurAmount, headAngles } from './render/camera/speed-feel'
 import { Cockpit } from './render/cockpit/cockpit'
+import { PostFx } from './render/post/post-fx'
 import { PLAYER_COLORS } from './render/rider-colors'
 import { createStage, followSun } from './render/stage'
 
@@ -20,10 +23,14 @@ const session = new Session(track)
 const riders = new RidersView(stage.scene, session.race.riders)
 const director = new CameraDirector(stage.camera, riders)
 const cockpit = new Cockpit(stage.renderer, PLAYER_COLORS)
+const postFx = new PostFx(stage.renderer, stage.scene, stage.camera)
+const audio = new RaceAudio()
 const keyboard = new Keyboard(window)
 const hud = new Hud()
 const screens = new Screens(document.getElementById('screen')!)
 let resultsShown = false
+
+window.addEventListener('keydown', () => audio.unlock())
 
 screens.showTitle()
 hud.setVisible(false)
@@ -31,6 +38,7 @@ hud.setVisible(false)
 function startRace(): void {
   session.start()
   director.reset()
+  audio.reset()
   hud.reset(session.race)
   hud.setVisible(true)
   screens.hide()
@@ -42,11 +50,15 @@ function handleKey(code: string): void {
   if (confirm && session.mode !== 'racing') startRace()
   else if (code === 'KeyR' && session.mode === 'racing') startRace()
   else if (code === 'KeyC') director.toggle()
+  else if (code === 'KeyM') audio.toggleMute()
 }
 
 function step(dt: number): void {
   for (const code of keyboard.takePresses()) handleKey(code)
-  for (const event of session.step(keyboard.read(), dt)) hud.onEvent(event, session.race)
+  for (const event of session.step(keyboard.read(), dt)) {
+    hud.onEvent(event, session.race)
+    audio.onEvent(event, session.race)
+  }
   if (session.mode === 'results' && !resultsShown) {
     resultsShown = true
     hud.setVisible(false)
@@ -65,9 +77,10 @@ function frame(dt: number): void {
     hud.update(race, dt)
     hud.setSpeedPanelVisible(!director.showsCockpit)
   }
-  stage.renderer.render(stage.scene, stage.camera)
+  audio.update(race, keyboard.read().throttle, session.mode === 'racing')
+  postFx.render(blurAmount(director.feel))
   if (director.showsCockpit) {
-    cockpit.update(player, dt, race.time)
+    cockpit.update(player, headAngles(director.feel, race.time), dt, race.time)
     cockpit.render(stage.renderer)
   }
 }

@@ -39,6 +39,7 @@ export interface Rider {
   health: number
   crashTimer: number // > 0 enquanto está caído
   crashSide: Side
+  scraping: boolean // encostado no guard-rail neste passo
   attack: Attack | null
   cooldown: number
   finishTime: number | null

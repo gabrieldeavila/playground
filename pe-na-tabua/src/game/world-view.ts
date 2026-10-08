@@ -20,7 +20,7 @@ export function buildWorld(scene: Scene, track: Track, anisotropy: number): Worl
     sky,
     backdrop,
     createRoadMesh(track, anisotropy),
-    ...createTerrainMeshes(track),
+    ...createTerrainMeshes(track, anisotropy),
     ...createPropMeshes(track),
     createFinishArch(track),
   )

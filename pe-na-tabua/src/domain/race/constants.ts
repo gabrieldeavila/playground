@@ -18,6 +18,8 @@ export const CRASH_TIME = 2.6
 export const CRASH_DECEL = 28
 export const PROP_CRASH_DAMAGE = 20
 export const PROP_CRASH_MIN_SPEED = 8
+export const RAIL_DRAG = 8 // perda de velocidade raspando no guard-rail (m/s²)
+export const RAIL_BOUNCE = 2.5 // empurrão de volta para a pista (m/s)
 
 export const RIDER_RADIUS = 0.5
 export const RIDER_HALF_LENGTH = 1.1

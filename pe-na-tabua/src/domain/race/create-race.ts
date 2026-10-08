@@ -33,6 +33,7 @@ export function createRider(id: number, setup: RiderSetup, slot: { s: number; x:
     health: MAX_HEALTH,
     crashTimer: 0,
     crashSide: 1,
+    scraping: false,
     attack: null,
     cooldown: 0,
     finishTime: null,
