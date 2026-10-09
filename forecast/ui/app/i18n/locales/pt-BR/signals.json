@@ -64,7 +64,8 @@
   },
   "searchNoMatch": "Nenhum ticker encontrado para \"{{query}}\". Adicione o código em references/watchlist.txt e baixe os dados.",
   "type": {
-    "trendStart": "Início de tendência",
+    "trend_start": "Início de tendência",
+    "pullback": "Recuo na alta",
     "sideways": "Lateral"
   },
   "timeframe": {

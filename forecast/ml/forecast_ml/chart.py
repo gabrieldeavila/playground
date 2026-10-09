@@ -63,6 +63,8 @@ def chart(
     trades = trades.sort_values("signal_date")
     if "pending" not in trades:  # written before pending COMPRAs existed
         trades["pending"] = False
+    if "signal_type" not in trades:  # written before pullbacks were told apart
+        trades["signal_type"] = np.where(trades["trend_start"], "trend_start", "sideways")
     pending = trades.loc[trades["pending"]].tail(1)
     trades = trades.loc[~trades["pending"]]
     # stop_price is in today's unadjusted scale; the chart draws adjusted prices.
@@ -94,6 +96,7 @@ def chart(
                 "stop_price": round(float(row.stop_price * to_adjusted), 4),
                 "score": round(float(row.score)),
                 "trend_start": bool(row.trend_start),
+                "signal_type": row.signal_type,
                 "liquid": bool(row.liquid),
                 "test": _date(row.signal_date) >= test_start,
             }
@@ -105,6 +108,7 @@ def chart(
             "signal_date": _date(pending["signal_date"].iloc[0]),
             "score": round(float(pending["score"].iloc[0])),
             "trend_start": bool(pending["trend_start"].iloc[0]),
+            "signal_type": pending["signal_type"].iloc[0],
             "stop_price": round(float(pending["stop_price"].iloc[0] * to_adjusted), 4),
         },
     }

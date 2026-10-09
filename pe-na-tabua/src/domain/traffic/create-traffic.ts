@@ -1,23 +1,28 @@
 import type { Rng } from '../random'
 import { CLEAR_START, LANES, TAXI_SHARE } from './constants'
+import { nextLaneChange } from './lane-change'
 import type { Car, Lane } from './types'
 
 // Espalha os carros de cada faixa pela pista, com espaçamento parecido e um pouco de sorteio.
-export function createTraffic(trackLength: number, rng: Rng): Car[] {
+// `scale` multiplica quantos carros cada faixa tem.
+export function createTraffic(trackLength: number, rng: Rng, scale = 1): Car[] {
   const cars: Car[] = []
-  for (const lane of LANES) cars.push(...laneCars(lane, trackLength, rng, cars.length))
+  LANES.forEach((lane, index) => cars.push(...laneCars(lane, index, Math.round(lane.cars * scale), trackLength, rng, cars.length)))
   return cars
 }
 
-function laneCars(lane: Lane, trackLength: number, rng: Rng, firstId: number): Car[] {
+function laneCars(lane: Lane, index: number, count: number, trackLength: number, rng: Rng, firstId: number): Car[] {
   const room = trackLength - CLEAR_START
-  const spacing = room / lane.cars
-  return Array.from({ length: lane.cars }, (_, i) => ({
+  const spacing = room / count
+  return Array.from({ length: count }, (_, i) => ({
     id: firstId + i,
     kind: rng() < TAXI_SHARE ? 'taxi' : 'sedan',
     s: CLEAR_START + (i + 0.2 + rng() * 0.6) * spacing,
     x: lane.x,
     speed: lane.speed,
     direction: lane.direction,
+    lane: index,
+    change: null,
+    changeTimer: nextLaneChange(rng),
   }))
 }

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { SERRA } from './courses/serra'
 import { createTrack } from './create-track'
 import { poseAt } from './pose'
 
-const straight = createTrack({ name: 'reta', seed: 1, sections: [{ enter: 0, hold: 100, leave: 0, curve: 0, hill: 0 }] })
-const rightTurn = createTrack({ name: 'curva', seed: 1, sections: [{ enter: 0, hold: 100, leave: 0, curve: 0.01, hill: 0 }] })
+const straight = createTrack({ ...SERRA, name: 'reta', seed: 1, start: [], body: [{ enter: 0, hold: 100, leave: 0, curve: 0, hill: 0 }], finish: [] })
+const rightTurn = createTrack({ ...SERRA, name: 'curva', seed: 1, start: [], body: [{ enter: 0, hold: 100, leave: 0, curve: 0.01, hill: 0 }], finish: [] })
 
 describe('linha central', () => {
   it('reta anda para -z', () => {

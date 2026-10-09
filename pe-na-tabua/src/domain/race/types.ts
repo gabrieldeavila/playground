@@ -1,6 +1,7 @@
 import type { Rng } from '../random'
 import type { Track } from '../track/types'
 import type { Car, CarKind } from '../traffic/types'
+import type { RaceRules } from './rules'
 
 export interface RiderInput {
   throttle: number // 0..1
@@ -76,5 +77,6 @@ export interface Race {
   time: number
   finishOrder: number[]
   bustTimer: number // há quanto tempo um policial está em cima do jogador parado (s)
+  rules: RaceRules
   rng: Rng
 }

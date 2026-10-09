@@ -1,4 +1,4 @@
-import type { Timeframe } from './signal-snapshot.js';
+import type { SignalType, Timeframe } from './signal-snapshot.js';
 
 /** Column arrays, one entry per candle; EMAs are null during their warm-up. */
 export interface ChartCandles {
@@ -25,6 +25,7 @@ export interface ChartTrade {
   stop_price: number;
   score: number;
   trend_start: boolean;
+  signal_type?: SignalType;
   liquid: boolean;
   /** Signal on or after test_start: a trade the model never saw while training. */
   test: boolean;
@@ -35,6 +36,7 @@ export interface ChartPending {
   signal_date: string;
   score: number;
   trend_start: boolean;
+  signal_type?: SignalType;
   /** Estimated from the signal close; the real stop uses the entry open. */
   stop_price: number;
 }

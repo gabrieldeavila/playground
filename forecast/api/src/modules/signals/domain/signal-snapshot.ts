@@ -13,6 +13,9 @@ export const MARKET_INDEXES = [
 ] as const;
 export type MarketIndex = (typeof MARKET_INDEXES)[number];
 
+/** Absent in snapshots written before pullbacks were told apart from sideways COMPRAs. */
+export type SignalType = 'trend_start' | 'pullback' | 'sideways';
+
 export interface SignalTrade {
   signal_date: string;
   exit_date: string | null;
@@ -24,6 +27,7 @@ export interface SignalTrade {
   score: number;
   win_rate_pct: number | null;
   trend_start: boolean;
+  signal_type?: SignalType;
   /** COMPRA on the last closed candle: buy at the next open. Absent in older snapshots. */
   pending?: boolean;
 }
@@ -35,6 +39,7 @@ export interface OpenPosition {
   score: number;
   win_rate_pct: number | null;
   trend_start: boolean;
+  signal_type?: SignalType;
   stop_price: number;
 }
 
@@ -52,7 +57,7 @@ export interface TickerSignals {
 }
 
 export interface SignalTypeRow {
-  type: 'trend_start' | 'all';
+  type: SignalType | 'all';
   trades: number;
   win_rate_pct: number;
   mean_return_pct: number;

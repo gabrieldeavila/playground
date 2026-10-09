@@ -82,6 +82,27 @@ describe('polícia', () => {
     expect(stepBust(race, BUST_TIME / 2)).toBe(cop)
   })
 
+  it('com canBust desligado (Joyride), nunca prende', () => {
+    const race = freshRace()
+    race.rules = { ...race.rules, canBust: false }
+    const [cop] = copsOf(race)
+    const player = race.riders[race.playerId]
+    cop.chasing = true
+    Object.assign(player, { s: cop.s + 1, x: cop.x - 1, speed: 0, crashTimer: 2 })
+    expect(stepBust(race, BUST_TIME * 3)).toBeNull()
+  })
+
+  it('o tempo para prender vem das regras da corrida', () => {
+    const race = freshRace()
+    race.rules = { ...race.rules, bustTime: 2 }
+    const [cop] = copsOf(race)
+    const player = race.riders[race.playerId]
+    cop.chasing = true
+    Object.assign(player, { s: cop.s + 1, x: cop.x - 1, speed: 0, crashTimer: 5 })
+    expect(stepBust(race, 1.5)).toBeNull()
+    expect(stepBust(race, 0.6)).toBe(cop)
+  })
+
   it('não prende quem está andando nem com o policial caído', () => {
     const race = freshRace()
     const [cop] = copsOf(race)

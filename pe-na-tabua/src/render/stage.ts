@@ -9,13 +9,15 @@ import {
   type Vector3,
   WebGLRenderer,
 } from 'three'
-import { SKY_COLORS, SUN_DIRECTION } from './sky'
+import type { Theme } from './theme/theme'
 
 export interface Stage {
   renderer: WebGLRenderer
   scene: Scene
   camera: PerspectiveCamera
   sun: DirectionalLight
+  hemisphere: HemisphereLight
+  fog: Fog
 }
 
 const SHADOW_EXTENT = 40
@@ -29,10 +31,12 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   renderer.toneMappingExposure = 1.05
 
   const scene = new Scene()
-  scene.fog = new Fog(SKY_COLORS.horizon, 90, 700)
+  const fog = new Fog('#ffffff', 90, 700)
+  scene.fog = fog
   const camera = new PerspectiveCamera(62, 1, 0.1, 3000)
   const sun = createSun()
-  scene.add(new HemisphereLight('#bfd6ff', '#4a5a2a', 1.1), sun, sun.target)
+  const hemisphere = new HemisphereLight()
+  scene.add(hemisphere, sun, sun.target)
 
   const fit = () => {
     renderer.setSize(window.innerWidth, window.innerHeight, false)
@@ -41,17 +45,29 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   }
   window.addEventListener('resize', fit)
   fit()
-  return { renderer, scene, camera, sun }
+  return { renderer, scene, camera, sun, hemisphere, fog }
+}
+
+// Neblina na cor do horizonte, luz do céu e do sol de cada pista.
+export function setStageTheme(stage: Stage, theme: Theme): void {
+  stage.fog.color.set(theme.sky.horizon)
+  stage.fog.near = theme.fog.near
+  stage.fog.far = theme.fog.far
+  stage.hemisphere.color.set(theme.hemisphere.sky)
+  stage.hemisphere.groundColor.set(theme.hemisphere.ground)
+  stage.hemisphere.intensity = theme.hemisphere.intensity
+  stage.sun.color.set(theme.sunLight.color)
+  stage.sun.intensity = theme.sunLight.intensity
 }
 
 // A sombra só cobre uma caixa em volta do jogador; a luz anda junto com ele.
-export function followSun(sun: DirectionalLight, focus: Vector3): void {
+export function followSun(sun: DirectionalLight, focus: Vector3, direction: Vector3): void {
   sun.target.position.copy(focus)
-  sun.position.copy(focus).addScaledVector(SUN_DIRECTION, 100)
+  sun.position.copy(focus).addScaledVector(direction, 100)
 }
 
 function createSun(): DirectionalLight {
-  const sun = new DirectionalLight('#ffe2b8', 2.6)
+  const sun = new DirectionalLight()
   sun.castShadow = true
   sun.shadow.mapSize.set(2048, 2048)
   const shadowCamera = sun.shadow.camera

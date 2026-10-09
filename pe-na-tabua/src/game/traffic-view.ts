@@ -1,14 +1,18 @@
 import { type BufferGeometry, Mesh, MeshStandardMaterial, type Scene } from 'three'
 import type { Race } from '../domain/race/types'
 import { poseAt } from '../domain/track/pose'
+import { signalSide } from '../domain/traffic/lane-change'
 import type { Car } from '../domain/traffic/types'
+import { CarBlinkers } from '../render/car-blinkers'
 import { carColor, createCarGeometry } from '../render/car-model'
 
-// Um carro 3D por carro do trânsito. Cada corrida sorteia o trânsito de novo, então refaz as malhas.
+// Um carro 3D por carro do trânsito, com pisca-pisca. Cada corrida sorteia o trânsito de novo,
+// então refaz as malhas.
 export class TrafficView {
   private readonly material = new MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.45, metalness: 0.15 })
   private readonly geometries = new Map<string, BufferGeometry>()
   private meshes: Mesh[] = []
+  private blinkers: CarBlinkers[] = []
   private cars: Car[] | null = null
 
   constructor(private readonly scene: Scene) {}
@@ -22,6 +26,8 @@ export class TrafficView {
       // Na contramão o carro vira 180°, e a rampa fica invertida para ele.
       const yaw = -pose.heading + (car.direction === 1 ? 0 : Math.PI)
       mesh.rotation.set(car.direction * pose.pitch, yaw, 0, 'YXZ')
+      // Na contramão o carro está virado: a direita da pista é a esquerda dele.
+      this.blinkers[i].update((signalSide(car) * car.direction) as -1 | 0 | 1, performance.now() / 1000)
     })
   }
 
@@ -33,6 +39,7 @@ export class TrafficView {
       mesh.receiveShadow = true
       return mesh
     })
+    this.blinkers = this.meshes.map((mesh) => new CarBlinkers(mesh))
     this.scene.add(...this.meshes)
     this.cars = cars
   }

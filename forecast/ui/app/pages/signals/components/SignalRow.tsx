@@ -5,7 +5,9 @@ import { Link } from "react-router";
 
 import { Badge } from "@/ui/components/primitives/badge";
 import { Table } from "@/ui/components/primitives/table";
-import { Score, Signed, SignalType } from "../shared";
+import { signalTypeOf } from "../helpers/signalType";
+import { Score, Signed } from "../shared";
+import { SignalTypeBadge } from "./SignalTypeBadge";
 import type { SignalSummary, Timeframe } from "../signalsApi";
 
 type SignalRowProps = {
@@ -58,7 +60,7 @@ export const SignalRow = memo(
                 {t("list.buyNextOpen", { context: timeframe })}
               </Badge>
             )}
-            <SignalType trendStart={signal.latest.trend_start} />
+            <SignalTypeBadge type={signalTypeOf(signal.latest)} />
           </div>
         </Table.Cell>
         <Table.Cell>

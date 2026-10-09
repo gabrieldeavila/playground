@@ -1,5 +1,3 @@
-import { useTranslation } from "react-i18next";
-
 import { Badge, type BadgeVariant } from "@/ui/components/primitives/badge";
 
 export const percent = (value: number) =>
@@ -38,17 +36,3 @@ export const Score = ({
     )}
   </span>
 );
-
-/** Trend start = first COMPRA after a base; sideways = repeated COMPRA in chop. */
-export const SignalType = ({ trendStart }: { trendStart: boolean }) => {
-  const { t } = useTranslation("signals");
-  return (
-    <Badge
-      size="sm"
-      variant={trendStart ? "success" : "default"}
-      className="whitespace-nowrap"
-    >
-      {trendStart ? t("type.trendStart") : t("type.sideways")}
-    </Badge>
-  );
-};

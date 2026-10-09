@@ -6,7 +6,9 @@ import { Link } from "react-router";
 import { Button } from "@/ui/components/primitives/button";
 import { Card } from "@/ui/components/primitives/card";
 import { Table } from "@/ui/components/primitives/table";
-import { Score, Signed, SignalType } from "../shared";
+import { signalTypeOf } from "../helpers/signalType";
+import { Score, Signed } from "../shared";
+import { SignalTypeBadge } from "./SignalTypeBadge";
 import type { TickerDetail, Timeframe } from "../signalsApi";
 
 type TickerHistoryProps = { detail: TickerDetail; timeframe: Timeframe };
@@ -64,7 +66,7 @@ export const TickerHistory = memo(({ detail, timeframe }: TickerHistoryProps) =>
                 <Table.Row key={trade.signal_date}>
                   <Table.Cell className="whitespace-nowrap">
                     <div>{trade.signal_date}</div>
-                    <SignalType trendStart={trade.trend_start} />
+                    <SignalTypeBadge type={signalTypeOf(trade)} />
                   </Table.Cell>
                   <Table.Cell>
                     <Score value={trade.score} winRate={trade.win_rate_pct} />

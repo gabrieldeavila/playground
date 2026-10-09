@@ -10,6 +10,9 @@ export type MarketIndex =
   | "watchlist"
   | "other";
 
+/** Absent in snapshots written before pullbacks were told apart from sideways. */
+export type SignalType = "trend_start" | "pullback" | "sideways";
+
 export type SignalTrade = {
   signal_date: string;
   exit_date: string | null;
@@ -21,6 +24,7 @@ export type SignalTrade = {
   score: number;
   win_rate_pct: number | null;
   trend_start: boolean;
+  signal_type?: SignalType;
   /** COMPRA on the last closed candle: buy at the next open. */
   pending?: boolean;
 };
@@ -32,11 +36,12 @@ export type OpenPosition = {
   score: number;
   win_rate_pct: number | null;
   trend_start: boolean;
+  signal_type?: SignalType;
   stop_price: number;
 };
 
 export type SignalTypeRow = {
-  type: "trend_start" | "all";
+  type: SignalType | "all";
   trades: number;
   win_rate_pct: number;
   mean_return_pct: number;
@@ -184,6 +189,7 @@ export type ChartTrade = {
   stop_price: number;
   score: number;
   trend_start: boolean;
+  signal_type?: SignalType;
   liquid: boolean;
   /** Signal on or after test_start: the model never saw it while training. */
   test: boolean;
@@ -194,6 +200,7 @@ export type ChartPending = {
   signal_date: string;
   score: number;
   trend_start: boolean;
+  signal_type?: SignalType;
   /** Estimated from the signal close; the real stop uses the entry open. */
   stop_price: number;
 };

@@ -13,7 +13,9 @@ import { Switch } from "@/ui/components/primitives/switch";
 import { Table } from "@/ui/components/primitives/table";
 import { cn } from "@/ui/helpers/cn";
 import type { Route } from "./+types/index";
-import { Score, Signed, SignalType } from "../signals/shared";
+import { SignalTypeBadge } from "../signals/components/SignalTypeBadge";
+import { signalTypeOf } from "../signals/helpers/signalType";
+import { Score, Signed } from "../signals/shared";
 import {
   fetchChart,
   fetchTicker,
@@ -189,7 +191,7 @@ const TradesTable = memo(
                     <Table.Cell className="whitespace-nowrap">
                       <div>{trade.signal_date}</div>
                       <div className="mt-1 flex gap-1">
-                        <SignalType trendStart={trade.trend_start} />
+                        <SignalTypeBadge type={signalTypeOf(trade)} />
                         {!trade.test && (
                           <Badge size="sm" variant="default">
                             {t("chart.train")}

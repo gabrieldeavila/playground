@@ -1,8 +1,5 @@
 import { BackSide, Color, Mesh, ShaderMaterial, SphereGeometry, Vector3 } from 'three'
-
-// Fim de tarde: céu azul em cima, horizonte alaranjado (também a cor da neblina).
-export const SKY_COLORS = { top: '#2f5fb3', horizon: '#f4b98a', ground: '#6d7356' }
-export const SUN_DIRECTION = new Vector3(-0.6, 0.38, 0.7).normalize()
+import type { Theme } from './theme/theme'
 
 const vertexShader = /* glsl */ `
   varying vec3 vDir;
@@ -31,15 +28,15 @@ const fragmentShader = /* glsl */ `
   }
 `
 
-// Domo que acompanha a câmera.
+// Domo que acompanha a câmera. As cores vêm do tema (setSkyTheme).
 export function createSky(): Mesh {
   const material = new ShaderMaterial({
     uniforms: {
-      top: { value: new Color(SKY_COLORS.top) },
-      horizon: { value: new Color(SKY_COLORS.horizon) },
-      ground: { value: new Color(SKY_COLORS.ground) },
-      sunDirection: { value: SUN_DIRECTION },
-      sunColor: { value: new Color('#fff1d6') },
+      top: { value: new Color() },
+      horizon: { value: new Color() },
+      ground: { value: new Color() },
+      sunDirection: { value: new Vector3(0, 1, 0) },
+      sunColor: { value: new Color() },
     },
     vertexShader,
     fragmentShader,
@@ -51,4 +48,13 @@ export function createSky(): Mesh {
   sky.renderOrder = -1
   sky.frustumCulled = false
   return sky
+}
+
+export function setSkyTheme(sky: Mesh, theme: Theme): void {
+  const { uniforms } = sky.material as ShaderMaterial
+  uniforms.top.value.set(theme.sky.top)
+  uniforms.horizon.value.set(theme.sky.horizon)
+  uniforms.ground.value.set(theme.sky.ground)
+  uniforms.sunColor.value.set(theme.sky.sun)
+  uniforms.sunDirection.value.copy(theme.sunDirection)
 }

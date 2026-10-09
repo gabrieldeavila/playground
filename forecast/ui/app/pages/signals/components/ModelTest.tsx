@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/ui/components/primitives/badge";
 import { Card } from "@/ui/components/primitives/card";
 import { Table } from "@/ui/components/primitives/table";
-import { Signed, SignalType, rate, scoreVariant } from "../shared";
+import { Signed, rate, scoreVariant } from "../shared";
+import { SignalTypeBadge } from "./SignalTypeBadge";
 import type { ModelSummary, Timeframe } from "../signalsApi";
 
 const OutcomeRow = ({
@@ -47,10 +48,10 @@ export const ModelTest = memo(({ model, timeframe }: ModelTestProps) => {
             rows: model.test_by_type.map((row) => ({
               key: row.type,
               label:
-                row.type === "trend_start" ? (
-                  <SignalType trendStart />
-                ) : (
+                row.type === "all" ? (
                   t("test.allSignals")
+                ) : (
+                  <SignalTypeBadge type={row.type} />
                 ),
               row,
             })),

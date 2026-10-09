@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-panel: #1f1f23;
+  --color-panel-2: #27272c;
+  --color-edge: #34343b;
+  --color-workspace: #141417;
+  --color-accent: #4f8cff;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-workspace);
+  color: #e4e4e7;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.checkerboard {
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #ddd 25%, transparent 25%), linear-gradient(-45deg, #ddd 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ddd 75%), linear-gradient(-45deg, transparent 75%, #ddd 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}

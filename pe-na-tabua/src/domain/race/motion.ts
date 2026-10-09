@@ -17,12 +17,13 @@ import {
 import { remount } from './crash'
 import type { Rider, RiderInput } from './types'
 
-// Avança um piloto em coordenadas de pista. `curve` é a curvatura onde ele está.
-export function stepMotion(rider: Rider, input: RiderInput, curve: number, dt: number): void {
+// Avança um piloto em coordenadas de pista. `curve` é a curvatura onde ele está;
+// `boost` multiplica a velocidade máxima neste passo (ajuda para quem ficou para trás).
+export function stepMotion(rider: Rider, input: RiderInput, curve: number, dt: number, boost = 1): void {
   rider.grace = Math.max(0, rider.grace - dt)
   if (rider.crashTimer > 0) return stepCrashed(rider, dt)
   const offRoad = Math.abs(rider.x) > ROAD_HALF_WIDTH
-  rider.speed = nextSpeed(rider.speed, input, offRoad, dt, MAX_SPEED * rider.speedFactor)
+  rider.speed = nextSpeed(rider.speed, input, offRoad, dt, MAX_SPEED * rider.speedFactor * boost)
   rider.steer = approach(rider.steer, clamp(input.steer, -1, 1), STEER_RESPONSE * dt)
   rider.x = clamp(rider.x + lateralVelocity(rider, curve) * dt, -RIDE_LIMIT, RIDE_LIMIT)
   rider.pushVel *= Math.exp(-PUSH_DAMPING * dt)

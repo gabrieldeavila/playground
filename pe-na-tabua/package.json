@@ -7,13 +7,15 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc",
-    "test": "vitest run"
+    "typecheck": "tsc && tsc -p sim",
+    "test": "vitest run",
+    "sim": "node --import ./sim/register-ts.mjs sim/main.ts"
   },
   "dependencies": {
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@types/node": "^24.19.1",
     "@types/three": "^0.186.0",
     "typescript": "^5.9.3",
     "vite": "^8.3.3",

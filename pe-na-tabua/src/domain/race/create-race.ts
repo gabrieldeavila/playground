@@ -1,27 +1,39 @@
 import { createRng } from '../random'
 import type { Track } from '../track/types'
-import { COP_SPEED_FACTOR, PATROL_X } from '../police/constants'
+import { PATROL_X } from '../police/constants'
 import { createTraffic } from '../traffic/create-traffic'
 import { COUNTDOWN, GRID_FRONT_S, GRID_HALF_SPACING, GRID_ROW_GAP, MAX_HEALTH } from './constants'
 import type { RiderSetup } from './roster'
+import { DEFAULT_RULES, type RaceRules } from './rules'
 import type { Race, Rider } from './types'
 
+export interface RaceOptions {
+  trafficScale?: number // multiplica os carros de cada faixa
+  rules?: RaceRules
+}
+
 // Corredores largam no grid na ordem do roster; policiais esperam no ponto de patrulha.
-export function createRace(track: Track, roster: RiderSetup[], seed: number): Race {
-  const riders = roster.map((setup, i) => createRider(i, setup, setup.patrolAt === undefined ? gridSlot(i) : patrolSlot(track, setup.patrolAt)))
+export function createRace(track: Track, roster: RiderSetup[], seed: number, options: RaceOptions = {}): Race {
+  const rules = options.rules ?? DEFAULT_RULES
+  const riders = roster.map((setup, i) => {
+    const rider = createRider(i, setup, setup.patrolAt === undefined ? gridSlot(i) : patrolSlot(track, setup.patrolAt))
+    if (rider.role === 'cop') rider.speedFactor = rules.copSpeedFactor
+    return rider
+  })
   const player = riders.find((r) => r.ai === null)
   if (!player) throw new Error('O grid precisa de um jogador')
   const rng = createRng(seed)
   return {
     track,
     riders,
-    cars: createTraffic(track.length, rng),
+    cars: createTraffic(track.length, rng, options.trafficScale),
     playerId: player.id,
     phase: 'countdown',
     countdown: COUNTDOWN,
     time: 0,
     finishOrder: [],
     bustTimer: 0,
+    rules,
     rng,
   }
 }
@@ -32,7 +44,7 @@ export function createRider(id: number, setup: RiderSetup, slot: { s: number; x:
     name: setup.name,
     ai: setup.ai,
     role: setup.role ?? 'racer',
-    speedFactor: setup.role === 'cop' ? COP_SPEED_FACTOR : 1,
+    speedFactor: setup.role === 'cop' ? DEFAULT_RULES.copSpeedFactor : 1,
     chasing: false,
     s: slot.s,
     x: slot.x,

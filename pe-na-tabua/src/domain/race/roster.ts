@@ -34,5 +34,12 @@ export const ROSTER: RiderSetup[] = [
   bot('Sully', 0.9, 0.5, 0.4, 5.5),
 ]
 
-// Policiais parados na beira da estrada, esperando o jogador passar.
-export const POLICE: RiderSetup[] = [cop('Officer Tavares', 0.3), cop('Officer Brandão', 0.65)]
+const COP_NAMES = ['Officer Tavares', 'Officer Brandão', 'Officer Quintela', 'Officer Moreira']
+
+// Um policial parado na beira da estrada em cada ponto (fração do caminho até a chegada).
+export function policeAt(copsAt: number[]): RiderSetup[] {
+  return copsAt.map((patrolAt, i) => cop(COP_NAMES[i % COP_NAMES.length], patrolAt))
+}
+
+// Policiais do nível 1, esperando o jogador passar.
+export const POLICE: RiderSetup[] = policeAt([0.3, 0.65])
