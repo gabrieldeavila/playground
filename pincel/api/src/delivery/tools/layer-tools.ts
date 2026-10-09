@@ -75,6 +75,19 @@ export const layerTools = [
   }),
 
   defineTool({
+    name: 'stamp_visible',
+    title: 'Stamp visible',
+    description:
+      'Adds a new top layer with the flattened image (everything visible), keeping all layers underneath. Use it before liquify or other edits that must affect the whole look at once.',
+    input: { name: z.string().default('Stamp') },
+    async run({ name }, { engine, source }) {
+      const newLayerId = nextLayerId(engine.doc.meta);
+      await engine.execute({ type: 'stamp_visible', newLayerId, name }, source);
+      return { text: `Stamped the visible image to ${newLayerId} "${name}" (now active, on top)`, data: { layerId: newLayerId } };
+    },
+  }),
+
+  defineTool({
     name: 'merge_down',
     title: 'Merge down',
     description: 'Flattens a layer (with its opacity and blend mode) into the layer below it.',

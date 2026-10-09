@@ -15,6 +15,7 @@ const LAYER_COMMANDS = new Set<CommandType>([
   'update_layer',
   'reorder_layer',
   'merge_down',
+  'stamp_visible',
 ]);
 const SELECTION_COMMANDS = new Set<CommandType>(['select_shape', 'select_color', 'select_layer_pixels', 'selection_op']);
 const MASK_COMMANDS = new Set<CommandType>(['add_layer_mask', 'remove_layer_mask']);

@@ -60,7 +60,7 @@ convert on macOS with `sips -s format jpeg IMG.heic --out IMG.jpg`.
 |-----------|-------|
 | Document  | `open_image` (local path or URL), `get_document` (with each layer's content bounds), `render_image` (optional coordinate grid and zoomed region), `sample_color`, `create_document`, `resize_canvas` |
 | Layout    | `measure_text` |
-| Layers    | `add_layer`, `select_layer`, `update_layer` (name, visibility, opacity, blend mode), `reorder_layer`, `duplicate_layer`, `merge_down`, `delete_layer` |
+| Layers    | `add_layer`, `select_layer`, `update_layer` (name, visibility, opacity, blend mode), `reorder_layer`, `duplicate_layer`, `merge_down`, `stamp_visible` (flattened copy on top), `delete_layer` |
 | Selection | `select_rect`, `select_ellipse`, `select_lasso`, `select_color` (magic wand), `select_layer_pixels`, `modify_selection` (all / deselect / invert / feather), `copy_selection_to_layer` (layer via copy/cut) |
 | Masks     | `add_layer_mask` (from selection, reveal all, hide all), `remove_layer_mask` (discard or apply), `update_layer` `maskEnabled` |
 | Drawing   | `draw_rect`, `draw_ellipse`, `draw_path`, `brush_stroke` (also eraser), `draw_text`, `draw_gradient` |

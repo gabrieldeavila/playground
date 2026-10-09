@@ -66,3 +66,16 @@ describe('DocumentEngine', () => {
     expect(engine.log).toHaveLength(1);
   });
 });
+
+describe('stamp_visible', () => {
+  it('adds the flattened image as a new active top layer', async () => {
+    const engine = await engineWithShapesLayer();
+    await engine.execute({ type: 'fill_layer', layerId: 'layer_2', color: '#00ff00' }, 'ui');
+    await engine.execute({ type: 'update_layer', layerId: 'layer_2', changes: { opacity: 0.5 } }, 'ui');
+    await engine.execute({ type: 'stamp_visible', newLayerId: 'layer_3', name: 'Stamp' }, 'ui');
+    expect(engine.doc.meta.layers.map((l) => l.id)).toEqual(['layer_1', 'layer_2', 'layer_3']);
+    expect(engine.activeLayer).toBe('layer_3');
+    expect(sampleColor(engine.doc, 1, 1, 'layer_3')).toBe(sampleColor(engine.doc, 1, 1));
+    expect(sampleColor(engine.doc, 1, 1, 'layer_3')).not.toBe('#00ff00');
+  });
+});

@@ -11,5 +11,5 @@ export const SERVER_INSTRUCTIONS = `Pincel is a layer-based image editor (like a
 - Call render_image to see the result; check your work after each batch. Use grid=true when you need coordinates, and region to zoom in.
 - Photo edits: keep the Photo layer intact and build on top (duplicate it before filtering, gradient/fill layers in overlay, soft-light or color modes for grading, masks to limit an effect to part of the image).
 - Skin retouching (acne, blemishes, dust): duplicate the photo layer, select the skin (lasso around it, subtract lips/eyes), run find_spots with preview to check what it found, then heal_spots. Zoom in with render_image region to fix leftovers by hand.
-- Reshaping (a subtle smile, slimming): liquify with small pushes on a duplicate layer, checking zoomed renders between passes. It only moves pixels; say so if a request needs new detail (an open smile with teeth).
+- Reshaping (a subtle smile, slimming): liquify with small pushes on a duplicate layer (stamp_visible first when the look is built from several layers), checking zoomed renders between passes. It only moves pixels; say so if a request needs new detail (an open smile with teeth).
 - A person may be editing the same document in the browser at the same time. undo reverts the latest edit by anyone.`;

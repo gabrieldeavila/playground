@@ -1,13 +1,14 @@
 import { findLayer, insertLayer, layerIndex, moveLayer, newLayer, removeLayer, updateLayer } from '../document/layer-stack.js';
 import type { LayerMeta } from '../document/types.js';
 import { compositeLayer } from '../paint/composite.js';
+import { renderComposite } from '../paint/render-composite.js';
 import { copySurface } from '../paint/surface-ops.js';
 import type { PaintEnv } from '../paint/surface.js';
 import type { CommandOf } from './command-types.js';
 import { surfaceOf, type DocState } from './doc-state.js';
 
 export type LayerCommand = CommandOf<
-  'add_layer' | 'delete_layer' | 'duplicate_layer' | 'update_layer' | 'reorder_layer' | 'merge_down'
+  'add_layer' | 'delete_layer' | 'duplicate_layer' | 'update_layer' | 'reorder_layer' | 'merge_down' | 'stamp_visible'
 >;
 
 export function applyLayerCommand(state: DocState, cmd: LayerCommand, env: PaintEnv): DocState {
@@ -24,6 +25,8 @@ export function applyLayerCommand(state: DocState, cmd: LayerCommand, env: Paint
       return { ...state, meta: moveLayer(state.meta, cmd.layerId, cmd.index) };
     case 'merge_down':
       return mergeDown(state, cmd.layerId, env);
+    case 'stamp_visible':
+      return stampVisible(state, cmd, env);
   }
 }
 
@@ -66,4 +69,11 @@ function mergeDown(state: DocState, layerId: string, env: PaintEnv): DocState {
   const target = surfaceOf(state, below.id).getContext('2d');
   compositeLayer(target, findLayer(state.meta, layerId), surfaceOf(state, layerId), state.masks.get(layerId), env);
   return deleteLayer(state, layerId);
+}
+
+/** Photoshop's "stamp visible": the flattened image as a new layer on top, the rest left as is. */
+function stampVisible(state: DocState, cmd: CommandOf<'stamp_visible'>, env: PaintEnv): DocState {
+  const surfaces = new Map(state.surfaces).set(cmd.newLayerId, renderComposite(state, env));
+  const meta = insertLayer(state.meta, newLayer(cmd.newLayerId, cmd.name), state.meta.layers.length);
+  return { ...state, meta, surfaces };
 }

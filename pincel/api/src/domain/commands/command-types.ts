@@ -44,6 +44,7 @@ export type Command =
     }
   | { type: 'reorder_layer'; layerId: string; index: number }
   | { type: 'merge_down'; layerId: string }
+  | { type: 'stamp_visible'; newLayerId: string; name: string }
   | { type: 'resize_canvas'; width: number; height: number; offsetX: number; offsetY: number }
   | ({ type: 'fill_layer'; layerId: string; color: string } & Targeted)
   | ({ type: 'clear_layer'; layerId: string; rect?: Rect } & Targeted)

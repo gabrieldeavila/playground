@@ -180,7 +180,7 @@ export class DocumentEngine {
 
   private followNewLayer(command: Command): void {
     if (command.type === 'add_layer') this.activeLayerId = command.layerId;
-    if (command.type === 'duplicate_layer' || command.type === 'copy_selection_to_layer') {
+    if (command.type === 'duplicate_layer' || command.type === 'copy_selection_to_layer' || command.type === 'stamp_visible') {
       this.activeLayerId = command.newLayerId;
     }
     if (!this.state.surfaces.has(this.activeLayerId)) this.activeLayerId = this.topLayerId();
