@@ -38,6 +38,7 @@ from forecast_ml.config import (
 )
 from forecast_ml.dataset import load_market_data, resample_weekly
 from forecast_ml.kandle_features import FEATURES, add_features, dollar_volume
+from forecast_ml.modeling.type_summary import summary_by_type
 from forecast_ml.trades import simulate_trades
 from forecast_ml.universe import INDEXES, OTHER_INDEX, read_universe
 
@@ -91,6 +92,7 @@ TRADE_COLUMNS = [
     "exit_reason",
     "stop_price",
     "trend_start",
+    "signal_type",
     "liquid",
     "score",
     "pending",
@@ -199,22 +201,6 @@ def summary_by_band(trades: pd.DataFrame, scores: np.ndarray) -> list[dict]:
             {
                 "score_from": low,
                 "score_to": high,
-                "trades": len(chosen),
-                "win_rate_pct": round(float(chosen["label"].mean() * 100), 1),
-                "mean_return_pct": round(float(chosen["return_pct"].mean()), 2),
-                "median_days": float(chosen["days"].median()),
-            }
-        )
-    return rows
-
-
-def summary_by_type(trades: pd.DataFrame) -> list[dict]:
-    """Test-period outcomes of trend starts versus every Kandle COMPRA."""
-    rows = []
-    for kind, chosen in (("trend_start", trades.loc[trades["trend_start"]]), ("all", trades)):
-        rows.append(
-            {
-                "type": kind,
                 "trades": len(chosen),
                 "win_rate_pct": round(float(chosen["label"].mean() * 100), 1),
                 "mean_return_pct": round(float(chosen["return_pct"].mean()), 2),
@@ -410,6 +396,7 @@ def predict(
                 "score": round(float(open_trade["score"].iloc[0])),
                 "win_rate_pct": band_win_rate(float(open_trade["score"].iloc[0]), bands),
                 "trend_start": bool(open_trade["trend_start"].iloc[0]),
+                "signal_type": open_trade["signal_type"].iloc[0],
                 "stop_price": round(float(open_trade["stop_price"].iloc[0]), 2),
             },
             "history": [
@@ -422,6 +409,7 @@ def predict(
                     "score": round(float(row.score)),
                     "win_rate_pct": band_win_rate(float(row.score), bands),
                     "trend_start": bool(row.trend_start),
+                    "signal_type": row.signal_type,
                     "pending": bool(row.pending),
                 }
                 for row in rows.itertuples()

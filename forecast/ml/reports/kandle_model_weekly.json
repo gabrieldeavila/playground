@@ -1,24 +1,39 @@
 {
-  "trained_at": "2026-10-04T20:13:34+00:00",
+  "trained_at": "2026-10-09T00:32:28+00:00",
   "timeframe": "weekly",
   "rules": "COMPRA Kandle EMA 9/20/50 no semanal; entrada no open seguinte; stop 3xATR no fechamento; sa\u00edda com EMA 9 < EMA 20 por 2 candles; custo 0,1% por lado; s\u00f3 candles com m\u00e9dia de US$ 25,000,000 negociados",
   "train_universe": "all",
-  "train_signals": "2011-01-21 a 2021-11-26 (21070 trades)",
-  "test_signals": "2022-01-07 a 2026-09-11 (11997 trades)",
+  "test_start": "2022-01-01",
+  "train_signals": "2011-01-21 a 2021-11-26 (21046 trades)",
+  "test_signals": "2022-01-07 a 2026-09-18 (12122 trades)",
   "test_auc": 0.562,
   "test_by_type": [
     {
       "type": "trend_start",
-      "trades": 3019,
-      "win_rate_pct": 33.2,
-      "mean_return_pct": 2.68,
+      "trades": 3053,
+      "win_rate_pct": 33.4,
+      "mean_return_pct": 2.78,
       "median_days": 20.0
     },
     {
+      "type": "pullback",
+      "trades": 6823,
+      "win_rate_pct": 31.4,
+      "mean_return_pct": 1.75,
+      "median_days": 16.0
+    },
+    {
+      "type": "sideways",
+      "trades": 2246,
+      "win_rate_pct": 32.0,
+      "mean_return_pct": 3.07,
+      "median_days": 17.0
+    },
+    {
       "type": "all",
-      "trades": 11997,
-      "win_rate_pct": 31.9,
-      "mean_return_pct": 2.24,
+      "trades": 12122,
+      "win_rate_pct": 32.0,
+      "mean_return_pct": 2.26,
       "median_days": 17.0
     }
   ],
@@ -26,304 +41,304 @@
     {
       "score_from": 0,
       "score_to": 30,
-      "trades": 3967,
-      "win_rate_pct": 26.4,
-      "mean_return_pct": -2.01,
+      "trades": 4057,
+      "win_rate_pct": 26.8,
+      "mean_return_pct": -2.14,
       "median_days": 13.0
     },
     {
       "score_from": 30,
       "score_to": 50,
-      "trades": 2131,
-      "win_rate_pct": 29.8,
-      "mean_return_pct": -0.71,
+      "trades": 2156,
+      "win_rate_pct": 29.4,
+      "mean_return_pct": 0.14,
       "median_days": 16.0
     },
     {
       "score_from": 50,
       "score_to": 70,
-      "trades": 2030,
-      "win_rate_pct": 33.5,
-      "mean_return_pct": 1.87,
+      "trades": 2009,
+      "win_rate_pct": 34.3,
+      "mean_return_pct": 2.04,
       "median_days": 19.0
     },
     {
       "score_from": 70,
       "score_to": 90,
-      "trades": 2068,
-      "win_rate_pct": 36.9,
-      "mean_return_pct": 5.18,
+      "trades": 2012,
+      "win_rate_pct": 36.7,
+      "mean_return_pct": 5.1,
       "median_days": 20.0
     },
     {
       "score_from": 90,
       "score_to": 100,
-      "trades": 1801,
-      "win_rate_pct": 39.0,
-      "mean_return_pct": 12.14,
+      "trades": 1888,
+      "win_rate_pct": 38.7,
+      "mean_return_pct": 11.32,
       "median_days": 22.0
     }
   ],
   "test_by_index": [
     {
       "index": "sp500",
-      "trades": 3208,
-      "auc": 0.571,
+      "trades": 3245,
+      "auc": 0.57,
       "win_rate_pct": 34.3,
-      "score_70_plus_win_rate_pct": 40.6,
-      "score_below_30_win_rate_pct": 26.6,
-      "mean_return_pct": 5.33,
+      "score_70_plus_win_rate_pct": 39.8,
+      "score_below_30_win_rate_pct": 26.9,
+      "mean_return_pct": 5.25,
       "by_score_band": [
         {
           "score_from": 0,
           "score_to": 30,
-          "trades": 977,
-          "win_rate_pct": 26.6,
-          "mean_return_pct": -0.31,
+          "trades": 1016,
+          "win_rate_pct": 26.9,
+          "mean_return_pct": -0.28,
           "median_days": 14.0
         },
         {
           "score_from": 30,
           "score_to": 50,
-          "trades": 581,
-          "win_rate_pct": 31.2,
-          "mean_return_pct": 1.6,
+          "trades": 582,
+          "win_rate_pct": 31.3,
+          "mean_return_pct": 2.46,
           "median_days": 17.0
         },
         {
           "score_from": 50,
           "score_to": 70,
-          "trades": 581,
-          "win_rate_pct": 38.9,
-          "mean_return_pct": 5.82,
+          "trades": 576,
+          "win_rate_pct": 40.1,
+          "mean_return_pct": 5.14,
           "median_days": 22.0
         },
         {
           "score_from": 70,
           "score_to": 90,
-          "trades": 573,
-          "win_rate_pct": 40.3,
-          "mean_return_pct": 7.35,
-          "median_days": 20.0
+          "trades": 558,
+          "win_rate_pct": 40.0,
+          "mean_return_pct": 7.99,
+          "median_days": 21.0
         },
         {
           "score_from": 90,
           "score_to": 100,
-          "trades": 496,
-          "win_rate_pct": 40.9,
-          "mean_return_pct": 17.87,
-          "median_days": 23.0
+          "trades": 513,
+          "win_rate_pct": 39.6,
+          "mean_return_pct": 16.52,
+          "median_days": 22.0
         }
       ]
     },
     {
       "index": "sp400",
-      "trades": 2658,
-      "auc": 0.563,
-      "win_rate_pct": 34.2,
-      "score_70_plus_win_rate_pct": 41.1,
-      "score_below_30_win_rate_pct": 28.9,
-      "mean_return_pct": 3.45,
+      "trades": 2684,
+      "auc": 0.564,
+      "win_rate_pct": 34.3,
+      "score_70_plus_win_rate_pct": 41.9,
+      "score_below_30_win_rate_pct": 30.4,
+      "mean_return_pct": 3.49,
       "by_score_band": [
         {
           "score_from": 0,
           "score_to": 30,
-          "trades": 847,
-          "win_rate_pct": 28.9,
+          "trades": 848,
+          "win_rate_pct": 30.4,
           "mean_return_pct": -1.35,
           "median_days": 14.0
         },
         {
           "score_from": 30,
           "score_to": 50,
-          "trades": 490,
-          "win_rate_pct": 32.4,
-          "mean_return_pct": 0.09,
-          "median_days": 17.0
+          "trades": 507,
+          "win_rate_pct": 29.6,
+          "mean_return_pct": -0.05,
+          "median_days": 16.0
         },
         {
           "score_from": 50,
           "score_to": 70,
-          "trades": 451,
-          "win_rate_pct": 32.6,
-          "mean_return_pct": 1.12,
-          "median_days": 19.0
+          "trades": 442,
+          "win_rate_pct": 31.9,
+          "mean_return_pct": 0.8,
+          "median_days": 18.0
         },
         {
           "score_from": 70,
           "score_to": 90,
-          "trades": 467,
-          "win_rate_pct": 39.2,
-          "mean_return_pct": 7.11,
+          "trades": 455,
+          "win_rate_pct": 41.1,
+          "mean_return_pct": 8.69,
           "median_days": 21.0
         },
         {
           "score_from": 90,
           "score_to": 100,
-          "trades": 403,
-          "win_rate_pct": 43.4,
-          "mean_return_pct": 16.01,
+          "trades": 432,
+          "win_rate_pct": 42.8,
+          "mean_return_pct": 14.44,
           "median_days": 22.0
         }
       ]
     },
     {
       "index": "sp600",
-      "trades": 3015,
-      "auc": 0.527,
-      "win_rate_pct": 28.5,
-      "score_70_plus_win_rate_pct": 31.0,
-      "score_below_30_win_rate_pct": 26.2,
-      "mean_return_pct": -1.68,
+      "trades": 3044,
+      "auc": 0.529,
+      "win_rate_pct": 28.7,
+      "score_70_plus_win_rate_pct": 31.5,
+      "score_below_30_win_rate_pct": 26.7,
+      "mean_return_pct": -1.58,
       "by_score_band": [
         {
           "score_from": 0,
           "score_to": 30,
-          "trades": 1065,
-          "win_rate_pct": 26.2,
-          "mean_return_pct": -3.01,
+          "trades": 1073,
+          "win_rate_pct": 26.7,
+          "mean_return_pct": -3.39,
           "median_days": 13.0
         },
         {
           "score_from": 30,
           "score_to": 50,
-          "trades": 548,
-          "win_rate_pct": 26.5,
-          "mean_return_pct": -4.29,
+          "trades": 546,
+          "win_rate_pct": 24.7,
+          "mean_return_pct": -3.03,
           "median_days": 16.0
         },
         {
           "score_from": 50,
           "score_to": 70,
-          "trades": 496,
-          "win_rate_pct": 30.8,
-          "mean_return_pct": -0.95,
+          "trades": 517,
+          "win_rate_pct": 32.1,
+          "mean_return_pct": -0.43,
           "median_days": 17.0
         },
         {
           "score_from": 70,
           "score_to": 90,
-          "trades": 488,
-          "win_rate_pct": 30.5,
-          "mean_return_pct": 0.82,
-          "median_days": 19.0
+          "trades": 474,
+          "win_rate_pct": 32.1,
+          "mean_return_pct": 0.78,
+          "median_days": 18.0
         },
         {
           "score_from": 90,
           "score_to": 100,
-          "trades": 418,
-          "win_rate_pct": 31.6,
-          "mean_return_pct": 1.31,
-          "median_days": 19.0
+          "trades": 434,
+          "win_rate_pct": 30.9,
+          "mean_return_pct": 0.77,
+          "median_days": 20.0
         }
       ]
     },
     {
       "index": "nyse",
-      "trades": 1566,
-      "auc": 0.576,
-      "win_rate_pct": 33.3,
-      "score_70_plus_win_rate_pct": 41.7,
-      "score_below_30_win_rate_pct": 26.5,
+      "trades": 1579,
+      "auc": 0.582,
+      "win_rate_pct": 33.4,
+      "score_70_plus_win_rate_pct": 40.9,
+      "score_below_30_win_rate_pct": 26.0,
       "mean_return_pct": 3.59,
       "by_score_band": [
         {
           "score_from": 0,
           "score_to": 30,
-          "trades": 501,
-          "win_rate_pct": 26.5,
-          "mean_return_pct": -0.37,
+          "trades": 519,
+          "win_rate_pct": 26.0,
+          "mean_return_pct": -0.49,
           "median_days": 12.0
         },
         {
           "score_from": 30,
           "score_to": 50,
-          "trades": 271,
-          "win_rate_pct": 33.6,
-          "mean_return_pct": 5.33,
+          "trades": 275,
+          "win_rate_pct": 33.8,
+          "mean_return_pct": 3.57,
           "median_days": 17.0
         },
         {
           "score_from": 50,
           "score_to": 70,
-          "trades": 262,
-          "win_rate_pct": 29.0,
-          "mean_return_pct": -1.1,
-          "median_days": 18.0
-        },
-        {
-          "score_from": 70,
-          "score_to": 90,
-          "trades": 277,
-          "win_rate_pct": 40.4,
-          "mean_return_pct": 7.0,
-          "median_days": 21.0
-        },
-        {
-          "score_from": 90,
-          "score_to": 100,
-          "trades": 255,
-          "win_rate_pct": 43.1,
-          "mean_return_pct": 10.62,
-          "median_days": 23.0
-        }
-      ]
-    },
-    {
-      "index": "nasdaq",
-      "trades": 1544,
-      "auc": 0.577,
-      "win_rate_pct": 28.6,
-      "score_70_plus_win_rate_pct": 35.1,
-      "score_below_30_win_rate_pct": 22.9,
-      "mean_return_pct": 0.11,
-      "by_score_band": [
-        {
-          "score_from": 0,
-          "score_to": 30,
-          "trades": 577,
-          "win_rate_pct": 22.9,
-          "mean_return_pct": -5.42,
-          "median_days": 11.0
-        },
-        {
-          "score_from": 30,
-          "score_to": 50,
-          "trades": 239,
-          "win_rate_pct": 24.7,
-          "mean_return_pct": -6.7,
-          "median_days": 15.0
-        },
-        {
-          "score_from": 50,
-          "score_to": 70,
-          "trades": 238,
-          "win_rate_pct": 32.8,
-          "mean_return_pct": 2.9,
+          "trades": 244,
+          "win_rate_pct": 32.0,
+          "mean_return_pct": 3.23,
           "median_days": 19.0
         },
         {
           "score_from": 70,
           "score_to": 90,
-          "trades": 262,
-          "win_rate_pct": 34.0,
-          "mean_return_pct": 3.36,
+          "trades": 274,
+          "win_rate_pct": 36.5,
+          "mean_return_pct": 3.85,
           "median_days": 21.0
         },
         {
           "score_from": 90,
           "score_to": 100,
-          "trades": 228,
+          "trades": 267,
+          "win_rate_pct": 45.3,
+          "mean_return_pct": 11.61,
+          "median_days": 24.0
+        }
+      ]
+    },
+    {
+      "index": "nasdaq",
+      "trades": 1564,
+      "auc": 0.571,
+      "win_rate_pct": 28.6,
+      "score_70_plus_win_rate_pct": 33.5,
+      "score_below_30_win_rate_pct": 22.8,
+      "mean_return_pct": 0.08,
+      "by_score_band": [
+        {
+          "score_from": 0,
+          "score_to": 30,
+          "trades": 601,
+          "win_rate_pct": 22.8,
+          "mean_return_pct": -5.62,
+          "median_days": 12.0
+        },
+        {
+          "score_from": 30,
+          "score_to": 50,
+          "trades": 244,
+          "win_rate_pct": 29.5,
+          "mean_return_pct": -1.81,
+          "median_days": 15.0
+        },
+        {
+          "score_from": 50,
+          "score_to": 70,
+          "trades": 229,
+          "win_rate_pct": 32.3,
+          "mean_return_pct": 0.99,
+          "median_days": 19.0
+        },
+        {
+          "score_from": 70,
+          "score_to": 90,
+          "trades": 248,
+          "win_rate_pct": 30.6,
+          "mean_return_pct": 2.0,
+          "median_days": 20.0
+        },
+        {
+          "score_from": 90,
+          "score_to": 100,
+          "trades": 242,
           "win_rate_pct": 36.4,
-          "mean_return_pct": 14.62,
-          "median_days": 21.5
+          "mean_return_pct": 13.35,
+          "median_days": 21.0
         }
       ]
     },
     {
       "index": "watchlist",
       "trades": 6,
-      "auc": 0.2,
+      "auc": 0.0,
       "win_rate_pct": 16.7,
       "score_70_plus_win_rate_pct": 0.0,
       "score_below_30_win_rate_pct": null,
@@ -334,31 +349,23 @@
           "score_to": 50,
           "trades": 2,
           "win_rate_pct": 50.0,
-          "mean_return_pct": 5.35,
-          "median_days": 29.5
+          "mean_return_pct": 4.8,
+          "median_days": 28.0
         },
         {
           "score_from": 50,
           "score_to": 70,
-          "trades": 2,
+          "trades": 1,
           "win_rate_pct": 0.0,
-          "mean_return_pct": -6.58,
-          "median_days": 11.5
+          "mean_return_pct": -3.78,
+          "median_days": 20.0
         },
         {
           "score_from": 70,
           "score_to": 90,
-          "trades": 1,
+          "trades": 3,
           "win_rate_pct": 0.0,
-          "mean_return_pct": -31.18,
-          "median_days": 15.0
-        },
-        {
-          "score_from": 90,
-          "score_to": 100,
-          "trades": 1,
-          "win_rate_pct": 0.0,
-          "mean_return_pct": -38.26,
+          "mean_return_pct": -25.9,
           "median_days": 8.0
         }
       ]

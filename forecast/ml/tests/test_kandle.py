@@ -167,8 +167,19 @@ def test_first_signal_after_a_base_is_a_trend_start_and_repeats_are_not():
     assert len(trades) >= 2
     first, repeat = trades.iloc[0], trades.iloc[1]
     assert first["setup_off_days_60"] >= 50 and first["trend_start"]
-    # The second COMPRA comes right after the first setup: not a base, so sideways.
+    assert first["signal_type"] == "trend_start"
+    # The second COMPRA comes right after the first setup: not a base, and the dip
+    # never pulled EMA 20 under EMA 50, so it is a pullback in the uptrend.
     assert repeat["setup_off_days_60"] < 50 and not repeat["trend_start"]
+    assert repeat["signal_type"] == "pullback"
+
+
+def test_repeat_compra_in_a_range_is_sideways():
+    swings = 100 + 8 * np.sin(np.arange(500) / 10)
+    trades = simulate_trades(_candles(swings))
+    repeats = trades.loc[~trades["trend_start"]]
+    assert len(repeats) >= 1
+    assert (repeats["signal_type"] == "sideways").all()
 
 
 def test_weekly_candles_aggregate_the_week_and_survive_a_mid_week_split():

@@ -64,7 +64,8 @@
   },
   "searchNoMatch": "No ticker matches \"{{query}}\". Add it to references/watchlist.txt and download the data.",
   "type": {
-    "trendStart": "Trend start",
+    "trend_start": "Trend start",
+    "pullback": "Pullback in uptrend",
     "sideways": "Sideways"
   },
   "timeframe": {

@@ -10,7 +10,7 @@ candle is pending: no entry, exit or label yet, and its stop is estimated on the
 
 Trend start: the signal is the first COMPRA after a base, i.e. the setup was off on
 at least 50 of the 60 previous candles, and EMA 9 is already more than 1% above
-EMA 20. Repeated COMPRAs in a choppy market are marked as sideways instead.
+EMA 20. Other COMPRAs are pullbacks in an uptrend or sideways (forecast_ml.signal_type).
 """
 
 import numpy as np
@@ -19,6 +19,7 @@ import pandas as pd
 from forecast_ml.features import _kandle_ema
 from forecast_ml.kandle_signals import build_kandle_signals
 from forecast_ml.labels import adjusted_ohlc, average_true_range_pct
+from forecast_ml.signal_type import classify_signal, uptrend_held
 
 STOP_ATR = 3.0
 CROSS_CONFIRM_DAYS = 2
@@ -41,6 +42,7 @@ def simulate_trades(candles: pd.DataFrame) -> pd.DataFrame:
         open_, close = prices["open"].to_numpy(), prices["close"].to_numpy()
         ema_9 = _kandle_ema(prices["close"], 9).to_numpy()
         ema_20 = _kandle_ema(prices["close"], 20).to_numpy()
+        uptrend = uptrend_held(ema_20, _kandle_ema(prices["close"], 50).to_numpy())
         atr = average_true_range_pct(prices).to_numpy()
         dates = group["date"].to_numpy()
         n = len(group)
@@ -81,6 +83,10 @@ def simulate_trades(candles: pd.DataFrame) -> pd.DataFrame:
                     exit_index - (signal + 1),
                 )
             net = price / entry * (1 - COST_PER_SIDE) ** 2 - 1
+            trend_start = bool(
+                off_days[signal] >= BASE_MIN_OFF_DAYS
+                and ema_9[signal] / ema_20[signal] - 1 > TREND_START_MIN_SPREAD
+            )
             rows.append(
                 {
                     "ticker": ticker,
@@ -97,10 +103,8 @@ def simulate_trades(candles: pd.DataFrame) -> pd.DataFrame:
                     "label": np.nan if exit_index is None else float(net > 0),
                     "pending": pending,
                     "setup_off_days_60": off_days[signal],
-                    "trend_start": bool(
-                        off_days[signal] >= BASE_MIN_OFF_DAYS
-                        and ema_9[signal] / ema_20[signal] - 1 > TREND_START_MIN_SPREAD
-                    ),
+                    "trend_start": trend_start,
+                    "signal_type": classify_signal(trend_start, uptrend[signal]),
                 }
             )
     return pd.DataFrame(rows)
