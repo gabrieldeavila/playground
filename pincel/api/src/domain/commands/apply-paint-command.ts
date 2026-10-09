@@ -9,6 +9,7 @@ import { drawText } from '../paint/draw-text.js';
 import { clearLayer, fillLayer } from '../paint/fill-and-clear.js';
 import { floodFill } from '../paint/flood-fill.js';
 import { healSpots } from '../paint/heal-spots.js';
+import { liquify } from '../paint/liquify.js';
 import { placeImage } from '../paint/place-image.js';
 import { renderComposite } from '../paint/render-composite.js';
 import { flattenOnBlack, grayToAlpha } from '../paint/surface-ops.js';
@@ -30,6 +31,7 @@ export type PaintCommand = CommandOf<
   | 'transform_layer'
   | 'flood_fill'
   | 'heal_spots'
+  | 'liquify'
 >;
 
 /**
@@ -77,6 +79,8 @@ async function paintOnto(surface: Surface, cmd: Exclude<PaintCommand, { type: 't
         return await placeImage(ctx, cmd, env);
       case 'apply_filter':
         return applyFilter(ctx, cmd);
+      case 'liquify':
+        return liquify(ctx, cmd);
       case 'heal_spots':
         return healSpots(ctx, cmd);
       case 'flood_fill':

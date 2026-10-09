@@ -65,7 +65,7 @@ convert on macOS with `sips -s format jpeg IMG.heic --out IMG.jpg`.
 | Masks     | `add_layer_mask` (from selection, reveal all, hide all), `remove_layer_mask` (discard or apply), `update_layer` `maskEnabled` |
 | Drawing   | `draw_rect`, `draw_ellipse`, `draw_path`, `brush_stroke` (also eraser), `draw_text`, `draw_gradient` |
 | Filling   | `flood_fill` (paint bucket with tolerance), `fill_layer`, `clear_layer` |
-| Retouch   | `find_spots` (detects blemishes, previews them circled), `heal_spots` (spot healing brush) |
+| Retouch   | `find_spots` (detects blemishes, previews them circled), `heal_spots` (spot healing brush), `liquify` (push warp, e.g. a subtle smile) |
 | Images    | `place_image` (URL or data URI), `apply_filter`, `transform_layer` |
 | History   | `undo`, `redo` |
 | Batch     | `batch`: many tool calls in one request, all-or-nothing, one undo step |

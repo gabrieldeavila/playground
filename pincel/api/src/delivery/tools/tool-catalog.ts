@@ -5,6 +5,7 @@ import { historyTools } from './history-tools.js';
 import { imageTools } from './image-tools.js';
 import { layerTools } from './layer-tools.js';
 import { layoutTools } from './layout-tools.js';
+import { liquifyTool } from './liquify-tool.js';
 import { maskTools } from './mask-tools.js';
 import { openImageTool } from './open-image-tool.js';
 import { paintTools } from './paint-tools.js';
@@ -24,6 +25,7 @@ const SINGLE_TOOLS: ToolDefinition[] = [
   ...paintTools,
   ...fillTools,
   ...retouchTools,
+  liquifyTool,
   ...imageTools,
   ...historyTools,
 ];
