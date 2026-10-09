@@ -1,0 +1,13 @@
+{
+  "name": "pincel",
+  "private": true,
+  "scripts": {
+    "postinstall": "pnpm --dir api install && pnpm --dir ui install",
+    "dev": "concurrently -k -n api,ui \"pnpm --dir api run dev\" \"pnpm --dir ui run dev\"",
+    "test": "pnpm --dir api test && pnpm --dir ui test",
+    "typecheck": "pnpm --dir api typecheck && pnpm --dir ui typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
