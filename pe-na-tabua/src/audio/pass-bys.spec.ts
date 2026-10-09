@@ -1,3 +1,4 @@
+import { testCar } from '../domain/traffic/test-cars'
 import { describe, expect, it } from 'vitest'
 import { testRider } from '../domain/race/test-riders'
 import type { Race } from '../domain/race/types'
@@ -13,7 +14,7 @@ function race(playerS: number, rivalS: number, cars: Car[] = []): Race {
   return { playerId: 0, riders, cars, track: { props } } as unknown as Race
 }
 
-const oncoming = (s: number): Car => ({ id: 0, kind: 'taxi', s, x: -1.6, speed: 20, direction: -1 })
+const oncoming = (s: number): Car => testCar({ kind: 'taxi', s, x: -1.6, speed: 20, direction: -1, lane: 2 })
 
 describe('PassBys', () => {
   it('ouve o que ficou para trás, menos guard-rail e o que está longe', () => {

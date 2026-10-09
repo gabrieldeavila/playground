@@ -1,9 +1,10 @@
+import { testCar } from './test-cars'
 import { describe, expect, it } from 'vitest'
 import { testRider } from '../race/test-riders'
 import { wantsToHonk } from './honk'
 import type { Car } from './types'
 
-const oncoming: Car = { id: 0, kind: 'taxi', s: 160, x: -1.6, speed: 20, direction: -1 }
+const oncoming: Car = testCar({ kind: 'taxi', s: 160, x: -1.6, speed: 20, direction: -1, lane: 2 })
 
 describe('wantsToHonk', () => {
   it('buzina para quem vem de frente na faixa', () => {

@@ -1,9 +1,10 @@
+import { testCar } from './test-cars'
 import { describe, expect, it } from 'vitest'
 import { testRider } from '../race/test-riders'
 import { hitCar } from './car-collisions'
 import type { Car } from './types'
 
-const car = (overrides: Partial<Car> = {}): Car => ({ id: 0, kind: 'sedan', s: 102, x: 1.6, speed: 20, direction: 1, ...overrides })
+const car = (overrides: Partial<Car> = {}): Car => testCar({ s: 102, speed: 20, ...overrides })
 
 describe('hitCar', () => {
   it('bate na traseira de um carro mais lento', () => {

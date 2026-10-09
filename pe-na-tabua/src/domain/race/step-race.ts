@@ -17,7 +17,7 @@ import type { Race, RaceEvent, Rider, RiderInput } from './types'
 // Avança a corrida um passo fixo. Continua rodando depois da chegada do jogador.
 // O trânsito anda desde a contagem regressiva.
 export function stepRace(race: Race, playerInput: RiderInput, dt: number): RaceEvent[] {
-  stepTraffic(race.cars, race.track.length, dt)
+  stepTraffic(race.cars, race.track.length, dt, race.rng)
   if (race.phase === 'countdown') {
     race.countdown -= dt
     if (race.countdown <= 0) race.phase = 'racing'

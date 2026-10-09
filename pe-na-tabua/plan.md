@@ -43,6 +43,12 @@ commercial game.
       0.8 s → `phase: 'busted'`, "BUSTED!" results with the player as DNF. Light bar, HUD warning
       "POLICE ▲ 85 M", blue progress dot, siren panned to the cop.
       Tuning (20 simulated races): passive rider busted 8/20, rider who dodges and fights back 2/20.
+- [x] Lane-changing traffic (`domain/traffic/lane-change.ts`): every ~25 s on average a car tries to move to
+      the other lane of its direction. Amber blinkers for 1.2 s (`render/car-blinkers.ts`), then a 2.2 s slide while
+      its speed blends to the new lane's. It only goes if no car in either lane comes within 14 m during the whole
+      maneuver (speed blends linearly, so checking the start and end of the slide is enough), and never starts within
+      120 m of another car that is mid-change. Riders aren't checked: a car can pull out in front of you, with warning.
+      A spec runs dense traffic for 5 minutes and asserts no two cars ever overlap. Sim: difficulty within noise.
 
 ## To do (in order)
 

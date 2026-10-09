@@ -1,10 +1,11 @@
+import { testCar } from '../traffic/test-cars'
 import { describe, expect, it } from 'vitest'
 import { CAR_HALF_WIDTH } from '../traffic/constants'
 import type { Car } from '../traffic/types'
 import { dodgeLine } from './dodge-cars'
 import { testRider } from './test-riders'
 
-const car = (overrides: Partial<Car> = {}): Car => ({ id: 0, kind: 'sedan', s: 140, x: 1.6, speed: 20, direction: 1, ...overrides })
+const car = (overrides: Partial<Car> = {}): Car => testCar({ s: 140, speed: 20, ...overrides })
 
 describe('dodgeLine', () => {
   it('caminho livre não muda nada', () => {
