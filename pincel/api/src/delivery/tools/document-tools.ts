@@ -22,7 +22,7 @@ export const documentTools = [
     name: 'render_image',
     title: 'Look at the image',
     description:
-      'Returns the current image as a PNG so you can see your work. Call it after a few edits to check the result. Use grid=true to overlay labelled coordinate lines when you need to place things precisely, and region to zoom in on a detail.',
+      'Returns the current image as a PNG so you can see your work. Call it after a few edits to check the result. Use grid=true to overlay labelled coordinate lines when you need to place things precisely, and region to zoom in on a detail (small regions are enlarged up to 8x to fill maxSize).',
     input: {
       layerId: z.string().optional().describe('Render only this layer instead of the full composite'),
       maxSize: z.number().int().min(64).max(4096).default(1024).describe('Longest side of the returned image'),

@@ -3,7 +3,7 @@ import { describeError, parseToolInput } from './run-tool.js';
 import { defineTool, type ToolContext, type ToolDefinition, type ToolResult } from './tool-definition.js';
 
 /** Tools that replace or rewind the whole document can't be part of a batch. */
-const NOT_BATCHABLE = new Set(['batch', 'create_document', 'undo', 'redo']);
+const NOT_BATCHABLE = new Set(['batch', 'create_document', 'open_image', 'undo', 'redo']);
 const MAX_STEPS = 200;
 
 interface Step {

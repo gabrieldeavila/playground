@@ -4,15 +4,17 @@ import type { DocumentSnapshot, ToolCall } from '../domain/types';
 import { ConnectAiPanel } from './ConnectAiPanel';
 import { IconButton } from './IconButton';
 import { NewDocumentForm } from './NewDocumentForm';
+import { OpenImageButton } from './OpenImageButton';
 
 interface Props {
   doc: DocumentSnapshot;
   run: (call: ToolCall) => void;
+  onOpenImage: (file: File | undefined) => void;
 }
 
 type Popover = 'new' | 'connect' | null;
 
-export function TopBar({ doc, run }: Props) {
+export function TopBar({ doc, run, onOpenImage }: Props) {
   const [open, setOpen] = useState<Popover>(null);
   const toggle = (which: Popover) => setOpen((current) => (current === which ? null : which));
 
@@ -24,6 +26,7 @@ export function TopBar({ doc, run }: Props) {
       <IconButton label="New document" active={open === 'new'} onClick={() => toggle('new')}>
         <LuFilePlus />
       </IconButton>
+      <OpenImageButton onFile={onOpenImage} />
       <IconButton label="Undo (⌘Z)" disabled={!doc.canUndo} onClick={() => run({ name: 'undo', input: {} })}>
         <LuUndo2 />
       </IconButton>

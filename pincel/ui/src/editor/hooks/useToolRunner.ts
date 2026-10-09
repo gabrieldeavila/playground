@@ -17,5 +17,5 @@ export function useToolRunner() {
     }
   }, []);
 
-  return { run, error, clearError: () => setError(null) };
+  return { run, error, clearError: () => setError(null), showError: setError };
 }

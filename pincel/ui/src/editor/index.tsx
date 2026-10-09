@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CanvasStage } from './components/CanvasStage';
+import { DropOverlay } from './components/DropOverlay';
 import { Sidebar } from './components/Sidebar';
 import { StatusBar } from './components/StatusBar';
 import { TextEntry } from './components/TextEntry';
@@ -12,6 +13,7 @@ import { useCanvasGesture } from './hooks/useCanvasGesture';
 import { useDocument } from './hooks/useDocument';
 import { useEditorActions } from './hooks/useEditorActions';
 import { useFitZoom } from './hooks/useFitZoom';
+import { useImageOpener } from './hooks/useImageOpener';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSelectionActions } from './hooks/useSelectionActions';
 import { useTextEntry } from './hooks/useTextEntry';
@@ -28,7 +30,8 @@ function Workspace({ doc, online, lastChange }: { doc: DocumentSnapshot; online:
   const [tool, setTool] = useState<EditorToolId>('brush');
   const { settings: chosen, update, swapColors } = useToolSettings();
   const settings = withEffectiveTarget(chosen, doc);
-  const { run, error, clearError } = useToolRunner();
+  const { run, error, clearError, showError } = useToolRunner();
+  const opener = useImageOpener(doc.canUndo, showError);
   const textEntry = useTextEntry();
   const { containerRef, zoom } = useFitZoom(doc);
   const selection = useSelectionActions(run, doc.activeLayerId, settings);
@@ -50,8 +53,9 @@ function Workspace({ doc, online, lastChange }: { doc: DocumentSnapshot; online:
   });
 
   return (
-    <div className="flex h-full flex-col">
-      <TopBar doc={doc} run={run} />
+    <div className="relative flex h-full flex-col" {...opener.dropHandlers}>
+      {opener.dragging && <DropOverlay />}
+      <TopBar doc={doc} run={run} onOpenImage={opener.open} />
       <ToolOptions tool={tool} settings={settings} onSettings={update} />
       <div className="flex min-h-0 flex-1">
         <Toolbar tool={tool} onSelect={setTool} settings={settings} onSettings={update} onSwapColors={swapColors} />

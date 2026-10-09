@@ -6,6 +6,7 @@ import type { Rect } from '../domain/document/types.js';
 import { renderComposite } from '../domain/paint/render-composite.js';
 import type { Surface } from '../domain/paint/surface.js';
 import { drawGrid } from './draw-grid.js';
+import { drawMarkers } from './draw-markers.js';
 import { napiPaintEnv } from './napi-paint-env.js';
 
 export interface RenderOptions {
@@ -19,6 +20,8 @@ export interface RenderOptions {
   region?: Rect;
   /** Overlay labelled grid lines; a number sets the spacing in document pixels. */
   grid?: boolean | number;
+  /** Circles to draw on top (e.g. spots found by find_spots), with their index as a label. */
+  markers?: { center: [number, number]; radius: number }[];
 }
 
 export function compositeOf(state: DocState): Surface {
@@ -29,7 +32,9 @@ export function compositeOf(state: DocState): Surface {
 export function renderPng(state: DocState, options: RenderOptions = {}): Buffer {
   const source = sourceOf(state, options);
   const region = options.region ?? { x: 0, y: 0, width: source.width, height: source.height };
-  const scale = Math.min(1, (options.maxSize ?? Infinity) / Math.max(region.width, region.height));
+  // A whole image is only ever scaled down; a region may be zoomed in (up to 8x) to inspect details.
+  const fit = (options.maxSize ?? Infinity) / Math.max(region.width, region.height);
+  const scale = options.region ? Math.min(8, fit) : Math.min(1, fit);
   const out = createCanvas(Math.max(1, Math.round(region.width * scale)), Math.max(1, Math.round(region.height * scale)));
   const ctx = out.getContext('2d');
   ctx.drawImage(source, region.x, region.y, region.width, region.height, 0, 0, out.width, out.height);
@@ -37,6 +42,7 @@ export function renderPng(state: DocState, options: RenderOptions = {}): Buffer 
     const spacing = typeof options.grid === 'number' ? options.grid : niceGridSpacing(region.width, region.height);
     drawGrid(ctx, region, scale, spacing);
   }
+  if (options.markers) drawMarkers(ctx, options.markers, region, scale);
   return out.toBuffer('image/png');
 }
 

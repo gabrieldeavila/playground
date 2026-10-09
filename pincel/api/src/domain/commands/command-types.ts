@@ -101,6 +101,7 @@ export type Command =
       /** Decide the region from the flattened image instead of this layer. */
       sampleAllLayers: boolean;
     } & Targeted)
+  | ({ type: 'heal_spots'; layerId: string; spots: { center: Point; radius: number }[] } & Targeted)
   | { type: 'select_shape'; shape: SelectionShape; mode: SelectionMode; feather: number }
   | {
       type: 'select_color';

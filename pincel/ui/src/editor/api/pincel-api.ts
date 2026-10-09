@@ -30,3 +30,15 @@ export const layerThumbnailUrl = (layerId: string, version: number) => `/api/lay
 export const maskThumbnailUrl = (layerId: string, version: number) => `/api/layers/${layerId}/mask.png?maxSize=96&v=${version}`;
 
 export const selectionOverlayUrl = (version: number, maxSize: number) => `/api/selection.png?maxSize=${maxSize}&v=${version}`;
+
+/** Sends a photo file as the request body; the API opens it as a new document. */
+export async function uploadImage(file: File): Promise<{ width: number; height: number; scaled: boolean }> {
+  const response = await fetch('/api/open-image', {
+    method: 'POST',
+    headers: { 'Content-Type': file.type || 'application/octet-stream' },
+    body: file,
+  });
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error ?? `HTTP ${response.status}`);
+  return body;
+}

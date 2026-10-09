@@ -39,17 +39,33 @@ curl -X POST localhost:4300/api/tools/draw_ellipse \
   -d '{"center":[400,300],"radiusX":120,"radiusY":120,"fill":"#fde047"}'
 ```
 
+## Edit your own photos
+
+- **In the editor:** click the open-image button in the top bar, or drop a photo on the
+  window. The canvas takes the photo's size (huge photos are scaled to 4096 px) and the
+  photo lands on a "Photo" layer.
+- **With Claude:** ask *"open ~/Pictures/me.jpg in pincel and give it a warm film look"*.
+  The `open_image` tool takes a local path or a URL, and Claude builds the edit as
+  separate layers on top, so you can tweak or hide each step afterwards.
+
+Blemish removal works too: *"remove the acne from this photo"* makes Claude select the
+skin, detect the spots, heal them on a copy of the photo, and zoom in to check.
+
+JPEG, PNG, WebP, GIF and AVIF work. iPhone HEIC photos don't: export them as JPEG, or
+convert on macOS with `sips -s format jpeg IMG.heic --out IMG.jpg`.
+
 ## Tools
 
 | Area      | Tools |
 |-----------|-------|
-| Document  | `get_document` (with each layer's content bounds), `render_image` (optional coordinate grid and zoomed region), `sample_color`, `create_document`, `resize_canvas` |
+| Document  | `open_image` (local path or URL), `get_document` (with each layer's content bounds), `render_image` (optional coordinate grid and zoomed region), `sample_color`, `create_document`, `resize_canvas` |
 | Layout    | `measure_text` |
 | Layers    | `add_layer`, `select_layer`, `update_layer` (name, visibility, opacity, blend mode), `reorder_layer`, `duplicate_layer`, `merge_down`, `delete_layer` |
 | Selection | `select_rect`, `select_ellipse`, `select_lasso`, `select_color` (magic wand), `select_layer_pixels`, `modify_selection` (all / deselect / invert / feather), `copy_selection_to_layer` (layer via copy/cut) |
 | Masks     | `add_layer_mask` (from selection, reveal all, hide all), `remove_layer_mask` (discard or apply), `update_layer` `maskEnabled` |
 | Drawing   | `draw_rect`, `draw_ellipse`, `draw_path`, `brush_stroke` (also eraser), `draw_text`, `draw_gradient` |
 | Filling   | `flood_fill` (paint bucket with tolerance), `fill_layer`, `clear_layer` |
+| Retouch   | `find_spots` (detects blemishes, previews them circled), `heal_spots` (spot healing brush) |
 | Images    | `place_image` (URL or data URI), `apply_filter`, `transform_layer` |
 | History   | `undo`, `redo` |
 | Batch     | `batch`: many tool calls in one request, all-or-nothing, one undo step |
