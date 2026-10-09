@@ -46,20 +46,60 @@ commercial game.
 
 ## To do (in order)
 
-### 3. Career loop ← next
+### 3. Phases, levels and difficulty ✓
+
+Terms (in code a phase is a `course`; `phase` is already `RacePhase`):
+- **Course**: a road layout plus its look. Serra (mountain, sunset) and Litoral (coast, midday, sea on the left).
+- **Level**: 5 tiers; every course of a level must be cleared to unlock the next. Higher level = longer courses.
+- **Difficulty / mode**: Joyride, Racer, Outlaw. **Each mode has its own career** (changed from the first idea of
+  one career you can only lower: simpler to explain, and the Outlaw badge still means clearing Outlaw).
+
+How it fits together (`domain/career/`):
+- `levels.ts`: only `lengthScale` per level. Everything else comes from the mode.
+- `challenge.ts`: every knob on one **intensity** scale: 0 = easiest, 1 = the game as tuned before (Outlaw
+  level 1), 5 = Outlaw level 5. `CHALLENGE_STEPS` holds a point per integer, `challengeAt` interpolates
+  (armed bots and cops rounded), `copLayout(n)` places the cops (2 → 0.3/0.65 as before).
+- `difficulty.ts`: per mode, intensity per level, qualify place, and `canBust` / `catchUp`.
+  Joyride [0, .08, .16, .24, .32] top 5, cops never arrest, catch-up boost. Racer [.4, .48, .62, .8, 1]
+  top 3 (its last level = Outlaw level 1). Outlaw [1..5] top 3.
+- `race-setup.ts`: `buildRaceSetup(course, level, difficulty)` → course (stretched, seed per level), riders,
+  traffic scale, `RaceRules`. The track depends only on course + level, so modes share it.
+- `RaceRules` on `Race` (`domain/race/rules.ts`): cop speed, cop swing rate, bust time, `canBust`, car crash
+  damage, `catchUp` (player top speed boost when far behind the leader, `race/catch-up.ts`). Rubber-banding and
+  alert range didn't need to vary, so they stay constants.
+- `career.ts`: `Careers` = one `Career` per mode; `recordResult(..., difficulty)`; `courseAfter` picks the next
+  course (retry if not qualified, next uncleared if qualified, next in list when practicing).
+
+Done:
+- [x] **3a. Race setup from config.** `Course` = `start` / `body` / `finish`; `stretchCourse` repeats the body
+  (mirrored curves on odd repeats). `createRace(track, riders, seed, { trafficScale, rules })`.
+- [x] **3b. Levels.** `Session` modes `title | modes | levels | courses | racing | results`. `RaceCatalog` caches
+  setups per mode/level/course and tracks per level/course. Keys per screen in `game/key-actions.ts`. Track
+  changes swap the scenery (`game/track-scenery.ts`, old meshes freed via `render/dispose-tree.ts`); `RidersView`
+  rebuilds the bikes when the lineup changes.
+- [x] **3c. Difficulty modes.** Mode picker after the title (progress per mode), mode name on level select,
+  ★ OUTLAW CHAMPION ★ on the title. Save = `{ difficulty, careers }` in `localStorage` key
+  `pe-na-tabua.save.v1` (`data/parse-save.ts`: a broken career resets only itself).
+- [x] **3d. Themes + Litoral.** Courses have `theme` + `scenery` (tree/rock mix, `seaSide`). `render/theme/`
+  holds sky, sun, fog, lights, backdrop shape, terrain palette and sea colour per theme; `WorldView.setTheme`
+  swaps them. On the sea side the terrain drops below a water plane (`render/sea.ts`) and no props spawn past
+  6 m. Course select screen per level (km, CLEARED / TO CLEAR); results say "1 more course to clear level N".
+- Checked: Serra/Outlaw level 1 sim identical to before all of this (same seeds); typecheck, tests, build;
+  headless Chromium for every screen, both courses, theme swaps, saves. The results screen itself wasn't
+  reached in the browser (a race takes ~100 s headless); `session.spec.ts` and the text specs cover it.
+
+Open: playtest Racer level 3 (second cop arrives; sim average drops 65% → 28%). The sim player is a guess.
+
+### 4. Career extras ← next
 - [ ] Prize money by finishing place
-- [ ] Qualify (top N) to advance a level; each level = longer course
 - [ ] Bike shop: 3–4 bikes (top speed, acceleration, handling, durability)
 - [ ] Nitro on the faster bikes
 - [ ] Bike damage separate from rider health; "wrecked" → repair cost
-- [ ] Save progress in `localStorage`
-- [ ] Screens: shop, level select / next race, standings with money
+- [ ] Shop screen, standings with money
 
-### 4. More courses
-- [ ] City course with buildings (needs building props)
-- [ ] Coastal road
+### 4b. More courses
 - [ ] Desert
-- [ ] Course select / level → course mapping
+- [ ] City course with buildings (needs building props)
 
 ### 5. Road hazards
 - [ ] Jumps: fast crests launch the bike (airborne state, landing)
@@ -76,10 +116,43 @@ commercial game.
 - [ ] Tune traffic density / bot car-crash rate after playtesting
   (simulated: bots hit a car 0–3 times per ~100 s race)
 - [ ] Police follow-ups: fine money once the career loop exists; cops could give up after being
-  knocked off; more cops on later levels.
+  knocked off. (More cops on later levels: done in 3.)
 - [ ] Weapons follow-ups: weapons lying on the road to pick up, more kinds (pipe, cattle prod),
   weapon kept between races once the career loop exists. Bots almost never steal from each
   other (they rarely punch an armed rider bare-handed) — fine for now.
+
+## Simulating races
+
+`pnpm sim [--course Serra|Litoral] [--mode joyride|racer|outlaw] [--level N] [--races N] [--no-cops] [--matrix]`
+— headless, domain only (no three.js, no DOM), ~100 races in a few seconds per model:
+
+- Node 24 runs the `.ts` files directly; a small `module.registerHooks` resolve hook adds `.ts` to
+  the extensionless imports.
+- The player is driven by `aiInput` with an `AiProfile` (pace = throttle target, aggression = fights back)
+  plus **lapses**: random moments where the player's input is computed with `cars: []` (didn't see the car).
+  - casual: pace 0.93, aggression 0, a 1.2 s lapse every ~8 s
+  - average: pace 0.97, aggression 0.4, a 1.0 s lapse every ~15 s
+  - skilled: pace 1.0, aggression 0.7, a 0.8 s lapse every ~40 s
+- Step at 1/120 s (same as `fixed-loop.ts`) until finished, busted, or 400 s; collect `RaceEvent`s.
+- Race n uses the same seed as the game's race n (`n * 7919`), so results are reproducible.
+
+Before modes existed (today's tuning = Outlaw level 1, Serra, 200 races): average player qualified 5%,
+skilled 23%, perfect bot 27%; about half of all races ended busted, mostly after a nightstick knockout at
+the second cop. Without cops: average 55%, skilled 84%. The police are what make it hard.
+
+Tuned result, Serra, qualify % for the **average** player (Litoral is within a few points):
+
+| level | Joyride (top 5) | Racer (top 3) | Outlaw (top 3) |
+|---|---|---|---|
+| 1 | 100% | 72% | 5% |
+| 2 | 95% | 65% | 6% |
+| 3 | 100% | 28% | 2% |
+| 4 | 97% | 16% | 3% |
+| 5 | 98% | 8% | 1% |
+
+Casual on Joyride: 85% → 48% from level 1 to 5. Skilled on Racer: 96% → 31%.
+Lesson from tuning: discrete jumps (a second cop, another armed bot) cost far more than the continuous
+knobs, because each knockout costs a lot of time. Space them out so a level adds at most one.
 
 ## Testing in the browser
 
@@ -88,7 +161,9 @@ There's no project run script yet. What worked:
 1. `pnpm dev --port 5199 --strictPort` in the background, poll until `curl` answers.
 2. `playwright-core` installed in a scratch dir, launching the cached Chromium at
    `~/Library/Caches/ms-playwright/chromium-1243/.../Google Chrome for Testing`.
-3. Press Enter, hold ArrowUp, take screenshots, collect console errors.
+3. Press Enter, hold ArrowUp, take screenshots, collect console errors. Headless renders a few fps:
+   wait ~1.5 s after each key press before reading the screen. Seed a save with
+   `localStorage.setItem('pe-na-tabua.save.v1', ...)` + reload to test later levels.
 4. Stop the server with `lsof -ti:5199 -sTCP:LISTEN | xargs kill`.
 
 Headless can't confirm audio by ear — check for console errors only.

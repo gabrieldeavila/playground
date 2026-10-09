@@ -1,12 +1,12 @@
 import type { Race, Rider } from '../race/types'
-import { BUST_RANGE_S, BUST_RANGE_X, BUST_SPEED, BUST_TIME } from './constants'
+import { BUST_RANGE_S, BUST_RANGE_X, BUST_SPEED } from './constants'
 
 // Conta o tempo com um policial em cima do jogador caído ou parado; devolve quem prendeu.
 export function stepBust(race: Race, dt: number): Rider | null {
   const player = race.riders[race.playerId]
-  const cop = player.finishTime === null ? copOnTopOf(player, race.riders) : null
+  const cop = player.finishTime === null && race.rules.canBust ? copOnTopOf(player, race.riders) : null
   race.bustTimer = cop ? race.bustTimer + dt : 0
-  return cop && race.bustTimer >= BUST_TIME ? cop : null
+  return cop && race.bustTimer >= race.rules.bustTime ? cop : null
 }
 
 function copOnTopOf(player: Rider, riders: Rider[]): Rider | null {

@@ -3,9 +3,9 @@ import { stepBust } from '../police/bust'
 import { copInput } from '../police/cop-ai'
 import { curveAt } from '../track/pose'
 import { hitCar } from '../traffic/car-collisions'
-import { CAR_CRASH_DAMAGE } from '../traffic/constants'
 import { stepTraffic } from '../traffic/step-traffic'
 import { aiInput, coastInput } from './ai'
+import { catchUpBoost } from './catch-up'
 import { hitsProp, resolveBumps } from './collisions'
 import { startAttack, stepAttack } from './combat'
 import { PROP_CRASH_DAMAGE } from './constants'
@@ -55,7 +55,7 @@ function inputFor(race: Race, rider: Rider, playerInput: RiderInput, dt: number)
 function stepRider(race: Race, rider: Rider, input: RiderInput, dt: number): RaceEvent[] {
   if (input.punch) startAttack(rider, 'punch', race.riders)
   else if (input.kick) startAttack(rider, 'kick', race.riders)
-  stepMotion(rider, input, curveAt(race.track, rider.s), dt)
+  stepMotion(rider, input, curveAt(race.track, rider.s), dt, rider.id === race.playerId ? catchUpBoost(race) : 1)
   rider.s = Math.min(rider.s, race.track.length - 1)
   scrapeRails(race.track, rider, dt)
   const events = stepAttack(rider, race.riders, dt)
@@ -68,7 +68,7 @@ function stepRider(race: Race, rider: Rider, input: RiderInput, dt: number): Rac
 function checkCrash(race: Race, rider: Rider): RaceEvent | null {
   const car = hitCar(rider, race.cars)
   if (car) {
-    rider.health = Math.max(0, rider.health - CAR_CRASH_DAMAGE)
+    rider.health = Math.max(0, rider.health - race.rules.carCrashDamage)
     knockOff(rider, rider.x >= car.x ? 1 : -1)
     return { kind: 'crash', riderId: rider.id, car: car.kind }
   }

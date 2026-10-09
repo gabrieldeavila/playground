@@ -7,10 +7,28 @@ export interface Section {
   hill: number // variação total de altura no trecho (m)
 }
 
+// Visual da pista; o render traduz em céu, luz, cores do terreno e mar.
+export type ThemeId = 'mountain' | 'coast'
+
+// O que cresce na beira da estrada, e de que lado fica o mar.
+export interface Scenery {
+  treeChance: number // por segmento e lado
+  nearTreeChance: number
+  rockChance: number
+  pineShare: number // fração das árvores que são pinheiros
+  seaSide: -1 | 0 | 1 // lado em que o terreno desce para o mar (0 = sem mar)
+}
+
+// Pista em três partes: largada e chegada são sempre iguais; o miolo (body) se repete
+// nos níveis mais altos para a pista crescer.
 export interface Course {
   name: string
   seed: number
-  sections: Section[]
+  theme: ThemeId
+  scenery: Scenery
+  start: Section[]
+  body: Section[]
+  finish: Section[] // reta da chegada mais a reta de escape (RUNOFF_LENGTH)
 }
 
 export interface Segment {
@@ -41,6 +59,9 @@ export interface Prop {
 }
 
 export interface Track {
+  name: string
+  theme: ThemeId
+  scenery: Scenery
   segments: Segment[]
   points: CenterPoint[] // segments.length + 1 pontos
   props: Prop[] // ordenados por s

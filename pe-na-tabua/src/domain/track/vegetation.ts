@@ -3,9 +3,9 @@ import { SEGMENT_LENGTH } from './constants'
 import type { Placement } from './place-prop'
 
 // Árvore a `distance` metros do asfalto, num ponto qualquer do segmento.
-export function randomTree(rng: Rng, side: -1 | 1, s: number, distance: number): Placement {
+export function randomTree(rng: Rng, side: -1 | 1, s: number, distance: number, pineShare: number): Placement {
   return {
-    kind: rng() < 0.55 ? 'pine' : 'tree',
+    kind: rng() < pineShare ? 'pine' : 'tree',
     side,
     s: s + rng() * SEGMENT_LENGTH,
     distance,

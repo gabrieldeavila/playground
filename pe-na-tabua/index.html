@@ -57,6 +57,20 @@
       .results td { padding: 6px 14px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
       .results td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
       .results tr.me { color: var(--accent); }
+      .screen h2.won { color: #ffe08a; }
+      .screen h2.lost { color: #ff8a6a; }
+      .levels { list-style: none; padding: 0; margin: 0 0 24px; width: min(92vw, 460px); }
+      .levels li { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: baseline; padding: 10px 14px; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; margin-bottom: 6px; text-align: left; }
+      .levels .name { font-size: 18px; }
+      .levels .info { font-size: 14px; opacity: 0.8; }
+      .levels .badge { font-size: 12px; letter-spacing: 0.08em; opacity: 0.8; }
+      .levels .cleared .badge { color: #8fdc7a; }
+      .levels .next .badge { color: var(--accent); }
+      .levels .locked { opacity: 0.4; }
+      .levels.modes { width: min(92vw, 600px); }
+      .levels.modes li { grid-template-columns: 110px 1fr auto; }
+      .badge-outlaw { margin: 8px 0 0; font-size: 18px; letter-spacing: 0.2em; color: #ffe08a; }
+      .levels .selected { border-color: var(--accent); background: rgba(255, 122, 47, 0.18); box-shadow: 0 0 12px rgba(255, 122, 47, 0.35); }
       @keyframes blink { 50% { opacity: 0.35; } }
     </style>
   </head>

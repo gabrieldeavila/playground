@@ -36,7 +36,8 @@ function groupByKind(props: Prop[]): Map<PropKind, Prop[]> {
 function propMatrix(track: Track, prop: Prop): Matrix4 {
   const pose = poseAt(track, prop.s, prop.x)
   const d = Math.max(0, Math.abs(prop.x) - ROAD_EDGE)
-  const position = new Vector3(pose.x, pose.y + terrainHeight(d, pose.x, pose.z), pose.z)
+  const toSea = Math.sign(prop.x) === track.scenery.seaSide
+  const position = new Vector3(pose.x, pose.y + terrainHeight(d, pose.x, pose.z, toSea), pose.z)
   const rotation = new Quaternion().setFromEuler(new Euler(0, -pose.heading + prop.rotation, 0))
   return new Matrix4().compose(position, rotation, new Vector3().setScalar(prop.scale))
 }

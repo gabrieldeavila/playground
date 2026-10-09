@@ -5,7 +5,7 @@ import { MAX_SPEED } from '../race/constants'
 import { dodgeLine } from '../race/dodge-cars'
 import type { Race, Rider, RiderInput } from '../race/types'
 import { curveAt } from '../track/pose'
-import { COP_ATTACKS_PER_SECOND, MATCH_GAIN } from './constants'
+import { MATCH_GAIN } from './constants'
 
 const IDLE: RiderInput = { throttle: 0, brake: 1, steer: 0, punch: false, kick: false }
 const FIGHT_GAP = 6 // m: daqui para perto encosta do lado em vez de seguir atrás
@@ -38,5 +38,5 @@ function chaseGap(gap: number): number {
 
 function wantsToSwing(cop: Rider, player: Rider, race: Race, dt: number): boolean {
   if (cop.attack || cop.cooldown > 0 || player.crashTimer > 0) return false
-  return inReach(cop, player, 'punch') && race.rng() < COP_ATTACKS_PER_SECOND * dt
+  return inReach(cop, player, 'punch') && race.rng() < race.rules.copAttacksPerSecond * dt
 }

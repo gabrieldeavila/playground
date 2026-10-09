@@ -2,23 +2,25 @@ import { BufferGeometry, Color, Float32BufferAttribute, Mesh, MeshStandardMateri
 import { SEGMENT_LENGTH } from '../domain/track/constants'
 import type { Track } from '../domain/track/types'
 import { GROUND_TEXTURE_METERS, createGroundTexture } from './ground-texture'
+import type { TerrainPalette } from './theme/theme'
 import { gridIndices } from './grid-indices'
 import { ROAD_EDGE, TERRAIN_OFFSETS, terrainColor, terrainHeight } from './terrain-shape'
 
 const MAX_OFFSET = TERRAIN_OFFSETS[TERRAIN_OFFSETS.length - 1]
 
-// Dois barrancos, um de cada lado da pista.
-export function createTerrainMeshes(track: Track, anisotropy: number): Mesh[] {
+// Dois barrancos, um de cada lado da pista (o do lado do mar desce até a água).
+export function createTerrainMeshes(track: Track, anisotropy: number, palette: TerrainPalette): Mesh[] {
   const map = createGroundTexture(anisotropy)
   const material = new MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1, map })
   return ([-1, 1] as const).map((side) => {
-    const mesh = new Mesh(buildSide(track, side), material)
+    const mesh = new Mesh(buildSide(track, side, palette), material)
     mesh.receiveShadow = true
     return mesh
   })
 }
 
-function buildSide(track: Track, side: -1 | 1): BufferGeometry {
+function buildSide(track: Track, side: -1 | 1, palette: TerrainPalette): BufferGeometry {
+  const toSea = track.scenery.seaSide === side
   // Colunas sempre da esquerda para a direita, para as faces ficarem para cima.
   const offsets = side === 1 ? TERRAIN_OFFSETS : [...TERRAIN_OFFSETS].reverse()
   const positions: number[] = []
@@ -34,9 +36,9 @@ function buildSide(track: Track, side: -1 | 1): BufferGeometry {
       const lateral = side * (ROAD_EDGE + d)
       const x = p.x + rx * lateral
       const z = p.z + rz * lateral
-      const height = terrainHeight(d, x, z)
+      const height = terrainHeight(d, x, z, toSea)
       positions.push(x, p.y + height, z)
-      terrainColor(d, height, x, z, color)
+      terrainColor(d, height, x, z, palette, color)
       colors.push(color.r, color.g, color.b)
       uvs.push(d / GROUND_TEXTURE_METERS, (i * SEGMENT_LENGTH) / GROUND_TEXTURE_METERS)
     }

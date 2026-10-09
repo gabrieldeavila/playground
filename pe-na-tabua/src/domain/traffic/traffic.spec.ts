@@ -19,6 +19,12 @@ describe('createTraffic', () => {
     expect(new Set(cars.map((car) => car.kind))).toEqual(new Set(['sedan', 'taxi']))
     expect(new Set(cars.map((car) => car.id)).size).toBe(cars.length)
   })
+
+  it('escala multiplica os carros de cada faixa', () => {
+    const dense = createTraffic(LENGTH, createRng(3), 1.5)
+    for (const lane of LANES) expect(dense.filter((car) => car.x === lane.x)).toHaveLength(Math.round(lane.cars * 1.5))
+    expect(dense.every((car) => car.s >= CLEAR_START && car.s < LENGTH)).toBe(true)
+  })
 })
 
 describe('stepTraffic', () => {
