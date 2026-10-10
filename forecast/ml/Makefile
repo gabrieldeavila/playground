@@ -85,6 +85,22 @@ compare-kandle: requirements
 predict-kandle: requirements
 	uv run python -m forecast_ml.modeling.kandle_model predict --timeframe $(TIMEFRAME)
 
+## Download SEC EDGAR fundamentals and Yahoo splits for the universe (slow: ~30 min)
+.PHONY: fundamentals
+fundamentals: requirements
+	uv run python -m forecast_ml.fundamentals.edgar_download
+	uv run python -m forecast_ml.fundamentals.splits_download
+
+## Tune/validate/test the weekly bots -> reports/bots.json (REBUILD=1 rebuilds the table)
+.PHONY: evaluate-bots
+evaluate-bots: requirements
+	uv run python -m forecast_ml.bots.research evaluate $(if $(REBUILD),--rebuild,)
+
+## This week's signals from approved bots -> data/processed/bot_signals.json
+.PHONY: scan-bots
+scan-bots: requirements
+	uv run python -m forecast_ml.bots.research scan
+
 ## Score the latest candle for each ticker using the trained model
 .PHONY: predict
 predict: requirements

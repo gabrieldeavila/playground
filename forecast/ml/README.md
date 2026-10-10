@@ -53,6 +53,46 @@ So next to each score, the UI shows the real test win rate of that score band *w
 
 This is trend following: most trades lose a little, and a few winners last for months.
 
+## Weekly bots: beaten-down stocks with upside
+
+Fixed rules on weekly candles, no machine learning, that look for stocks far below their highs that may be worth more. A signal is judged by its return over the next 52 weeks **minus SPY's** over the same weeks. It enters at the next open and pays 0.1% per side. Each bot is also compared with a **baseline**: every liquid week of a stock 40% or more below its 3-year high, the pool the bots pick from.
+
+- **Point-in-time fundamentals** ([fundamentals/](forecast_ml/fundamentals)): SEC EDGAR company facts. Each fiscal year keeps the value of the first 10-K that reported it and becomes usable the day after that filing. From these: the Piotroski F-score, and book, cash flow and earnings to price. Market cap uses the 10-K share count times the splits since the filing, because Yahoo's close is split-adjusted.
+- **Protocol** ([bots/](forecast_ml/bots)): parameters are picked on 2011–2018 from a small grid. A pick needs 60+ signals, 15+ distinct weeks, 8+ distinct quarters and half the years beating SPY. A bot is approved only if it beats the baseline on train **and** on 2019–2021 validation, and beats SPY there. 2022 on is scored afterwards and never picks anything. One signal per ticker per 26 weeks.
+
+```bash
+make fundamentals            # EDGAR + splits (~30 min, skips files already saved)
+make evaluate-bots REBUILD=1 # reports/bots.json
+make scan-bots               # data/processed/bot_signals.json: this week's signals
+```
+
+Results (median 52-week return minus SPY; the baseline's train/validation/test is −5.0 / −0.4 / −10.0):
+
+| Bot | Train 2011–18 | Valid. 2019–21 | Test 2022+ | Test vs baseline | Status |
+|---|---|---|---|---|---|
+| Panic (beaten-down stock in a market sell-off) | no eligible variant | | | | rejected |
+| Base breakout (Weinstein stage 1→2) | −1.9 | −13.0 | −5.6 | +4.4 | rejected |
+| Relative strength turning | +4.7 | −15.5 | −14.5 | −4.5 | rejected |
+| Cheap + F-score + chart turning | +0.1 | −2.9 | −13.6 | −3.6 | rejected |
+| Cash-rich breakout | +0.1 | −7.1 | −4.9 | +5.1 | rejected |
+| **Cash at a discount** (≥50% below its high, operating cash flow ≥15% of market cap, profitable, not a financial) | **+4.5** | **+37.2** | **−7.2** | **+2.8** | approved |
+
+What the numbers say:
+
+- **Weekly chart patterns alone did not beat SPY.** Waiting for the chart to turn mostly bought after the rebound. Even the cash flow filter got worse when a 26-week breakout was required.
+- **Cash at a discount beat its pool in all three periods.** Its picks also won 50%+ more often than the pool and did not lose 30%+ more often. In 2022–2026 it still lost to SPY in the median (43% of picks beat it), a period when the equal-weighted liquid market trailed SPY by 8.7 points. Use it as a weekly short list for fundamental research, not as a buy signal.
+- **Validation is inflated by 2020.** 279 of its signals came from the post-crash rebound.
+
+How the test was used:
+
+- The round-1 bots (the first four rows) were scored on test once, before the cash bots existed. The cash bots were designed afterwards from train and validation only.
+- Financials were excluded after the first test look, because operating cash flow is not meaningful for banks, insurers and REITs. Before that exclusion the approved variant had a test median of −4.2 (+5.8 vs baseline).
+
+Caveats:
+
+- **Survivorship bias.** The universe lists only companies trading today, so the bankrupt and delisted ones are missing. This flatters every beaten-down strategy and its baseline alike, which is why each bot is compared with the baseline.
+- **`data/external/pit` is not usable.** Its "delisted" histories belong to whatever company uses the ticker now.
+
 ## EMA entry ranking
 
 Causal features use adjusted prices, EMA 9/20/50/100/200, alignment, slopes, crossovers, reclaims and pullbacks. Signals are observed at the candle close; simulated entry occurs at the next adjusted open. The operational label checks a 5% target against a 3% stop over 10 trading sessions by default. Ambiguous intrabar target/stop hits are stop-first; gaps exit at the open, and unresolved trades exit at the horizon close.

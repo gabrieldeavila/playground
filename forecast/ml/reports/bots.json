@@ -1,0 +1,568 @@
+{
+ "generated_at": "2026-10-10T21:48:50+00:00",
+ "periods": {
+  "train": [
+   "2011-01-01",
+   "2018-12-31"
+  ],
+  "validation": [
+   "2019-01-01",
+   "2021-12-31"
+  ],
+  "test": [
+   "2022-01-01",
+   "2100-01-01"
+  ]
+ },
+ "horizon_weeks": 52,
+ "baseline": "semanas líquidas de ações 40%+ abaixo da máxima",
+ "baseline_scores": {
+  "train": {
+   "signals": 89816,
+   "tickers": 868,
+   "weeks": 366,
+   "quarters": 29,
+   "median_excess_pct": -5.0,
+   "beat_spy_pct": 44.7,
+   "mean_excess_capped_pct": 0.6,
+   "mean_excess_per_week_pct": -1.1,
+   "median_return_pct": 10.3,
+   "big_win_pct": 18.3,
+   "big_loss_pct": 14.7,
+   "median_worst_drop_pct": -19.3,
+   "years_beating_spy": 3,
+   "years_judged": 8,
+   "median_excess_26_pct": -1.7
+  },
+  "validation": {
+   "signals": 110781,
+   "tickers": 1349,
+   "weeks": 157,
+   "quarters": 12,
+   "median_excess_pct": -0.4,
+   "beat_spy_pct": 49.6,
+   "mean_excess_capped_pct": 11.5,
+   "mean_excess_per_week_pct": 7.5,
+   "median_return_pct": 18.0,
+   "big_win_pct": 29.3,
+   "big_loss_pct": 14.6,
+   "median_worst_drop_pct": -18.8,
+   "years_beating_spy": 1,
+   "years_judged": 3,
+   "median_excess_26_pct": -0.5
+  },
+  "test": {
+   "signals": 167162,
+   "tickers": 1614,
+   "weeks": 197,
+   "quarters": 16,
+   "median_excess_pct": -10.0,
+   "beat_spy_pct": 40.9,
+   "mean_excess_capped_pct": 1.7,
+   "mean_excess_per_week_pct": 1.5,
+   "median_return_pct": 9.1,
+   "big_win_pct": 21.2,
+   "big_loss_pct": 15.9,
+   "median_worst_drop_pct": -24.0,
+   "years_beating_spy": 0,
+   "years_judged": 4,
+   "median_excess_26_pct": -5.1
+  }
+ },
+ "market_scores": {
+  "train": {
+   "signals": 500197,
+   "tickers": 1689,
+   "weeks": 417,
+   "quarters": 32,
+   "median_excess_pct": -1.8,
+   "beat_spy_pct": 47.0,
+   "mean_excess_capped_pct": 0.4,
+   "mean_excess_per_week_pct": 0.6,
+   "median_return_pct": 11.5,
+   "big_win_pct": 10.1,
+   "big_loss_pct": 7.0,
+   "median_worst_drop_pct": -12.8,
+   "years_beating_spy": 2,
+   "years_judged": 8,
+   "median_excess_26_pct": -0.7
+  },
+  "validation": {
+   "signals": 256281,
+   "tickers": 2051,
+   "weeks": 157,
+   "quarters": 12,
+   "median_excess_pct": -5.4,
+   "beat_spy_pct": 43.2,
+   "mean_excess_capped_pct": 2.0,
+   "mean_excess_per_week_pct": 2.1,
+   "median_return_pct": 6.6,
+   "big_win_pct": 18.5,
+   "big_loss_pct": 15.3,
+   "median_worst_drop_pct": -22.7,
+   "years_beating_spy": 1,
+   "years_judged": 3,
+   "median_excess_26_pct": -3.2
+  },
+  "test": {
+   "signals": 387250,
+   "tickers": 2370,
+   "weeks": 197,
+   "quarters": 16,
+   "median_excess_pct": -8.7,
+   "beat_spy_pct": 39.6,
+   "mean_excess_capped_pct": -1.8,
+   "mean_excess_per_week_pct": -2.0,
+   "median_return_pct": 8.5,
+   "big_win_pct": 15.5,
+   "big_loss_pct": 11.4,
+   "median_worst_drop_pct": -18.7,
+   "years_beating_spy": 0,
+   "years_judged": 4,
+   "median_excess_26_pct": -4.0
+  }
+ },
+ "bots": [
+  {
+   "bot": "panico",
+   "approved": false,
+   "reason": "sem variante elegível"
+  },
+  {
+   "bot": "valor_virando",
+   "title": "Barata, melhorando e virando",
+   "thesis": "Barata frente ao mercado (patrimônio, caixa e lucro por preço), com as contas melhorando (F-score de Piotroski) e o gráfico semanal voltando acima de uma média de 30 semanas que já sobe: o mercado começa a perceber.",
+   "rules": [
+    "dollar_volume_day >= 5000000",
+    "value_rank >= 0.8",
+    "fscore >= 6",
+    "fscore_checks >= 7",
+    "drawdown_156 <= -0.2",
+    "above_sma_30 == True",
+    "sma_30_slope_4 >= 0.0"
+   ],
+   "variants_tried": 18,
+   "round": 1,
+   "approved": false,
+   "train": {
+    "signals": 77,
+    "tickers": 53,
+    "weeks": 62,
+    "quarters": 24,
+    "median_excess_pct": 0.1,
+    "beat_spy_pct": 50.6,
+    "mean_excess_capped_pct": 3.9,
+    "mean_excess_per_week_pct": 2.6,
+    "median_return_pct": 18.0,
+    "big_win_pct": 14.3,
+    "big_loss_pct": 10.4,
+    "median_worst_drop_pct": -14.1,
+    "years_beating_spy": 3,
+    "years_judged": 6,
+    "median_excess_26_pct": -0.4
+   },
+   "validation": {
+    "signals": 119,
+    "tickers": 100,
+    "weeks": 48,
+    "quarters": 10,
+    "median_excess_pct": -2.9,
+    "beat_spy_pct": 47.1,
+    "mean_excess_capped_pct": 1.1,
+    "mean_excess_per_week_pct": -4.0,
+    "median_return_pct": 19.0,
+    "big_win_pct": 22.7,
+    "big_loss_pct": 14.3,
+    "median_worst_drop_pct": -21.5,
+    "years_beating_spy": 1,
+    "years_judged": 3,
+    "median_excess_26_pct": 3.1
+   },
+   "test": {
+    "signals": 125,
+    "tickers": 93,
+    "weeks": 83,
+    "quarters": 16,
+    "median_excess_pct": -13.6,
+    "beat_spy_pct": 40.0,
+    "mean_excess_capped_pct": -6.9,
+    "mean_excess_per_week_pct": -7.5,
+    "median_return_pct": 5.6,
+    "big_win_pct": 16.8,
+    "big_loss_pct": 13.6,
+    "median_worst_drop_pct": -21.4,
+    "years_beating_spy": 1,
+    "years_judged": 4,
+    "median_excess_26_pct": -8.7
+   },
+   "lift_vs_baseline": {
+    "train": {
+     "median_excess_pct": 5.1,
+     "beat_spy_pct": 5.9,
+     "big_win_pct": -4.0,
+     "big_loss_pct": -4.3
+    },
+    "validation": {
+     "median_excess_pct": -2.5,
+     "beat_spy_pct": -2.5,
+     "big_win_pct": -6.6,
+     "big_loss_pct": -0.3
+    },
+    "test": {
+     "median_excess_pct": -3.6,
+     "beat_spy_pct": -0.9,
+     "big_win_pct": -4.4,
+     "big_loss_pct": -2.3
+    }
+   }
+  },
+  {
+   "bot": "rompimento_base",
+   "title": "Rompimento de base após queda",
+   "thesis": "Depois de cair muito, a ação passou meses de lado (base estreita) e agora fecha a semana acima da base com volume forte: o estágio 1 → 2 de Weinstein.",
+   "rules": [
+    "dollar_volume_day >= 5000000",
+    "deepest_drawdown_52 <= -0.4",
+    "breakout_26 == True",
+    "base_range_26 <= 0.6",
+    "volume_ratio_26 >= 2.0",
+    "sma_30_slope_4 >= 0.0",
+    "fscore >= 6"
+   ],
+   "variants_tried": 16,
+   "round": 1,
+   "approved": false,
+   "train": {
+    "signals": 72,
+    "tickers": 66,
+    "weeks": 63,
+    "quarters": 23,
+    "median_excess_pct": -1.9,
+    "beat_spy_pct": 45.8,
+    "mean_excess_capped_pct": 3.6,
+    "mean_excess_per_week_pct": 3.5,
+    "median_return_pct": 14.2,
+    "big_win_pct": 23.6,
+    "big_loss_pct": 11.1,
+    "median_worst_drop_pct": -16.5,
+    "years_beating_spy": 3,
+    "years_judged": 5,
+    "median_excess_26_pct": -3.4
+   },
+   "validation": {
+    "signals": 57,
+    "tickers": 56,
+    "weeks": 39,
+    "quarters": 11,
+    "median_excess_pct": -13.0,
+    "beat_spy_pct": 38.6,
+    "mean_excess_capped_pct": 1.9,
+    "mean_excess_per_week_pct": 7.1,
+    "median_return_pct": 2.0,
+    "big_win_pct": 14.0,
+    "big_loss_pct": 10.5,
+    "median_worst_drop_pct": -24.1,
+    "years_beating_spy": 1,
+    "years_judged": 3,
+    "median_excess_26_pct": -11.8
+   },
+   "test": {
+    "signals": 145,
+    "tickers": 136,
+    "weeks": 85,
+    "quarters": 16,
+    "median_excess_pct": -5.6,
+    "beat_spy_pct": 42.8,
+    "mean_excess_capped_pct": 0.7,
+    "mean_excess_per_week_pct": -0.6,
+    "median_return_pct": 11.2,
+    "big_win_pct": 20.0,
+    "big_loss_pct": 13.1,
+    "median_worst_drop_pct": -22.0,
+    "years_beating_spy": 0,
+    "years_judged": 4,
+    "median_excess_26_pct": -7.7
+   },
+   "lift_vs_baseline": {
+    "train": {
+     "median_excess_pct": 3.1,
+     "beat_spy_pct": 1.1,
+     "big_win_pct": 5.3,
+     "big_loss_pct": -3.6
+    },
+    "validation": {
+     "median_excess_pct": -12.6,
+     "beat_spy_pct": -11.0,
+     "big_win_pct": -15.3,
+     "big_loss_pct": -4.1
+    },
+    "test": {
+     "median_excess_pct": 4.4,
+     "beat_spy_pct": 1.9,
+     "big_win_pct": -1.2,
+     "big_loss_pct": -2.8
+    }
+   }
+  },
+  {
+   "bot": "forca_relativa",
+   "title": "Força relativa voltando",
+   "thesis": "Ainda muito abaixo da máxima, mas já ganhando do S&P 500: a força relativa bate a máxima de 26 semanas antes de o preço chamar atenção.",
+   "rules": [
+    "dollar_volume_day >= 5000000",
+    "drawdown_156 <= -0.3",
+    "rs_high_26 == True",
+    "above_sma_30 == True",
+    "fscore >= 6"
+   ],
+   "variants_tried": 9,
+   "round": 1,
+   "approved": false,
+   "train": {
+    "signals": 101,
+    "tickers": 87,
+    "weeks": 83,
+    "quarters": 26,
+    "median_excess_pct": 4.7,
+    "beat_spy_pct": 54.5,
+    "mean_excess_capped_pct": -0.5,
+    "mean_excess_per_week_pct": -0.4,
+    "median_return_pct": 22.2,
+    "big_win_pct": 21.8,
+    "big_loss_pct": 17.8,
+    "median_worst_drop_pct": -18.0,
+    "years_beating_spy": 5,
+    "years_judged": 7,
+    "median_excess_26_pct": 1.0
+   },
+   "validation": {
+    "signals": 93,
+    "tickers": 84,
+    "weeks": 57,
+    "quarters": 11,
+    "median_excess_pct": -15.5,
+    "beat_spy_pct": 32.3,
+    "mean_excess_capped_pct": -3.8,
+    "mean_excess_per_week_pct": -6.1,
+    "median_return_pct": 6.8,
+    "big_win_pct": 25.8,
+    "big_loss_pct": 15.1,
+    "median_worst_drop_pct": -21.2,
+    "years_beating_spy": 0,
+    "years_judged": 3,
+    "median_excess_26_pct": 2.0
+   },
+   "test": {
+    "signals": 283,
+    "tickers": 249,
+    "weeks": 134,
+    "quarters": 16,
+    "median_excess_pct": -14.5,
+    "beat_spy_pct": 35.0,
+    "mean_excess_capped_pct": -0.3,
+    "mean_excess_per_week_pct": 4.4,
+    "median_return_pct": 3.5,
+    "big_win_pct": 16.6,
+    "big_loss_pct": 13.4,
+    "median_worst_drop_pct": -22.8,
+    "years_beating_spy": 0,
+    "years_judged": 4,
+    "median_excess_26_pct": -6.0
+   },
+   "lift_vs_baseline": {
+    "train": {
+     "median_excess_pct": 9.7,
+     "beat_spy_pct": 9.8,
+     "big_win_pct": 3.5,
+     "big_loss_pct": 3.1
+    },
+    "validation": {
+     "median_excess_pct": -15.1,
+     "beat_spy_pct": -17.3,
+     "big_win_pct": -3.5,
+     "big_loss_pct": 0.5
+    },
+    "test": {
+     "median_excess_pct": -4.5,
+     "beat_spy_pct": -5.9,
+     "big_win_pct": -4.6,
+     "big_loss_pct": -2.5
+    }
+   }
+  },
+  {
+   "bot": "caixa_descontada",
+   "title": "Caixa forte, preço castigado",
+   "thesis": "A ação está muito abaixo da máxima de 3 anos, mas a empresa segue gerando caixa operacional igual a uma fatia grande do seu valor de mercado (último 10-K). O preço caiu mais do que o negócio: assimetria.",
+   "rules": [
+    "dollar_volume_day >= 5000000",
+    "sector != Financials",
+    "drawdown_156 <= -0.5",
+    "cash_flow_to_price >= 0.15",
+    "earnings_to_price >= 0.0"
+   ],
+   "variants_tried": 18,
+   "round": 2,
+   "approved": true,
+   "train": {
+    "signals": 297,
+    "tickers": 146,
+    "weeks": 148,
+    "quarters": 29,
+    "median_excess_pct": 4.5,
+    "beat_spy_pct": 54.2,
+    "mean_excess_capped_pct": 6.0,
+    "mean_excess_per_week_pct": 0.7,
+    "median_return_pct": 19.7,
+    "big_win_pct": 27.9,
+    "big_loss_pct": 15.8,
+    "median_worst_drop_pct": -25.4,
+    "years_beating_spy": 5,
+    "years_judged": 8,
+    "median_excess_26_pct": 2.9
+   },
+   "validation": {
+    "signals": 407,
+    "tickers": 264,
+    "weeks": 77,
+    "quarters": 12,
+    "median_excess_pct": 37.2,
+    "beat_spy_pct": 70.3,
+    "mean_excess_capped_pct": 50.1,
+    "mean_excess_per_week_pct": 11.3,
+    "median_return_pct": 79.8,
+    "big_win_pct": 64.6,
+    "big_loss_pct": 10.3,
+    "median_worst_drop_pct": -21.2,
+    "years_beating_spy": 2,
+    "years_judged": 3,
+    "median_excess_26_pct": 9.8
+   },
+   "test": {
+    "signals": 425,
+    "tickers": 224,
+    "weeks": 152,
+    "quarters": 16,
+    "median_excess_pct": -7.2,
+    "beat_spy_pct": 43.3,
+    "mean_excess_capped_pct": -1.0,
+    "mean_excess_per_week_pct": -2.6,
+    "median_return_pct": 12.5,
+    "big_win_pct": 24.9,
+    "big_loss_pct": 16.5,
+    "median_worst_drop_pct": -24.6,
+    "years_beating_spy": 2,
+    "years_judged": 4,
+    "median_excess_26_pct": -4.7
+   },
+   "lift_vs_baseline": {
+    "train": {
+     "median_excess_pct": 9.5,
+     "beat_spy_pct": 9.5,
+     "big_win_pct": 9.6,
+     "big_loss_pct": 1.1
+    },
+    "validation": {
+     "median_excess_pct": 37.6,
+     "beat_spy_pct": 20.7,
+     "big_win_pct": 35.3,
+     "big_loss_pct": -4.3
+    },
+    "test": {
+     "median_excess_pct": 2.8,
+     "beat_spy_pct": 2.4,
+     "big_win_pct": 3.7,
+     "big_loss_pct": 0.6
+    }
+   }
+  },
+  {
+   "bot": "caixa_rompendo",
+   "title": "Caixa forte rompendo a base",
+   "thesis": "Caiu muito no último ano, gera caixa forte frente ao valor de mercado e fecha a semana acima de todo o intervalo das 26 semanas anteriores: o gráfico semanal confirma que a venda acabou.",
+   "rules": [
+    "dollar_volume_day >= 5000000",
+    "sector != Financials",
+    "deepest_drawdown_52 <= -0.4",
+    "cash_flow_to_price >= 0.1",
+    "breakout_26 == True",
+    "volume_ratio_26 >= 1.5"
+   ],
+   "variants_tried": 8,
+   "round": 2,
+   "approved": false,
+   "train": {
+    "signals": 205,
+    "tickers": 142,
+    "weeks": 128,
+    "quarters": 28,
+    "median_excess_pct": 0.1,
+    "beat_spy_pct": 50.2,
+    "mean_excess_capped_pct": -0.5,
+    "mean_excess_per_week_pct": -2.3,
+    "median_return_pct": 12.4,
+    "big_win_pct": 18.5,
+    "big_loss_pct": 14.6,
+    "median_worst_drop_pct": -17.1,
+    "years_beating_spy": 4,
+    "years_judged": 7,
+    "median_excess_26_pct": 2.0
+   },
+   "validation": {
+    "signals": 220,
+    "tickers": 177,
+    "weeks": 86,
+    "quarters": 12,
+    "median_excess_pct": -7.1,
+    "beat_spy_pct": 45.9,
+    "mean_excess_capped_pct": 6.7,
+    "mean_excess_per_week_pct": 9.7,
+    "median_return_pct": 14.1,
+    "big_win_pct": 21.8,
+    "big_loss_pct": 9.5,
+    "median_worst_drop_pct": -17.0,
+    "years_beating_spy": 1,
+    "years_judged": 3,
+    "median_excess_26_pct": -1.4
+   },
+   "test": {
+    "signals": 247,
+    "tickers": 195,
+    "weeks": 106,
+    "quarters": 16,
+    "median_excess_pct": -4.9,
+    "beat_spy_pct": 43.7,
+    "mean_excess_capped_pct": 2.5,
+    "mean_excess_per_week_pct": 6.7,
+    "median_return_pct": 11.9,
+    "big_win_pct": 19.0,
+    "big_loss_pct": 11.3,
+    "median_worst_drop_pct": -22.9,
+    "years_beating_spy": 1,
+    "years_judged": 4,
+    "median_excess_26_pct": -4.7
+   },
+   "lift_vs_baseline": {
+    "train": {
+     "median_excess_pct": 5.1,
+     "beat_spy_pct": 5.5,
+     "big_win_pct": 0.2,
+     "big_loss_pct": -0.1
+    },
+    "validation": {
+     "median_excess_pct": -6.7,
+     "beat_spy_pct": -3.7,
+     "big_win_pct": -7.5,
+     "big_loss_pct": -5.1
+    },
+    "test": {
+     "median_excess_pct": 5.1,
+     "beat_spy_pct": 2.8,
+     "big_win_pct": -2.2,
+     "big_loss_pct": -4.6
+    }
+   }
+  }
+ ],
+ "caveat": "Universo = empresas listadas hoje: as que quebraram ou foram deslistadas não estão nos dados, o que favorece estratégias de ações castigadas. Compare cada bot com a linha de base, que tem o mesmo viés."
+}
