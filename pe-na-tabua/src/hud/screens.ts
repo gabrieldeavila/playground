@@ -7,6 +7,8 @@ import { levelsHtml } from './levels-html'
 import type { ModeRow } from './mode-rows'
 import { modesHtml } from './modes-html'
 import { resultsHtml } from './results-html'
+import { soundHtml } from './sound-html'
+import type { Volumes } from '../domain/settings/volumes'
 
 const title = (outlawChampion: boolean) => `
   <h1>PÉ NA TÁBUA</h1>${outlawChampion ? '\n  <p class="badge-outlaw">★ OUTLAW CHAMPION ★</p>' : ''}
@@ -19,6 +21,7 @@ const title = (outlawChampion: boolean) => `
     <dt>K / X</dt><dd>Kick</dd>
     <dt>C</dt><dd>Chase / cockpit view</dd>
     <dt>M</dt><dd>Mute</dd>
+    <dt>O</dt><dd>Sound volumes (on this screen)</dd>
     <dt>R / Esc</dt><dd>Restart / quit race</dd>
   </dl>
   <p class="cta">Press ENTER to race</p>
@@ -31,6 +34,10 @@ export class Screens {
   // Quem zerou o Outlaw ganha a estrela no título.
   showTitle(outlawChampion: boolean): void {
     this.show(title(outlawChampion))
+  }
+
+  showSound(volumes: Volumes, row: number): void {
+    this.show(soundHtml(volumes, row))
   }
 
   showModes(rows: ModeRow[], selected: string): void {

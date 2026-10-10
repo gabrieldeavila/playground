@@ -7,6 +7,14 @@ describe('actionFor', () => {
     expect(actionFor('KeyR', 'title')).toBeNull()
   })
 
+  it('título: O abre o som; lá setas escolhem e ajustam, Esc volta', () => {
+    expect(actionFor('KeyO', 'title')).toBe('sound')
+    expect(actionFor('ArrowDown', 'sound')).toBe('select-down')
+    expect(actionFor('ArrowLeft', 'sound')).toBe('volume-down')
+    expect(actionFor('KeyD', 'sound')).toBe('volume-up')
+    expect(actionFor('Escape', 'sound')).toBe('title')
+  })
+
   it('modos: setas escolhem, Enter vai para os níveis, Esc volta ao título', () => {
     expect(actionFor('ArrowDown', 'modes')).toBe('select-down')
     expect(actionFor('Enter', 'modes')).toBe('levels')

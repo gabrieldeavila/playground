@@ -1,5 +1,6 @@
 import { RaceAudio } from './audio/race-audio'
 import { loadSave, storeSave } from './data/career-storage'
+import { loadVolumes, storeVolumes } from './data/volume-storage'
 import { DIFFICULTIES } from './domain/career/difficulty'
 import { LEVELS } from './domain/career/levels'
 import { COURSES } from './domain/track/courses/courses'
@@ -10,6 +11,7 @@ import { startLoop } from './game/fixed-loop'
 import { type Action, actionFor } from './game/key-actions'
 import { RidersView } from './game/riders-view'
 import { Session } from './game/session'
+import { SoundMenu } from './game/sound-menu'
 import { TrackScenery } from './game/track-scenery'
 import { StreetView } from './game/street-view'
 import { TrafficView } from './game/traffic-view'
@@ -39,6 +41,8 @@ const director = new CameraDirector(stage.camera, riders)
 const cockpit = new Cockpit(stage.renderer, PLAYER_COLORS)
 const postFx = new PostFx(stage.renderer, stage.scene, stage.camera)
 const audio = new RaceAudio()
+const soundMenu = new SoundMenu(loadVolumes())
+audio.setVolumes(soundMenu.volumes)
 const keyboard = new Keyboard(window)
 const hud = new Hud()
 const screens = new Screens(document.getElementById('screen')!)
@@ -71,6 +75,19 @@ function showTitle(): void {
   screens.showTitle(session.careers.outlaw.champion)
 }
 
+function showSound(): void {
+  session.openSound()
+  screens.showSound(soundMenu.volumes, soundMenu.row)
+}
+
+// Muda o volume escolhido na hora, salva e redesenha as barras.
+function adjustVolume(delta: number): void {
+  soundMenu.adjust(delta)
+  audio.setVolumes(soundMenu.volumes)
+  storeVolumes(soundMenu.volumes)
+  showSound()
+}
+
 function showModes(): void {
   session.openModes()
   screens.showModes(modeRows(DIFFICULTIES, session.careers, LEVELS.length), session.difficulty.id)
@@ -95,6 +112,10 @@ function showCourses(keepSelection = false): void {
 // Setas trocam o que a tela atual lista: modo, nível ou pista.
 function moveSelection(delta: number): void {
   const mode = session.mode
+  if (mode === 'sound') {
+    soundMenu.select(delta)
+    return showSound()
+  }
   session.select(delta)
   if (mode === 'modes') showModes()
   else if (mode === 'courses') showCourses(true)
@@ -124,6 +145,11 @@ function apply(action: Action): void {
       return director.toggle()
     case 'mute':
       return audio.toggleMute()
+    case 'sound':
+      return showSound()
+    case 'volume-down':
+    case 'volume-up':
+      return adjustVolume(action === 'volume-up' ? 1 : -1)
   }
 }
 
