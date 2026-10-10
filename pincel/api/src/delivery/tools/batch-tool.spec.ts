@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DocumentEngine } from '../../data/document-engine.js';
 import { napiPaintEnv } from '../../data/napi-paint-env.js';
+import { testFontStore } from './test-font-store.js';
 import { sampleColor } from '../../data/document-renderer.js';
 import { runTool } from './run-tool.js';
 import { findTool } from './tool-catalog.js';
@@ -8,7 +9,7 @@ import { findTool } from './tool-catalog.js';
 async function setup() {
   const engine = new DocumentEngine(napiPaintEnv);
   await engine.reset({ width: 100, height: 100, background: '#ffffff' }, 'rest');
-  const batch = (input: unknown) => runTool(findTool('batch')!, input, { engine, source: 'mcp' });
+  const batch = (input: unknown) => runTool(findTool('batch')!, input, { engine, fonts: testFontStore, source: 'mcp' });
   return { engine, batch };
 }
 

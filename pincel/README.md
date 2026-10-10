@@ -59,11 +59,11 @@ convert on macOS with `sips -s format jpeg IMG.heic --out IMG.jpg`.
 | Area      | Tools |
 |-----------|-------|
 | Document  | `open_image` (local path or URL), `get_document` (with each layer's content bounds), `render_image` (optional coordinate grid and zoomed region), `sample_color`, `create_document`, `resize_canvas` |
-| Layout    | `measure_text` |
+| Text      | `draw_text` (position or wrapping box with `fit: "shrink"`, letter spacing, line height, outline, rotation), `measure_text`, `load_font` (Google Fonts by name, or a font file), `list_fonts` |
 | Layers    | `add_layer`, `select_layer`, `update_layer` (name, visibility, opacity, blend mode), `reorder_layer`, `duplicate_layer`, `merge_down`, `stamp_visible` (flattened copy on top), `delete_layer` |
 | Selection | `select_rect`, `select_ellipse`, `select_lasso`, `select_color` (magic wand), `select_layer_pixels`, `modify_selection` (all / deselect / invert / feather), `copy_selection_to_layer` (layer via copy/cut) |
 | Masks     | `add_layer_mask` (from selection, reveal all, hide all), `remove_layer_mask` (discard or apply), `update_layer` `maskEnabled` |
-| Drawing   | `draw_rect`, `draw_ellipse`, `draw_path`, `brush_stroke` (also eraser), `draw_text`, `draw_gradient` |
+| Drawing   | `draw_rect`, `draw_ellipse`, `draw_path`, `brush_stroke` (also eraser), `draw_gradient` |
 | Filling   | `flood_fill` (paint bucket with tolerance), `fill_layer`, `clear_layer` |
 | Retouch   | `find_spots` (detects blemishes, previews them circled), `heal_spots` (spot healing brush), `liquify` (push warp, e.g. a subtle smile) |
 | Images    | `place_image` (URL or data URI), `apply_filter`, `transform_layer` |
@@ -97,6 +97,8 @@ Click a layer's mask thumbnail to paint on the mask.
   command appended to a history. The image is `setup + commands`, so undo/redo just
   moves a cursor and replays. It's saved to `api/.data/document.json` and comes back
   on restart (`PINCEL_DATA_FILE` changes where).
+- **Fonts** loaded with `load_font` are saved in `api/.data/fonts` (`PINCEL_FONTS_DIR`)
+  and registered on startup, before the document is replayed.
 - **Batches are atomic.** A `batch` runs as one uninterrupted job: other clients wait,
   it becomes a single history entry, and if any step fails nothing is kept.
 - **Selections and masks are grayscale images** (white = selected/visible), so they

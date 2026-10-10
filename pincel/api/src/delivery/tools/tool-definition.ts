@@ -1,9 +1,15 @@
 import { z } from 'zod';
 import type { DocumentEngine } from '../../data/document-engine.js';
+import type { FontStore } from '../../data/font-store.js';
 import type { CommandSource } from '../../data/logged-command.js';
 
-export interface ToolContext {
+/** What tools work with: the open document and the saved fonts. */
+export interface ToolServices {
   engine: DocumentEngine;
+  fonts: FontStore;
+}
+
+export interface ToolContext extends ToolServices {
   source: CommandSource;
 }
 
