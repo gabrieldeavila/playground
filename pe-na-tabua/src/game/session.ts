@@ -9,7 +9,7 @@ import { COURSES } from '../domain/track/courses/courses'
 import type { SaveData } from '../data/parse-save'
 import { type PreparedRace, RaceCatalog } from './race-catalog'
 
-export type Mode = 'title' | 'modes' | 'levels' | 'courses' | 'racing' | 'results'
+export type Mode = 'title' | 'sound' | 'modes' | 'levels' | 'courses' | 'racing' | 'results'
 
 const RESULTS_DELAY = 2.5
 const COURSE_NAMES = COURSES.map((course) => course.name)
@@ -49,6 +49,10 @@ export class Session {
 
   showTitle(): void {
     this.mode = 'title'
+  }
+
+  openSound(): void {
+    this.mode = 'sound'
   }
 
   openModes(): void {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MAX_SPEED } from '../domain/race/constants'
-import { HEARING_RANGE, SIREN_RANGE, engineHz, impactGain, panFor, sirenGain, whooshGain, windGain } from './levels'
+import { HEARING_RANGE, SIREN_RANGE, engineHz, impactGain, musicVolume, panFor, sirenGain, whooshGain, windGain } from './levels'
 
 describe('levels', () => {
   it('motor a 6000 rpm explode 200 vezes por segundo', () => {
@@ -27,5 +27,9 @@ describe('levels', () => {
     expect(panFor(-20)).toBe(-1)
     expect(panFor(2)).toBeGreaterThan(0)
     expect(impactGain(100)).toBe(0)
+  })
+
+  it('música abaixa durante a corrida', () => {
+    expect(musicVolume(true)).toBeLessThan(musicVolume(false))
   })
 })

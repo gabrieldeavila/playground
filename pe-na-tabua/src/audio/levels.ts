@@ -12,9 +12,14 @@ const ratio = (speed: number) => clamp(speed / MAX_SPEED, 0, 1)
 export const engineHz = (rpm: number) => (rpm / 60) * (CYLINDERS / 2)
 
 // Acelerando o ronco abre (mais agudos); aliviando fica abafado.
-export const engineCutoff = (rpm: number, throttle: number) => 250 + rpm * 0.08 + throttle * 1400
+export const engineCutoff = (rpm: number, throttle: number) => 250 + rpm * 0.08 + throttle * 1100
 
-export const engineGain = (throttle: number) => 0.16 + throttle * 0.1
+export const engineGain = (throttle: number) => 0.09 + throttle * 0.06
+
+// Música mais alta nos menus; na corrida abre espaço para o motor e os golpes.
+const MUSIC_MENU = 0.55
+const MUSIC_RACE = 0.38
+export const musicVolume = (racing: boolean) => (racing ? MUSIC_RACE : MUSIC_MENU)
 
 // Parado no grid, o acelerador só sobe o giro.
 export const revRpm = (throttle: number) => IDLE_RPM + throttle * 7500

@@ -1,8 +1,9 @@
 import { nearestChasingCop } from '../domain/police/nearest-cop'
 import { IDLE_RPM, gearFor, rpmFor } from '../domain/race/gearbox'
 import type { Race, RaceEvent, Rider } from '../domain/race/types'
+import type { Volumes } from '../domain/settings/volumes'
 import { Horns } from './horns'
-import { SIREN_RANGE, hornGain, impactGain, panFor, revRpm, scrapeGain, sirenGain, whooshGain, windCutoff, windGain } from './levels'
+import { SIREN_RANGE, hornGain, impactGain, musicVolume, panFor, revRpm, scrapeGain, sirenGain, whooshGain, windCutoff, windGain } from './levels'
 import { PassBys } from './pass-bys'
 import { SoundRig } from './sound-rig'
 import { playStreetSound } from './street-sounds'
@@ -15,17 +16,26 @@ export class RaceAudio {
   private rig: SoundRig | null = null
   private muted = false
   private gear = 1
+  private volumes: Volumes | null = null
   private readonly passBys = new PassBys()
   private readonly horns = new Horns()
 
   // Navegadores só liberam áudio dentro de um evento do usuário: chamar no keydown.
   unlock(): void {
-    this.rig ??= new SoundRig(new AudioContext())
+    if (!this.rig) {
+      this.rig = new SoundRig(new AudioContext())
+      if (this.volumes) this.rig.setVolumes(this.volumes)
+    }
     if (this.rig.ctx.state === 'suspended') void this.rig.ctx.resume()
   }
 
   toggleMute(): void {
     this.muted = !this.muted
+  }
+
+  setVolumes(volumes: Volumes): void {
+    this.volumes = volumes
+    this.rig?.setVolumes(volumes)
   }
 
   reset(): void {
@@ -38,6 +48,7 @@ export class RaceAudio {
     const rig = this.rig
     if (!rig) return
     rig.setOn(racing && !this.muted)
+    rig.setMusic(this.muted ? 0 : musicVolume(racing))
     if (!racing) return
     const player = race.riders[race.playerId]
     this.updateEngine(rig, race, player, throttle)

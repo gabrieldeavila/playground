@@ -27,6 +27,16 @@ commercial game.
 - [x] Denser roadside: posts every 16 m, near trees, curve guardrails, overhead gantries, textured shoulder
 - [x] Guardrails hold riders on the road (scrape + slow, no crash) — `domain/race/rails.ts`
 - [x] Synthesized audio: engine (rpm-driven, shift cuts), wind, pass-by whooshes, scrape, impacts; **M** mutes
+- [x] Synthesized rock soundtrack (`audio/music/`): original 24-bar loop in E minor at 144 bpm (~40 s), verse with
+      palm-muted chug + gallop bass, chorus with open power chords and a square-wave lead. Song is data
+      (`song.ts`, 16-char patterns per bar), `notes-at.ts` reads a step (spec), `MusicPlayer` schedules 150 ms
+      ahead of the audio clock. Own bus into the limiter (not the race master), so it plays on the menus too:
+      0.55 on menus, 0.38 racing; **M** mutes it with everything else. Same pass lowered the engine
+      (gain 0.16+0.1·throttle → 0.09+0.06·throttle, a bit less treble). Volumes picked blind — tune by ear.
+- [x] Sound screen: **O** on the title. Master / Music / Engine / Effects, 0–10 each (default 7 = the tuned mix,
+      gain = (level/7)², so 10 ≈ 2×). Rules in `domain/settings/volumes.ts`, menu state in `game/sound-menu.ts`,
+      saved apart from the career in `pe-na-tabua.volumes.v1` (`data/parse-volumes.ts`). In `SoundRig`:
+      engine → engine level, everything else → effects level, both → race bus (on/off) → master; music → master.
 - [x] Radial speed blur + vignette post-processing (`render/post/`)
 - [x] Civilian traffic: sedans and taxis in 4 fixed-speed lanes (2 each way), car crashes,
       2 s remount grace, bots dodge cars, horns from oncoming cars (`domain/traffic/`)
@@ -146,7 +156,6 @@ Open: playtest Racer level 3 (second cop arrives; sim average drops 65% → 28%)
 
 ### 7. Later / maybe
 - [ ] Two-player split-screen
-- [ ] Synthesized rock soundtrack
 - [ ] Tune traffic density / bot car-crash rate after playtesting
   (simulated: bots hit a car 0–3 times per ~100 s race)
 - [ ] Police follow-ups: fine money once the career loop exists; cops could give up after being
