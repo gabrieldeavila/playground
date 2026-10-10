@@ -16,6 +16,7 @@ export interface RaceSetup {
   course: Course
   riders: RiderSetup[] // corredores na ordem do grid, depois os policiais
   trafficScale: number // multiplica os carros de cada faixa
+  hazardScale: number // multiplica pedestres, obras e buracos (só na cidade; já é por km)
   rules: RaceRules
 }
 
@@ -26,6 +27,7 @@ export function buildRaceSetup(course: Course, level: Level, difficulty: Difficu
     course: stretched,
     riders: [...levelRoster(ROSTER, challenge), ...policeAt(copLayout(challenge.cops))],
     trafficScale: challenge.traffic * lengthRatio(stretched, course),
+    hazardScale: challenge.hazards,
     rules: rulesFor(challenge, difficulty.rules),
   }
 }

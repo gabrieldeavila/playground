@@ -8,6 +8,7 @@ export interface Summary {
   meanPlace: number // só de quem não foi preso
   carCrashes: number // por corrida
   knockouts: number
+  pedestrians: number // atropelados por corrida
   meanTime: number // s, só de quem não foi preso
   places: number[] // places[p - 1] = quantas vezes chegou em p
   bustCauses: Map<string, number>
@@ -24,6 +25,7 @@ export function summarize(outcomes: Outcome[], qualifyPlace: number): Summary {
     meanPlace: mean(finished.map((o) => o.place!)),
     carCrashes: mean(outcomes.map((o) => o.carCrashes)),
     knockouts: mean(outcomes.map((o) => o.knockouts)),
+    pedestrians: mean(outcomes.map((o) => o.pedestrians)),
     meanTime: mean(finished.map((o) => o.time)),
     places: countPlaces(finished),
     bustCauses: countBustCauses(outcomes),

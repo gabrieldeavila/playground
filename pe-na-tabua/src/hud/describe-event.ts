@@ -19,6 +19,13 @@ export function describeEvent(event: RaceEvent, race: Race): string | null {
     case 'crash':
       if (event.riderId !== me) return null
       return event.car ? `HIT A ${event.car === 'taxi' ? 'TAXI' : 'CAR'}!` : 'WIPEOUT!'
+    case 'pedestrian':
+      if (event.riderId !== me) return null
+      return event.crashed ? 'PEDESTRIAN! WIPEOUT!' : 'OI! WATCH IT!'
+    case 'cone':
+      return event.riderId === me ? 'CONES!' : null
+    case 'pothole':
+      return event.riderId === me ? 'POTHOLE!' : null
     case 'finish':
       return event.riderId === me ? `FINISHED ${ordinal(event.place).toUpperCase()}` : null
     case 'chase':
@@ -30,5 +37,6 @@ export function describeEvent(event: RaceEvent, race: Race): string | null {
 
 export function hurtsPlayer(event: RaceEvent, race: Race): boolean {
   if (event.kind === 'hit' || event.kind === 'knockout') return event.targetId === race.playerId
+  if (event.kind === 'pedestrian') return event.crashed && event.riderId === race.playerId
   return event.kind === 'crash' && event.riderId === race.playerId
 }

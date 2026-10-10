@@ -6,7 +6,7 @@ import { ROAD_TEXTURE_METERS, createRoadTexture } from './road-texture'
 import { ROAD_EDGE } from './terrain-shape'
 
 // Fita de asfalto seguindo a linha central, um par de vértices por ponto.
-export function createRoadMesh(track: Track, anisotropy: number): Mesh {
+export function createRoadMesh(track: Track, anisotropy: number, rumble: [string, string]): Mesh {
   const positions: number[] = []
   const uvs: number[] = []
   track.points.forEach((p, i) => {
@@ -24,7 +24,7 @@ export function createRoadMesh(track: Track, anisotropy: number): Mesh {
   geometry.setIndex(gridIndices(track.points.length, 2))
   geometry.computeVertexNormals()
 
-  const material = new MeshStandardMaterial({ map: createRoadTexture(anisotropy), roughness: 0.88, metalness: 0 })
+  const material = new MeshStandardMaterial({ map: createRoadTexture(anisotropy, rumble), roughness: 0.88, metalness: 0 })
   const mesh = new Mesh(geometry, material)
   mesh.receiveShadow = true
   return mesh

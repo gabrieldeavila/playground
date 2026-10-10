@@ -49,6 +49,34 @@ commercial game.
       maneuver (speed blends linearly, so checking the start and end of the slide is enough), and never starts within
       120 m of another car that is mid-change. Riders aren't checked: a car can pull out in front of you, with warning.
       A spec runs dense traffic for 5 minutes and asserts no two cars ever overlap. Sim: difficulty within noise.
+- [x] **City course: Centro** (done ahead of 4, on request). Third course on every level, so a level now needs 3 clears.
+  - Course `courses/centro.ts`: ~5.5 km to the finish (Serra's length; at 4 km Outlaw was 3–5× easier) of straight
+    avenues, 90° corners (curve 0.025, radius 40 m) and two chicanes.
+    `Scenery.urban` turns on: flat ground (`render/terrain-shape.ts` `Ground = 'valley' | 'sea' | 'flat'`), sidewalk
+    up to the building fronts, street lamps instead of posts (`track/city-props.ts`), rows of buildings
+    (`block`/`tower`/`shop`, `render/building-models.ts`, tinted per instance) set just past `RIDE_LIMIT` so they act
+    as the street's walls (no colliders). Theme `city`: dusk smog sky, skyline backdrop (`BackdropStyle.shape`), grey
+    curb instead of the red/white rumble (`Theme.rumble`).
+  - Corners can't be taken flat out, so the AI brakes: `race/corner-speed.ts` looks 160 m ahead and caps the speed
+    so a bot can brake down to each curve's grip speed. Every Serra/Litoral curve is above top speed (spec), so those
+    sims are unchanged (checked against the same seeds).
+  - Street hazards in `domain/street/`, on `race.street` (empty off the city, own RNG so other courses draw the same):
+    - **Pedestrians** wait on the sidewalk and cross only when no car will pass their spot during the whole crossing
+      (`safe-to-cross.ts`), and never step out right in front of a bike. Crosswalks every ~220 m on straights plus
+      jaywalkers. Hit one: they fly and lie down 3 s, then walk to the nearest sidewalk. Under 90 km/h you only lose
+      8 m/s and wobble ("OI! WATCH IT!"); faster, you crash too (15 damage). Cars and pedestrians never touch.
+      The player hitting someone alerts any cop within 300 m (`alertCopsNear`).
+    - **Roadwork cones**: rows on the centre line or a lane divider; hit = cone flies, −1.5 m/s. Lane-changing cars
+      knock them too.
+    - **Potholes**: −5 m/s at top speed (scaled), sideways jolt, never a crash.
+    - Density = `Challenge.hazards` (0.5 at intensity 0 → 1.4 at 5) → `RaceSetup.hazardScale`.
+  - `dodge-obstacles.ts` (was `dodge-cars.ts`): bots and cops dodge cones, pedestrians and potholes like cars. The sim
+    player's lapses hide the street too. HUD: "OI! WATCH IT!", "PEDESTRIAN! WIPEOUT!", "CONES!", "POTHOLE!".
+    Sounds: cartoon yelp, plastic tok, pothole thud. `pnpm sim` counts pedestrians hit (`peds`).
+  - Sim, average player, levels 1–5, 60 races per cell (Serra in brackets): Joyride 92–100% (casual 85→63%),
+    Racer 58/68/22/38/15% (72/65/28/16/8), Outlaw 7/22/12/2/2% (5/6/2/3/1). Same shape, within noise except Racer 4
+    and Outlaw 2, a bit easier. Bots hit ~0.1 pedestrians per race: they see them. People will hit more; playtest
+    whether the crash speed (90 km/h), the pedestrian count and the corner braking feel right.
 
 ## To do (in order)
 
@@ -105,9 +133,9 @@ Open: playtest Racer level 3 (second cop arrives; sim average drops 65% → 28%)
 
 ### 4b. More courses
 - [ ] Desert
-- [ ] City course with buildings (needs building props)
+- [x] City course with buildings — Centro, see Done
 
-### 5. Road hazards
+### 5. Road hazards (city ones done: pedestrians, cones, potholes — see Done)
 - [ ] Jumps: fast crests launch the bike (airborne state, landing)
 - [ ] Oil slicks
 - [ ] Animals crossing (cows, deer)
@@ -129,7 +157,7 @@ Open: playtest Racer level 3 (second cop arrives; sim average drops 65% → 28%)
 
 ## Simulating races
 
-`pnpm sim [--course Serra|Litoral] [--mode joyride|racer|outlaw] [--level N] [--races N] [--no-cops] [--matrix]`
+`pnpm sim [--course Serra|Litoral|Centro] [--mode joyride|racer|outlaw] [--level N] [--races N] [--no-cops] [--matrix]`
 — headless, domain only (no three.js, no DOM), ~100 races in a few seconds per model:
 
 - Node 24 runs the `.ts` files directly; a small `module.registerHooks` resolve hook adds `.ts` to

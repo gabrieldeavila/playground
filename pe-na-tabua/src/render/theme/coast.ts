@@ -8,7 +8,8 @@ export const COAST: Theme = {
   fog: { near: 120, far: 900 },
   hemisphere: { sky: '#d6ecff', ground: '#8a7a52', intensity: 1.25 },
   sunLight: { color: '#fff4dc', intensity: 2.9 },
-  backdrop: { colors: ['#6f8fa6', '#7e9bb0', '#89a4b4'], height: [40, 140], radius: [250, 600], distance: [1500, 2200] },
+  backdrop: { shape: 'peaks', colors: ['#6f8fa6', '#7e9bb0', '#89a4b4'], height: [40, 140], radius: [250, 600], distance: [1500, 2200] },
   terrain: { gravel: '#c9b48a', grassDark: '#6d8a3a', grassLight: '#9aae55', rock: '#8f8577' },
+  rumble: ['#c8352e', '#ece8dc'],
   sea: '#2b7fa8',
 }

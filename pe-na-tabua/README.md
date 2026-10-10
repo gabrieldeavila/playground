@@ -1,9 +1,10 @@
 # Pé na Tábua
 
 An open-source motorbike combat racer for the browser: eight riders on mountain
-roads and coastal highways, punching and kicking their way to the finish line through
-civilian traffic — with the police waiting on the shoulder. Get knocked down next to a
-cop and you're busted.
+roads, coastal highways and city streets, punching and kicking their way to the finish
+line through civilian traffic — with the police waiting on the shoulder. Get knocked
+down next to a cop and you're busted. Downtown, watch out for pedestrians, roadwork
+cones and potholes, and brake for the corners.
 
 Pick a mode — **Joyride** (relaxed, cops never arrest you), **Racer** or **Outlaw**
 (hard to finish) — and work through five levels. Finish in the top places on every course
@@ -49,7 +50,7 @@ pnpm sim        # headless races: how often simulated players qualify
 ```
 
 `pnpm sim` runs the game rules without graphics, with the bot brain driving the player
-plus random lapses. Options: `--course Serra|Litoral`, `--mode joyride|racer|outlaw`,
+plus random lapses. Options: `--course Serra|Litoral|Centro`, `--mode joyride|racer|outlaw`,
 `--level 1-5`, `--races N`, `--no-cops`, and `--matrix` (every level at once). Use it
 to check difficulty changes before playtesting.
 
@@ -62,10 +63,11 @@ src/
     race/   motion, combat, collisions, AI, standings
     traffic/ civilian cars and taxis: lanes, movement, crashes, horns
     police/ cops: patrol, chase, busting the player
+    street/ city hazards: pedestrians, roadwork cones, potholes
     career/ levels, difficulty modes, race setup, progress
   data/     saving progress in localStorage
   render/   three.js: road, terrain, sky, sea, props, bikes, cameras, speed blur
-    theme/  per-course look: sky, fog, light, terrain colors, sea
+    theme/  per-course look: sky, fog, light, terrain colors, sea, skyline
   audio/    Web Audio: synthesized engine, wind, pass-by whooshes, impacts
   hud/      HTML overlay and screens
   input/    keyboard

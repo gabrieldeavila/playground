@@ -29,7 +29,7 @@ describe('scatterProps', () => {
 })
 
 describe('scatterProps com mar', () => {
-  const lush: Scenery = { treeChance: 1, nearTreeChance: 1, rockChance: 1, pineShare: 0.5, seaSide: -1 }
+  const lush: Scenery = { treeChance: 1, nearTreeChance: 1, rockChance: 1, pineShare: 0.5, seaSide: -1, urban: false }
   const props = scatterProps(buildSegments([straight]), createRng(1), lush)
 
   it('do lado do mar, nada longe do asfalto (estaria na água)', () => {

@@ -4,7 +4,7 @@ import type { Track } from '../domain/track/types'
 import { GROUND_TEXTURE_METERS, createGroundTexture } from './ground-texture'
 import type { TerrainPalette } from './theme/theme'
 import { gridIndices } from './grid-indices'
-import { ROAD_EDGE, TERRAIN_OFFSETS, terrainColor, terrainHeight } from './terrain-shape'
+import { ROAD_EDGE, TERRAIN_OFFSETS, groundOf, terrainColor, terrainHeight } from './terrain-shape'
 
 const MAX_OFFSET = TERRAIN_OFFSETS[TERRAIN_OFFSETS.length - 1]
 
@@ -20,7 +20,7 @@ export function createTerrainMeshes(track: Track, anisotropy: number, palette: T
 }
 
 function buildSide(track: Track, side: -1 | 1, palette: TerrainPalette): BufferGeometry {
-  const toSea = track.scenery.seaSide === side
+  const ground = groundOf(track, side)
   // Colunas sempre da esquerda para a direita, para as faces ficarem para cima.
   const offsets = side === 1 ? TERRAIN_OFFSETS : [...TERRAIN_OFFSETS].reverse()
   const positions: number[] = []
@@ -36,9 +36,9 @@ function buildSide(track: Track, side: -1 | 1, palette: TerrainPalette): BufferG
       const lateral = side * (ROAD_EDGE + d)
       const x = p.x + rx * lateral
       const z = p.z + rz * lateral
-      const height = terrainHeight(d, x, z, toSea)
+      const height = terrainHeight(d, x, z, ground)
       positions.push(x, p.y + height, z)
-      terrainColor(d, height, x, z, palette, color)
+      terrainColor(d, height, x, z, palette, color, ground)
       colors.push(color.r, color.g, color.b)
       uvs.push(d / GROUND_TEXTURE_METERS, (i * SEGMENT_LENGTH) / GROUND_TEXTURE_METERS)
     }

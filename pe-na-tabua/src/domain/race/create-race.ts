@@ -1,6 +1,7 @@
 import { createRng } from '../random'
 import type { Track } from '../track/types'
 import { PATROL_X } from '../police/constants'
+import { createStreet } from '../street/create-street'
 import { createTraffic } from '../traffic/create-traffic'
 import { COUNTDOWN, GRID_FRONT_S, GRID_HALF_SPACING, GRID_ROW_GAP, MAX_HEALTH } from './constants'
 import type { RiderSetup } from './roster'
@@ -9,6 +10,7 @@ import type { Race, Rider } from './types'
 
 export interface RaceOptions {
   trafficScale?: number // multiplica os carros de cada faixa
+  hazardScale?: number // multiplica pedestres, obras e buracos (só na cidade)
   rules?: RaceRules
 }
 
@@ -27,6 +29,7 @@ export function createRace(track: Track, roster: RiderSetup[], seed: number, opt
     track,
     riders,
     cars: createTraffic(track.length, rng, options.trafficScale),
+    street: createStreet(track, seed, options.hazardScale),
     playerId: player.id,
     phase: 'countdown',
     countdown: COUNTDOWN,

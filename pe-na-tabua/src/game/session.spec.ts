@@ -51,17 +51,23 @@ describe('Session', () => {
     expect(session.save.difficulty).toBe('joyride')
   })
 
-  it('passar numa pista leva para a outra; passar nas duas libera o próximo nível', () => {
+  it('passar numa pista leva para a próxima; passar em todas libera o próximo nível', () => {
     const session = new Session(NEW_SAVE)
     session.start()
     const levelOneTrack = session.race.track
     expect(session.course).toBe('Serra')
     finishAs(session, 2)
-    expect(session.verdict).toMatchObject({ qualified: true, unlocked: null, coursesLeft: 1 })
+    expect(session.verdict).toMatchObject({ qualified: true, unlocked: null, coursesLeft: 2 })
     expect(session.course).toBe('Litoral')
     session.start()
     expect(session.race.track.theme).toBe('coast')
     finishAs(session, 1)
+    expect(session.verdict).toMatchObject({ qualified: true, unlocked: null, coursesLeft: 1 })
+    expect(session.course).toBe('Centro')
+    session.start()
+    expect(session.race.track.theme).toBe('city')
+    expect(session.race.street.pedestrians.length).toBeGreaterThan(0)
+    finishAs(session, 3)
     expect(session.verdict).toMatchObject({ qualified: true, unlocked: 2 })
     expect(session.save.careers).toEqual({ ...NEW_CAREERS, racer: { level: 2, cleared: [], champion: false } })
     expect(session.course).toBe('Serra')

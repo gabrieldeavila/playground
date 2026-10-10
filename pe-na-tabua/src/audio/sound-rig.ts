@@ -5,6 +5,8 @@ import type { PassSound } from './pass-bys'
 import { playClang } from './play-clang'
 import { playHorn } from './play-horn'
 import { playImpact } from './play-impact'
+import { playTok } from './play-tok'
+import { playYelp } from './play-yelp'
 import { playWhoosh } from './play-whoosh'
 import { SirenSound } from './siren-sound'
 
@@ -49,5 +51,13 @@ export class SoundRig {
 
   impact(gain: number, pan: number): void {
     if (gain > 0.01) playImpact(this.ctx, this.master, this.noise, gain, pan)
+  }
+
+  yelp(gain: number, pan: number): void {
+    if (gain > 0.01) playYelp(this.ctx, this.master, gain, pan)
+  }
+
+  tok(gain: number, pan: number): void {
+    if (gain > 0.01) playTok(this.ctx, this.master, gain, pan)
   }
 }

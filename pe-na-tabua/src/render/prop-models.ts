@@ -1,5 +1,6 @@
 import { BoxGeometry, type BufferGeometry, ConeGeometry, CylinderGeometry, DodecahedronGeometry, IcosahedronGeometry } from 'three'
 import type { PropKind } from '../domain/track/types'
+import { createBlockModel, createLampModel, createShopModel, createTowerModel } from './building-models'
 import { createGantryModel } from './gantry-model'
 import { mergeParts, paint } from './painted-geometry'
 import { createRailModel } from './rail-model'
@@ -33,4 +34,8 @@ export const PROP_MODELS: Record<PropKind, () => BufferGeometry> = {
     ]),
   rail: createRailModel,
   gantry: createGantryModel,
+  lamp: createLampModel,
+  block: createBlockModel,
+  tower: createTowerModel,
+  shop: createShopModel,
 }

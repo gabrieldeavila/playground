@@ -122,6 +122,6 @@ export class Session {
   private freshRace(): Race {
     this.races += 1
     const { track, setup } = this.current
-    return createRace(track, setup.riders, this.races * 7919, { trafficScale: setup.trafficScale, rules: setup.rules })
+    return createRace(track, setup.riders, this.races * 7919, { trafficScale: setup.trafficScale, hazardScale: setup.hazardScale, rules: setup.rules })
   }
 }

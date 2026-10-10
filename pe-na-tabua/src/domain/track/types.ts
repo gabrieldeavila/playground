@@ -8,7 +8,7 @@ export interface Section {
 }
 
 // Visual da pista; o render traduz em céu, luz, cores do terreno e mar.
-export type ThemeId = 'mountain' | 'coast'
+export type ThemeId = 'mountain' | 'coast' | 'city'
 
 // O que cresce na beira da estrada, e de que lado fica o mar.
 export interface Scenery {
@@ -17,6 +17,7 @@ export interface Scenery {
   rockChance: number
   pineShare: number // fração das árvores que são pinheiros
   seaSide: -1 | 0 | 1 // lado em que o terreno desce para o mar (0 = sem mar)
+  urban: boolean // cidade: chão plano, prédios, postes de luz, pedestres e obras
 }
 
 // Pista em três partes: largada e chegada são sempre iguais; o miolo (body) se repete
@@ -47,7 +48,8 @@ export interface CenterPoint {
 }
 
 // rail = um lance de guard-rail; gantry = pórtico de placas por cima da pista.
-export type PropKind = 'tree' | 'pine' | 'rock' | 'post' | 'sign' | 'rail' | 'gantry'
+// block, tower e shop são prédios; lamp é poste de luz da cidade.
+export type PropKind = 'tree' | 'pine' | 'rock' | 'post' | 'sign' | 'rail' | 'gantry' | 'lamp' | 'block' | 'tower' | 'shop'
 
 // Objeto de beira de estrada, em coordenadas de pista.
 export interface Prop {

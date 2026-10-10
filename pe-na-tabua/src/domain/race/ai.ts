@@ -5,7 +5,8 @@ import { curveAt } from '../track/pose'
 import { inReach } from './attacks'
 import { nearestOpponent } from './combat'
 import { CENTRIFUGAL, MAX_SPEED, STEER_SPEED } from './constants'
-import { dodgeLine } from './dodge-cars'
+import { cornerSpeed } from './corner-speed'
+import { dodgeLine } from './dodge-obstacles'
 import type { AiProfile, Move, Race, Rider, RiderInput } from './types'
 
 const FIGHT_RADIUS = 6
@@ -16,22 +17,30 @@ const ARMED_KICK_CHANCE = 0.15 // com arma na mão, prefere a arma
 const ARMED_GAP = 2.1 // distância lateral do alvo quando armado (m)
 const BARE_GAP = 1.3
 const RUBBER_BAND_GAP = 120
+const CORNER_BRAKE = 0.7
 
 export function aiInput(rider: Rider, race: Race, dt: number): RiderInput {
   const ai = rider.ai!
   const curve = curveAt(race.track, rider.s)
   const foe = ai.aggression >= FIGHTER_AGGRESSION ? nearestOpponent(rider, race.riders, FIGHT_RADIUS) : null
   const wanted = foe ? besideLine(rider, foe) : cruiseLine(ai, race.time)
-  const lineX = dodgeLine(rider, wanted, race.cars) ?? wanted
-  const goal = MAX_SPEED * ai.pace * rubberBand(rider, race)
+  const lineX = dodgeLine(rider, wanted, race.cars, race.street) ?? wanted
+  const corner = cornerSpeed(race.track, rider.s)
+  const goal = Math.min(MAX_SPEED * ai.pace * rubberBand(rider, race), corner)
   const attack = chooseAttack(rider, foe, ai, race.rng, dt)
   return {
     throttle: rider.speed < goal ? 1 : 0,
-    brake: rider.speed > goal * 1.08 ? 0.4 : 0,
+    brake: brakeFor(rider.speed, goal, corner),
     steer: steerToward(rider, lineX, curve),
     punch: attack === 'punch',
     kick: attack === 'kick',
   }
+}
+
+// Freia forte chegando rápido demais numa curva; de leve quando só passou do ritmo.
+export function brakeFor(speed: number, goal: number, corner: number): number {
+  if (speed > corner) return CORNER_BRAKE
+  return speed > goal * 1.08 ? 0.4 : 0
 }
 
 // Depois da chegada: freia e segue reto.

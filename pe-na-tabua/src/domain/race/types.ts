@@ -1,4 +1,5 @@
 import type { Rng } from '../random'
+import type { Street } from '../street/types'
 import type { Track } from '../track/types'
 import type { Car, CarKind } from '../traffic/types'
 import type { RaceRules } from './rules'
@@ -63,6 +64,9 @@ export type RaceEvent =
   | { kind: 'knockout'; attackerId: number; targetId: number }
   | { kind: 'disarm'; attackerId: number; targetId: number; weapon: WeaponKind } // atacante tomou a arma do alvo
   | { kind: 'crash'; riderId: number; car: CarKind | null } // car = em quem bateu, se foi num carro
+  | { kind: 'pedestrian'; riderId: number; crashed: boolean } // atropelou; crashed = a moto caiu junto
+  | { kind: 'cone'; riderId: number }
+  | { kind: 'pothole'; riderId: number }
   | { kind: 'finish'; riderId: number; place: number }
   | { kind: 'chase'; copId: number } // policial saiu atrás do jogador
   | { kind: 'busted'; copId: number }
@@ -71,6 +75,7 @@ export interface Race {
   track: Track
   riders: Rider[]
   cars: Car[]
+  street: Street // pedestres, cones e buracos (vazia fora da cidade)
   playerId: number
   phase: RacePhase
   countdown: number

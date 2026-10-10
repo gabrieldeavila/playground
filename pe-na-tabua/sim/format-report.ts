@@ -1,7 +1,7 @@
 import type { Summary } from './summarize'
 
-const COLUMNS = ['model', 'qualify', 'win', 'busted', 'avg place', 'car crash', 'KO', 'finish time']
-const WIDTHS = [14, 8, 5, 7, 10, 10, 5, 12]
+const COLUMNS = ['model', 'qualify', 'win', 'busted', 'avg place', 'car crash', 'KO', 'peds', 'finish time']
+const WIDTHS = [14, 8, 5, 7, 10, 10, 5, 5, 12]
 
 const percent = (share: number) => `${Math.round(share * 100)}%`
 
@@ -19,6 +19,7 @@ export function formatRow(model: string, s: Summary): string {
     s.meanPlace.toFixed(1),
     s.carCrashes.toFixed(1),
     s.knockouts.toFixed(1),
+    s.pedestrians.toFixed(1),
     `${s.meanTime.toFixed(0)} s`,
   ]
   const places = s.places.map((count, i) => `${i + 1}:${count}`).join(' ')
