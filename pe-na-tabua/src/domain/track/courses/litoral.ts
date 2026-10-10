@@ -7,7 +7,7 @@ export const LITORAL: Course = {
   name: 'Litoral',
   seed: 21,
   theme: 'coast',
-  scenery: { treeChance: 0.08, nearTreeChance: 0.05, rockChance: 0.07, pineShare: 0.15, seaSide: -1 },
+  scenery: { treeChance: 0.08, nearTreeChance: 0.05, rockChance: 0.07, pineShare: 0.15, seaSide: -1, urban: false },
   start: [section(0, 40, 0)],
   body: [
     section(20, 60, 20, 0.004, 4),

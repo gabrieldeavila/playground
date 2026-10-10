@@ -5,6 +5,7 @@ import { Horns } from './horns'
 import { SIREN_RANGE, hornGain, impactGain, panFor, revRpm, scrapeGain, sirenGain, whooshGain, windCutoff, windGain } from './levels'
 import { PassBys } from './pass-bys'
 import { SoundRig } from './sound-rig'
+import { playStreetSound } from './street-sounds'
 
 const VEHICLE_BOOST = 1.6 // carro é maior: passa fazendo mais barulho
 const WEAPON_BOOST = 1.4 // golpe de arma bate mais forte
@@ -52,6 +53,7 @@ export class RaceAudio {
   }
 
   onEvent(event: RaceEvent, race: Race): void {
+    if (this.rig && playStreetSound(this.rig, event, race)) return
     const target = event.kind === 'hit' || event.kind === 'knockout' ? event.targetId : event.kind === 'crash' ? event.riderId : null
     if (!this.rig || target === null) return
     const player = race.riders[race.playerId]

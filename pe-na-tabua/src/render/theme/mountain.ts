@@ -8,7 +8,8 @@ export const MOUNTAIN: Theme = {
   fog: { near: 90, far: 700 },
   hemisphere: { sky: '#bfd6ff', ground: '#4a5a2a', intensity: 1.1 },
   sunLight: { color: '#ffe2b8', intensity: 2.6 },
-  backdrop: { colors: ['#7b7fa6', '#8f88a8', '#6f7899'], height: [140, 400], radius: [200, 420], distance: [1300, 1800] },
+  backdrop: { shape: 'peaks', colors: ['#7b7fa6', '#8f88a8', '#6f7899'], height: [140, 400], radius: [200, 420], distance: [1300, 1800] },
   terrain: { gravel: '#8a7f6a', grassDark: '#466d33', grassLight: '#6f9347', rock: '#857a6c' },
+  rumble: ['#c8352e', '#ece8dc'],
   sea: null,
 }

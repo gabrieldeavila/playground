@@ -18,6 +18,11 @@ const COLLIDERS: Record<PropKind, Collider | null> = {
   sign: { offsets: [0], radius: 0.3 },
   rail: null,
   gantry: { offsets: [-GANTRY_HALF_SPAN, GANTRY_HALF_SPAN], radius: 0.35 },
+  lamp: { offsets: [0], radius: 0.2 },
+  // Prédios ficam além de RIDE_LIMIT: a moto não chega neles.
+  block: null,
+  tower: null,
+  shop: null,
 }
 
 // Algo sólido do prop está a menos de `margin` do deslocamento lateral `x`?

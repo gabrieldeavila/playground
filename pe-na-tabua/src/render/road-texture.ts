@@ -9,8 +9,8 @@ const SIZE = 512
 const RUMBLE = 0.9 // largura da zebra (m)
 const LINE = 0.15
 
-// Asfalto com zebra vermelha/branca, faixa de borda e tracejado central.
-export function createRoadTexture(anisotropy: number): CanvasTexture {
+// Asfalto com zebra (duas cores, do tema), faixa de borda e tracejado central.
+export function createRoadTexture(anisotropy: number, rumble: [string, string]): CanvasTexture {
   const canvas = document.createElement('canvas')
   canvas.width = SIZE
   canvas.height = SIZE
@@ -19,8 +19,8 @@ export function createRoadTexture(anisotropy: number): CanvasTexture {
   const py = (meters: number) => (meters / ROAD_TEXTURE_METERS) * SIZE
 
   paintAsphalt(ctx)
-  paintRumble(ctx, 0, px(RUMBLE), py)
-  paintRumble(ctx, SIZE - px(RUMBLE), px(RUMBLE), py)
+  paintRumble(ctx, 0, px(RUMBLE), py, rumble)
+  paintRumble(ctx, SIZE - px(RUMBLE), px(RUMBLE), py, rumble)
   ctx.fillStyle = '#ece8dc'
   ctx.fillRect(px(RUMBLE), 0, px(LINE), SIZE)
   ctx.fillRect(SIZE - px(RUMBLE + LINE), 0, px(LINE), SIZE)
@@ -49,10 +49,10 @@ function paintAsphalt(ctx: CanvasRenderingContext2D): void {
   for (const center of [0.3, 0.7]) ctx.fillRect(SIZE * center - 18, 0, 36, SIZE)
 }
 
-function paintRumble(ctx: CanvasRenderingContext2D, x: number, width: number, py: (m: number) => number): void {
+function paintRumble(ctx: CanvasRenderingContext2D, x: number, width: number, py: (m: number) => number, colors: [string, string]): void {
   const stripe = 2
   for (let m = 0; m < ROAD_TEXTURE_METERS; m += stripe) {
-    ctx.fillStyle = (m / stripe) % 2 === 0 ? '#c8352e' : '#ece8dc'
+    ctx.fillStyle = colors[(m / stripe) % 2]
     ctx.fillRect(x, py(m), width, py(stripe))
   }
 }

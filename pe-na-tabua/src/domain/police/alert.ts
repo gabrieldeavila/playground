@@ -12,3 +12,15 @@ export function alertCops(race: Race): RaceEvent[] {
   }
   return events
 }
+
+// Policial a menos de `range` metros do jogador (na frente ou atrás) sai atrás dele na hora.
+export function alertCopsNear(race: Race, range: number): RaceEvent[] {
+  const player = race.riders[race.playerId]
+  const events: RaceEvent[] = []
+  for (const cop of race.riders) {
+    if (cop.role !== 'cop' || cop.chasing || Math.abs(cop.s - player.s) > range) continue
+    cop.chasing = true
+    events.push({ kind: 'chase', copId: cop.id })
+  }
+  return events
+}

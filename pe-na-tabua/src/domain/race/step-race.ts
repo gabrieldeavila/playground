@@ -1,6 +1,8 @@
 import { alertCops } from '../police/alert'
 import { stepBust } from '../police/bust'
 import { copInput } from '../police/cop-ai'
+import { stepStreet } from '../street/step-street'
+import { streetHits } from '../street/street-hits'
 import { curveAt } from '../track/pose'
 import { hitCar } from '../traffic/car-collisions'
 import { stepTraffic } from '../traffic/step-traffic'
@@ -15,9 +17,10 @@ import { scrapeRails } from './rails'
 import type { Race, RaceEvent, Rider, RiderInput } from './types'
 
 // Avança a corrida um passo fixo. Continua rodando depois da chegada do jogador.
-// O trânsito anda desde a contagem regressiva.
+// O trânsito e os pedestres andam desde a contagem regressiva.
 export function stepRace(race: Race, playerInput: RiderInput, dt: number): RaceEvent[] {
   stepTraffic(race.cars, race.track.length, dt, race.rng)
+  stepStreet(race.street, race.cars, race.riders, dt)
   if (race.phase === 'countdown') {
     race.countdown -= dt
     if (race.countdown <= 0) race.phase = 'racing'
@@ -55,12 +58,14 @@ function inputFor(race: Race, rider: Rider, playerInput: RiderInput, dt: number)
 function stepRider(race: Race, rider: Rider, input: RiderInput, dt: number): RaceEvent[] {
   if (input.punch) startAttack(rider, 'punch', race.riders)
   else if (input.kick) startAttack(rider, 'kick', race.riders)
+  const fromS = rider.s
   stepMotion(rider, input, curveAt(race.track, rider.s), dt, rider.id === race.playerId ? catchUpBoost(race) : 1)
   rider.s = Math.min(rider.s, race.track.length - 1)
   scrapeRails(race.track, rider, dt)
   const events = stepAttack(rider, race.riders, dt)
   const crash = checkCrash(race, rider)
   if (crash) events.push(crash)
+  events.push(...streetHits(race, rider, fromS))
   return events
 }
 

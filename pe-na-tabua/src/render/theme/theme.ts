@@ -8,6 +8,7 @@ export interface TerrainPalette {
 }
 
 export interface BackdropStyle {
+  shape: 'peaks' | 'towers' // montanhas/ilhas ou prédios no horizonte
   colors: string[]
   height: [number, number] // m, mín e máx
   radius: [number, number]
@@ -23,5 +24,6 @@ export interface Theme {
   sunLight: { color: string; intensity: number }
   backdrop: BackdropStyle
   terrain: TerrainPalette
+  rumble: [string, string] // listras da beira do asfalto (zebra; meio-fio na cidade)
   sea: string | null // cor da água; null = sem mar
 }

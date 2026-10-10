@@ -27,7 +27,7 @@ export class TrackScenery {
     const theme = THEMES[track.theme]
     this.group = new Group()
     this.group.add(
-      createRoadMesh(track, this.anisotropy),
+      createRoadMesh(track, this.anisotropy, theme.rumble),
       ...createTerrainMeshes(track, this.anisotropy, theme.terrain),
       ...createPropMeshes(track),
       createFinishArch(track),

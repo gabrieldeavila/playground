@@ -11,6 +11,7 @@ import { type Action, actionFor } from './game/key-actions'
 import { RidersView } from './game/riders-view'
 import { Session } from './game/session'
 import { TrackScenery } from './game/track-scenery'
+import { StreetView } from './game/street-view'
 import { TrafficView } from './game/traffic-view'
 import { WorldView } from './game/world-view'
 import { Hud } from './hud/hud'
@@ -33,6 +34,7 @@ const scenery = new TrackScenery(stage.scene, stage.renderer.capabilities.getMax
 showTrack(session.race.track)
 const riders = new RidersView(stage.scene, session.race.riders)
 const traffic = new TrafficView(stage.scene)
+const street = new StreetView(stage.scene)
 const director = new CameraDirector(stage.camera, riders)
 const cockpit = new Cockpit(stage.renderer, PLAYER_COLORS)
 const postFx = new PostFx(stage.renderer, stage.scene, stage.camera)
@@ -147,6 +149,7 @@ function frame(dt: number): void {
   const player = race.riders[race.playerId]
   riders.update(race)
   traffic.update(race)
+  street.update(race, performance.now() / 1000)
   director.update(race, dt)
   world.follow(stage.camera)
   followSun(stage.sun, riders.positionOf(race.playerId), world.theme.sunDirection)

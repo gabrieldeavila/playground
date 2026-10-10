@@ -9,6 +9,7 @@ export interface Challenge {
   armedBots: number // os mais agressivos largam armados
   cops: number
   traffic: number // densidade do trânsito (1 = carros por km de hoje)
+  hazards: number // densidade de pedestres, obras e buracos na cidade (1 = Outlaw nível 1)
   copSpeedFactor: number
   copAttacksPerSecond: number
   bustTime: number
@@ -21,21 +22,22 @@ const TODAY: Challenge = {
   armedBots: 3,
   cops: 2,
   traffic: 1,
+  hazards: 1,
   copSpeedFactor: DEFAULT_RULES.copSpeedFactor,
   copAttacksPerSecond: DEFAULT_RULES.copAttacksPerSecond,
   bustTime: DEFAULT_RULES.bustTime,
   carCrashDamage: DEFAULT_RULES.carCrashDamage,
 }
 
-// Um ponto por intensidade inteira. Acima de 1, só os bots, a polícia e o trânsito crescem.
+// Um ponto por intensidade inteira. Acima de 1, só os bots, a polícia, o trânsito e a rua crescem.
 export const CHALLENGE_STEPS: Challenge[] = [
   // 0: policial mais lento que a moto do jogador (só alcança quem cai), quase não bate
-  { botPace: -0.08, botAggression: -0.3, armedBots: 0.4, cops: 1, traffic: 0.6, copSpeedFactor: 0.97, copAttacksPerSecond: 0.15, bustTime: 2, carCrashDamage: 12 },
+  { botPace: -0.08, botAggression: -0.3, armedBots: 0.4, cops: 1, traffic: 0.6, hazards: 0.5, copSpeedFactor: 0.97, copAttacksPerSecond: 0.15, bustTime: 2, carCrashDamage: 12 },
   TODAY,
-  { ...TODAY, botPace: 0.01, botAggression: 0.05, armedBots: 4, traffic: 1.1 },
-  { ...TODAY, botPace: 0.02, botAggression: 0.1, armedBots: 5, cops: 3, traffic: 1.2 },
-  { ...TODAY, botPace: 0.03, botAggression: 0.15, armedBots: 6, cops: 3, traffic: 1.3 },
-  { ...TODAY, botPace: 0.04, botAggression: 0.2, armedBots: 7, cops: 4, traffic: 1.4 },
+  { ...TODAY, botPace: 0.01, botAggression: 0.05, armedBots: 4, traffic: 1.1, hazards: 1.1 },
+  { ...TODAY, botPace: 0.02, botAggression: 0.1, armedBots: 5, cops: 3, traffic: 1.2, hazards: 1.2 },
+  { ...TODAY, botPace: 0.03, botAggression: 0.15, armedBots: 6, cops: 3, traffic: 1.3, hazards: 1.3 },
+  { ...TODAY, botPace: 0.04, botAggression: 0.2, armedBots: 7, cops: 4, traffic: 1.4, hazards: 1.4 },
 ]
 
 // Onde os policiais esperam, por quantidade (fração do caminho até a chegada).

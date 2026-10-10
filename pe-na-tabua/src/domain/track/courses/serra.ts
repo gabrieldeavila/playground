@@ -6,7 +6,7 @@ export const SERRA: Course = {
   name: 'Serra',
   seed: 7,
   theme: 'mountain',
-  scenery: { treeChance: 0.3, nearTreeChance: 0.12, rockChance: 0.035, pineShare: 0.55, seaSide: 0 },
+  scenery: { treeChance: 0.3, nearTreeChance: 0.12, rockChance: 0.035, pineShare: 0.55, seaSide: 0, urban: false },
   start: [section(0, 40, 0)],
   body: [
     section(20, 40, 20, 0.006, 10),

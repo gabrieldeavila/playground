@@ -40,6 +40,20 @@ describe('describeEvent', () => {
     expect(describeEvent({ kind: 'crash', riderId: 0, car: 'sedan' }, race)).toBeNull()
   })
 
+  it('atropelar: devagar só um susto, rápido cai junto e machuca', () => {
+    expect(describeEvent({ kind: 'pedestrian', riderId: me, crashed: false }, race)).toBe('OI! WATCH IT!')
+    expect(describeEvent({ kind: 'pedestrian', riderId: me, crashed: true }, race)).toBe('PEDESTRIAN! WIPEOUT!')
+    expect(describeEvent({ kind: 'pedestrian', riderId: 0, crashed: true }, race)).toBeNull()
+    expect(hurtsPlayer({ kind: 'pedestrian', riderId: me, crashed: true }, race)).toBe(true)
+    expect(hurtsPlayer({ kind: 'pedestrian', riderId: me, crashed: false }, race)).toBe(false)
+  })
+
+  it('cones e buracos só aparecem para o jogador', () => {
+    expect(describeEvent({ kind: 'cone', riderId: me }, race)).toBe('CONES!')
+    expect(describeEvent({ kind: 'pothole', riderId: me }, race)).toBe('POTHOLE!')
+    expect(describeEvent({ kind: 'pothole', riderId: 0 }, race)).toBeNull()
+  })
+
   it('anuncia golpes de arma e armas tomadas', () => {
     expect(describeEvent({ kind: 'hit', attackerId: me, targetId: 0, attack: 'club' }, race)).toBe('WHACK!')
     expect(describeEvent({ kind: 'disarm', attackerId: me, targetId: 0, weapon: 'chain' }, race)).toBe('GOT A CHAIN!')

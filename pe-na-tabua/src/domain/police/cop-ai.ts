@@ -2,7 +2,8 @@ import { clamp } from '../math'
 import { besideLine, steerToward } from '../race/ai'
 import { inReach } from '../race/attacks'
 import { MAX_SPEED } from '../race/constants'
-import { dodgeLine } from '../race/dodge-cars'
+import { cornerSpeed } from '../race/corner-speed'
+import { dodgeLine } from '../race/dodge-obstacles'
 import type { Race, Rider, RiderInput } from '../race/types'
 import { curveAt } from '../track/pose'
 import { MATCH_GAIN } from './constants'
@@ -17,13 +18,14 @@ export function copInput(cop: Rider, race: Race, dt: number): RiderInput {
   if (!cop.chasing) return IDLE
   const player = race.riders[race.playerId]
   const gap = player.s - cop.s
-  const goal = clamp(player.speed + chaseGap(gap) * MATCH_GAIN, 0, MAX_SPEED * cop.speedFactor)
+  const corner = cornerSpeed(race.track, cop.s)
+  const goal = clamp(player.speed + chaseGap(gap) * MATCH_GAIN, 0, Math.min(MAX_SPEED * cop.speedFactor, corner))
   const wanted = Math.abs(gap) < FIGHT_GAP ? besideLine(cop, player) : player.x
-  const lineX = dodgeLine(cop, wanted, race.cars) ?? wanted
+  const lineX = dodgeLine(cop, wanted, race.cars, race.street) ?? wanted
   const swing = wantsToSwing(cop, player, race, dt)
   return {
     throttle: cop.speed < goal ? 1 : 0,
-    brake: cop.speed > goal + 2 ? 0.7 : 0,
+    brake: cop.speed > goal + 2 || cop.speed > corner ? 0.7 : 0,
     steer: steerToward(cop, lineX, curveAt(race.track, cop.s)),
     punch: swing,
     kick: false,
