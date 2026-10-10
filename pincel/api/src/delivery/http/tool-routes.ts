@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import type { DocumentEngine } from '../../data/document-engine.js';
 import type { CommandSource } from '../../data/logged-command.js';
 import { findTool, TOOLS } from '../tools/tool-catalog.js';
 import { describeError, runTool } from '../tools/run-tool.js';
+import type { ToolServices } from '../tools/tool-definition.js';
 
 /**
  * REST access to the same tools, for any AI framework without MCP.
  * GET /api/tools returns them in the Claude API tool format (name, description, input_schema).
  */
-export function toolRoutes(engine: DocumentEngine): Router {
+export function toolRoutes(services: ToolServices): Router {
   const router = Router();
 
   router.get('/api/tools', (_req, res) => {
@@ -30,7 +30,7 @@ export function toolRoutes(engine: DocumentEngine): Router {
     }
     const source: CommandSource = req.get('x-pincel-source') === 'ui' ? 'ui' : 'rest';
     try {
-      const result = await runTool(tool, req.body, { engine, source });
+      const result = await runTool(tool, req.body, { ...services, source });
       res.json({ text: result.text, data: result.data, image: result.image?.toString('base64') });
     } catch (error) {
       res.status(400).json({ error: describeError(error) });

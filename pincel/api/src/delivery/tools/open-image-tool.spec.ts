@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { DocumentEngine } from '../../data/document-engine.js';
 import { sampleColor } from '../../data/document-renderer.js';
 import { napiPaintEnv } from '../../data/napi-paint-env.js';
+import { testFontStore } from './test-font-store.js';
 import { runTool } from './run-tool.js';
 import { findTool } from './tool-catalog.js';
 
@@ -19,7 +20,7 @@ async function photoOnDisk(width: number, height: number, name = 'photo.png') {
   return path;
 }
 
-const openImage = (engine: DocumentEngine, input: unknown) => runTool(findTool('open_image')!, input, { engine, source: 'mcp' });
+const openImage = (engine: DocumentEngine, input: unknown) => runTool(findTool('open_image')!, input, { engine, fonts: testFontStore, source: 'mcp' });
 
 describe('open_image tool', () => {
   it('opens a local file as a new document sized to the photo', async () => {

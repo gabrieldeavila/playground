@@ -70,6 +70,15 @@ export type Command =
       font: string;
       weight: string;
       align: 'left' | 'center' | 'right';
+      /** Optional so older saved documents replay unchanged. */
+      letterSpacing?: number;
+      /** Multiple of the font size. */
+      lineHeight?: number;
+      /** Outline color; the outline sits outside the letters, strokeWidth thick. */
+      stroke?: string;
+      strokeWidth?: number;
+      /** Degrees clockwise around position. */
+      rotation?: number;
     } & Targeted)
   | ({
       type: 'draw_gradient';
