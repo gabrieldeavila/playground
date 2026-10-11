@@ -93,6 +93,75 @@ Caveats:
 - **Survivorship bias.** The universe lists only companies trading today, so the bankrupt and delisted ones are missing. This flatters every beaten-down strategy and its baseline alike, which is why each bot is compared with the baseline.
 - **`data/external/pit` is not usable.** Its "delisted" histories belong to whatever company uses the ticker now.
 
+## Insider buying (Form 4)
+
+Do directors and officers buying their own beaten-down stock add anything? Studied on 2011–2021 only; 2022+ has already been looked at twice and is not read here.
+
+- **Data** ([insiders/](forecast_ml/insiders)): SEC's quarterly Insider Transactions Data Sets (every Form 4 since 2006). Kept: original Form 4s (not 4/A or Form 5), directors and officers (not 10% owners alone), open-market purchases (code P) of US$ 10k+ with a price, filed within 90 days of the trade. A buy is **routine** when the same insider bought in the same month in each of the three previous years (Cohen, Malloy & Pomorski 2012); those are left out of the signal.
+- **Point in time**: a trade counts from the day after its filing, never from the trade date. Weekly columns cover the last 90 days: distinct buyers, value bought, CEO/CFO buyers, routine buyers, sellers.
+- **Bots** ([insider_buying.py](forecast_ml/bots/catalog/insider_buying.py)) are kept out of `grids()`, so `evaluate-bots` does not score them on test.
+
+```bash
+make insiders        # data/external/form4/
+make study-insiders  # reports/insiders.json
+```
+
+Results, median 52-week return minus SPY among liquid stocks 40%+ below their highs (train / validation):
+
+| Group | Train 2011–18 | Valid. 2019–21 | vs no purchase (train / valid.) |
+|---|---|---|---|
+| No insider purchase | −5.8 | −1.6 | |
+| Any purchase | −0.2 | +6.9 | +5.6 / +8.5 |
+| 3+ distinct buyers | +0.7 | +15.9 | +6.5 / +17.5 |
+| Purchase, smallest third by traded value | +2.1 | +8.9 | +7.9 / +10.5 |
+| Purchase, largest third | −1.1 | +5.0 | +4.7 / +6.6 |
+| Placebo: 2+ sellers, no buyer | −4.9 | −3.2 | +0.9 / −1.6 |
+| Placebo: purchases moved 1+ year | −4.5 | −0.1 | +1.3 / +1.5 |
+| Leak check: dated by trade, not filing | +0.3 | +7.2 | +6.1 / +8.8 |
+| Caixa descontada | +4.5 | +37.2 | |
+| Caixa descontada + purchase | +5.6 | +51.0 | |
+
+Year by year, purchases beat no purchase in 7 of 8 training years (−0.6 in 2014). In validation they won only in 2020 (+17.4, 697 signals) and lost in 2019 (−5.0) and 2021 (−3.4).
+
+What the numbers say:
+
+- **There is a signal, and the placebos behave.** Purchases beat the same pool without them in train. Sales and shifted purchases show close to no edge, so this is not "small beaten-down stocks" in disguise. The gap is larger in small companies, as the literature reports.
+- **Validation does not confirm it.** The pooled validation number is 2020's post-crash rebound. Both round-3 bots pass the train/validation rules (`insider_comprando`: 50%+ off highs, 2+ buyers, US$ 250k+; `caixa_com_insider`: caixa descontada + 2+ buyers), but they inherit that dependence on 2020.
+- **The look-ahead leak is small here** (+0.3 to +0.5): Form 4s are filed within two days.
+- Routine buys are rare (2.6% of purchases), so the routine placebo has too few signals to judge.
+
+Caveats:
+
+- **Survivorship, measured**: 45% of opportunistic purchases in 2011–2021 were in companies that no longer have a ticker (bankrupt, delisted or acquired; this data cannot tell which). The universe sees none of them.
+- **Lag for a live scan**: the quarterly data sets end at the last closed quarter (2026q1 today). A weekly scan would need EDGAR's daily Form 4 feed.
+
+### Holdout 2006–2010
+
+No bot or study had used these years. Candles from 2003 to mid-2012 were downloaded to `data/external/history` (kept apart from `data/raw`). The test was run once, with the variant picked on 2011–2018 unchanged. The pass rules were written in [holdout_verdict.py](forecast_ml/insiders/holdout_verdict.py) before the run: (1) the bot beats the pool, (2) purchases beat no purchase in 3+ of the 5 years, (3) the median yearly gap without 2009, the post-crash rebound, stays above zero.
+
+```bash
+make download-history   # ~20 min; tickers listed after mid-2012 fail with HTTP 400, as expected
+make holdout-insiders   # reports/insiders_holdout.json
+```
+
+| Group (2006-07 to 2010) | Median excess vs SPY | vs no purchase |
+|---|---|---|
+| Pool (40%+ below highs) | +2.9 | |
+| No purchase | +2.6 | |
+| Any purchase | +4.0 | +1.4 |
+| 2+ / 3+ buyers | +5.5 / +8.4 | +2.9 / +5.8 |
+| Purchase, small / large companies | +6.4 / +1.3 | +3.8 / −1.3 |
+| Placebo: sellers / shifted purchases | +2.1 / −0.2 | −0.5 / −2.8 |
+| **`insider_comprando`** (264 signals, 100 weeks) | **+13.9** (63.6% beat SPY) | |
+
+Gap by year: 2006 +7.9, 2007 +5.8, 2008 0.0, 2009 +5.4, 2010 −3.2. **Verdict: passed** (3/5 years; +2.9 without 2009).
+
+- **The pattern repeats out of sample.** More buyers mean a larger edge, small companies carry it, and the placebos show none.
+- **The edge is modest for "any purchase"** (+1.4) and larger for clusters. The bot's +11 points over the pool comes from requiring 2+ buyers, 50%+ off highs and US$ 250k+.
+- **It does not protect on the downside.** 20.8% of the bot's picks lost 30%+, against 12.6% for the pool (2008). Buyers saw value; they did not see the bottom.
+- The survivorship bias is larger here: a 2006 stock must have survived until today to be in the universe. The pool comparison absorbs part of it. Routine buys can only be detected from 2009, because the flag needs three years of Form 4s.
+- `insider_comprando` stays out of `grids()`. Adding it there scores 2022+ as well; a weekly scan would also need EDGAR's daily Form 4 feed.
+
 ## EMA entry ranking
 
 Causal features use adjusted prices, EMA 9/20/50/100/200, alignment, slopes, crossovers, reclaims and pullbacks. Signals are observed at the candle close; simulated entry occurs at the next adjusted open. The operational label checks a 5% target against a 3% stop over 10 trading sessions by default. Ambiguous intrabar target/stop hits are stop-first; gaps exit at the open, and unresolved trades exit at the horizon close.

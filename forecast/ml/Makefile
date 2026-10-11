@@ -91,6 +91,27 @@ fundamentals: requirements
 	uv run python -m forecast_ml.fundamentals.edgar_download
 	uv run python -m forecast_ml.fundamentals.splits_download
 
+## Download SEC Form 4 insider trades since 2006 (quarterly data sets, ~2 min)
+.PHONY: insiders
+insiders: requirements
+	uv run python -m forecast_ml.insiders.form4_download
+
+## Insider buying on beaten-down stocks, 2011-2021 only -> reports/insiders.json
+.PHONY: study-insiders
+study-insiders: requirements
+	uv run python -m forecast_ml.insiders.study
+
+## Download 2003-mid 2012 candles apart from data/raw, for the 2006-2010 holdout
+.PHONY: download-history
+download-history: requirements
+	uv run python -m forecast_ml.download --tickers SPY --start 2003-01-01 --end 2012-06-30 --data-dir data/external/history_market
+	uv run python -m forecast_ml.download --start 2003-01-01 --end 2012-06-30 --data-dir data/external/history --workers 6
+
+## Score the insider bot once on 2006-2010 -> reports/insiders_holdout.json
+.PHONY: holdout-insiders
+holdout-insiders: requirements
+	uv run python -m forecast_ml.insiders.holdout
+
 ## Tune/validate/test the weekly bots -> reports/bots.json (REBUILD=1 rebuilds the table)
 .PHONY: evaluate-bots
 evaluate-bots: requirements
