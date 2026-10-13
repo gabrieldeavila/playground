@@ -39,3 +39,20 @@ Goal: an AI connected to Pincel can make a print-quality flyer/poster, not just
 
 - [ ] Font picker lists loaded fonts (`list_fonts`)
 - [ ] Text tool options: letter spacing, outline, box drag
+
+## Built-in agent (bring your own API key)
+
+Pincel stays local and runs the agent loop itself: pick a provider, paste a key, type a request.
+Vision models only — the AI must see `render_image` to check its own work.
+
+- [x] `delivery/agent/agent-tools.ts`: `TOOLS` → OpenAI function-calling format
+- [x] `domain/agent/next-agent-action.ts`: run tools / done / step limit (+ spec); old renders dropped from history (`drop-old-images.ts`)
+- [x] `data/llm/openai-compatible-client.ts`: `openai` SDK with configurable `baseURL` (OpenAI, Gemini, OpenRouter, Ollama vision models)
+- [x] Tool images go back as a follow-up user message with `image_url` (tool messages can't carry images)
+- [x] `data/agent-settings-store.ts`: provider/model/key in `.data/agent.json`; key never sent to the browser
+- [x] `delivery/http/agent-routes.ts`: `POST /api/agent/chat`, streams each step over SSE
+- [x] Tested with a real OpenAI key (gpt-6.1-sol, two turns: tools, render_image, reasoning replay)
+- [x] `api.openai.com` → Responses API (`openai-responses-client.ts`, stateless: `store: false` + encrypted reasoning replayed); other providers → chat completions
+- [ ] Live-test a chat-completions provider (Gemini/OpenRouter/Ollama)
+- [ ] UI: chat panel + settings (provider, model, key)
+- [x] CLI: `pnpm agent "<request>"` (`--key`, `--model`, `--base-url`, `--reset`)

@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { z } from 'zod';
 import type { CommandSource } from '../../data/logged-command.js';
 import { findTool, TOOLS } from '../tools/tool-catalog.js';
 import { describeError, runTool } from '../tools/run-tool.js';
+import { toolJsonSchema } from '../tools/tool-json-schema.js';
 import type { ToolServices } from '../tools/tool-definition.js';
 
 /**
@@ -17,7 +17,7 @@ export function toolRoutes(services: ToolServices): Router {
       TOOLS.map((tool) => ({
         name: tool.name,
         description: tool.description,
-        input_schema: z.toJSONSchema(z.object(tool.input), { io: 'input' }),
+        input_schema: toolJsonSchema(tool),
       })),
     );
   });

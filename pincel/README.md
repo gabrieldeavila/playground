@@ -39,6 +39,21 @@ curl -X POST localhost:4300/api/tools/draw_ellipse \
   -d '{"center":[400,300],"radiusX":120,"radiusY":120,"fill":"#fde047"}'
 ```
 
+**Built-in agent (bring your own key)** — Pincel stays local and drives the model itself.
+Any OpenAI-compatible API with a vision model works (OpenAI, Gemini, OpenRouter, Ollama):
+
+```sh
+pnpm dev   # in one terminal
+pnpm agent --key sk-... --model gpt-6.1-sol      # saved in api/.data/agent.json
+pnpm agent "make a retro sunset poster with the title SYNTHWAVE"
+pnpm agent --base-url https://openrouter.ai/api/v1 --key sk-or-... --model google/gemini-2.5-flash
+pnpm agent --reset "start over: a flyer for a June festival"
+```
+
+OpenAI (`api.openai.com`) goes through the Responses API, so reasoning models can call tools;
+other providers use chat completions. `--reasoning low|medium|high` sets the reasoning effort.
+The key never leaves your machine except to the provider you chose.
+
 ## Edit your own photos
 
 - **In the editor:** click the open-image button in the top bar, or drop a photo on the

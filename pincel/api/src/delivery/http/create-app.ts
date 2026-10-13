@@ -1,13 +1,16 @@
 import { localhostHostValidation } from '@modelcontextprotocol/sdk/server/middleware/hostHeaderValidation.js';
 import express, { type Express } from 'express';
+import type { AgentSettingsStore } from '../../data/agent-settings-store.js';
+import { AgentSession } from '../agent/agent-session.js';
 import { mcpRoutes } from '../mcp/mcp-routes.js';
 import type { ToolServices } from '../tools/tool-definition.js';
+import { agentRoutes } from './agent-routes.js';
 import { documentRoutes } from './document-routes.js';
 import { eventRoutes } from './event-routes.js';
 import { openImageRoutes } from './open-image-routes.js';
 import { toolRoutes } from './tool-routes.js';
 
-export function createApp(services: ToolServices): Express {
+export function createApp(services: ToolServices, agentSettings: AgentSettingsStore): Express {
   const { engine } = services;
   const app = express();
   // Only answer requests addressed to localhost (blocks DNS-rebinding from web pages).
@@ -20,5 +23,6 @@ export function createApp(services: ToolServices): Express {
   app.use(toolRoutes(services));
   app.use(documentRoutes(engine));
   app.use(eventRoutes(engine));
+  app.use(agentRoutes(new AgentSession(services, agentSettings), agentSettings));
   return app;
 }

@@ -1,7 +1,7 @@
 import type { Command } from '../domain/commands/command-types.js';
 
-/** Who asked for an edit: an AI through MCP, the REST API, or a person in the editor. */
-export type CommandSource = 'mcp' | 'rest' | 'ui';
+/** Who asked for an edit: an AI through MCP, the REST API or the built-in agent, or a person in the editor. */
+export type CommandSource = 'mcp' | 'rest' | 'ui' | 'agent';
 
 /** One undo step: usually a single command, several when they came in a batch. */
 export interface LoggedCommand {

@@ -21,7 +21,7 @@ export interface EditEntry {
   type: string;
   /** How many commands this undo step holds (more than 1 for a batch). */
   edits: number;
-  source: 'mcp' | 'rest' | 'ui';
+  source: 'mcp' | 'rest' | 'ui' | 'agent';
   at: string;
 }
 
