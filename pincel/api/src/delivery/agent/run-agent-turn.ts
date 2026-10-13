@@ -1,4 +1,5 @@
 import type { ChatMessage, FunctionTool, ToolCall } from '../../domain/agent/chat-message.js';
+import type { ModelProgress } from '../../domain/agent/model-progress.js';
 import { closeDanglingCalls } from '../../domain/agent/close-dangling-calls.js';
 import { dropOldImages } from '../../domain/agent/drop-old-images.js';
 import { nextAgentAction } from '../../domain/agent/next-agent-action.js';
@@ -8,6 +9,7 @@ import type { ToolServices } from '../tools/tool-definition.js';
 import { runToolCall } from './run-tool-call.js';
 
 export type AgentEvent =
+  | ModelProgress
   | { type: 'thinking'; text: string }
   | { type: 'tool-call'; name: string; arguments: string }
   | { type: 'tool-result'; name: string; text: string; isError: boolean }
@@ -30,7 +32,7 @@ export async function runAgentTurn(turn: AgentTurn): Promise<ChatMessage[]> {
   let history = turn.history;
   for (let step = 1; ; step += 1) {
     history = dropOldImages(history, turn.imagesToKeep);
-    const reply = await turn.client.complete(history, turn.tools, turn.signal);
+    const reply = await turn.client.complete(history, turn.tools, { signal: turn.signal, onProgress: turn.onEvent });
     history = [...history, reply];
     const action = nextAgentAction(reply, step, turn.maxSteps);
     if (action.kind !== 'run-tools') {

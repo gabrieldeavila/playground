@@ -47,6 +47,10 @@ export function agentRoutes(session: AgentSession, settings: AgentSettingsStore)
     res.set({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
     res.flushHeaders();
     const send = (data: unknown) => res.write(`data: ${JSON.stringify(data)}\n\n`);
+    // Whoever asked went away (Ctrl+C, closed tab): stop editing on their behalf.
+    res.on('close', () => {
+      if (!res.writableFinished) session.stop();
+    });
     try {
       await session.send(request.data.message, send);
     } catch (error) {

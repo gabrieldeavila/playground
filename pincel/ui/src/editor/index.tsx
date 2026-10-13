@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AgentPanel } from './components/AgentPanel';
 import { CanvasStage } from './components/CanvasStage';
 import { DropOverlay } from './components/DropOverlay';
 import { Sidebar } from './components/Sidebar';
@@ -28,6 +29,7 @@ export function Editor() {
 
 function Workspace({ doc, online, lastChange }: { doc: DocumentSnapshot; online: boolean; lastChange: string }) {
   const [tool, setTool] = useState<EditorToolId>('brush');
+  const [agentOpen, setAgentOpen] = useState(false);
   const { settings: chosen, update, swapColors } = useToolSettings();
   const settings = withEffectiveTarget(chosen, doc);
   const { run, error, clearError, showError } = useToolRunner();
@@ -55,7 +57,13 @@ function Workspace({ doc, online, lastChange }: { doc: DocumentSnapshot; online:
   return (
     <div className="relative flex h-full flex-col" {...opener.dropHandlers}>
       {opener.dragging && <DropOverlay />}
-      <TopBar doc={doc} run={run} onOpenImage={opener.open} />
+      <TopBar
+        doc={doc}
+        run={run}
+        onOpenImage={opener.open}
+        agentOpen={agentOpen}
+        onToggleAgent={() => setAgentOpen((open) => !open)}
+      />
       <ToolOptions tool={tool} settings={settings} onSettings={update} />
       <div className="flex min-h-0 flex-1">
         <Toolbar tool={tool} onSelect={setTool} settings={settings} onSettings={update} onSwapColors={swapColors} />
@@ -82,6 +90,7 @@ function Workspace({ doc, online, lastChange }: { doc: DocumentSnapshot; online:
             />
           )}
         </CanvasStage>
+        <AgentPanel open={agentOpen} />
         <Sidebar doc={doc} run={run} target={settings.target} onEditTarget={(target) => update({ target })} selection={selection} />
       </div>
       <StatusBar online={online} lastChange={lastChange} error={error} onDismissError={clearError} />

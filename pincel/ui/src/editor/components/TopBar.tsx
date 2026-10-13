@@ -1,5 +1,6 @@
+import clsx from 'clsx';
 import { useState } from 'react';
-import { LuDownload, LuFilePlus, LuPlug, LuRedo2, LuUndo2 } from 'react-icons/lu';
+import { LuBot, LuDownload, LuFilePlus, LuPlug, LuRedo2, LuUndo2 } from 'react-icons/lu';
 import type { DocumentSnapshot, ToolCall } from '../domain/types';
 import { ConnectAiPanel } from './ConnectAiPanel';
 import { IconButton } from './IconButton';
@@ -10,11 +11,13 @@ interface Props {
   doc: DocumentSnapshot;
   run: (call: ToolCall) => void;
   onOpenImage: (file: File | undefined) => void;
+  agentOpen: boolean;
+  onToggleAgent: () => void;
 }
 
 type Popover = 'new' | 'connect' | null;
 
-export function TopBar({ doc, run, onOpenImage }: Props) {
+export function TopBar({ doc, run, onOpenImage, agentOpen, onToggleAgent }: Props) {
   const [open, setOpen] = useState<Popover>(null);
   const toggle = (which: Popover) => setOpen((current) => (current === which ? null : which));
 
@@ -50,6 +53,16 @@ export function TopBar({ doc, run, onOpenImage }: Props) {
         className="ml-auto flex items-center gap-1.5 rounded-md border border-edge px-2.5 py-1 text-zinc-300 hover:bg-panel-2"
       >
         <LuPlug /> Connect an AI
+      </button>
+      <button
+        type="button"
+        onClick={onToggleAgent}
+        className={clsx(
+          'flex items-center gap-1.5 rounded-md px-2.5 py-1',
+          agentOpen ? 'bg-accent text-white' : 'border border-edge text-zinc-300 hover:bg-panel-2',
+        )}
+      >
+        <LuBot /> Agent
       </button>
       {open === 'new' && (
         <NewDocumentForm

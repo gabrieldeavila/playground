@@ -10,7 +10,7 @@ export function createOpenAiCompatibleClient(settings: AgentSettings): ChatClien
   // Local servers ignore the key, but the SDK insists on one.
   const client = new OpenAI({ baseURL: settings.baseURL, apiKey: settings.apiKey || 'local' });
   return {
-    async complete(messages, tools, signal) {
+    async complete(messages, tools, { signal } = {}) {
       const response = await client.chat.completions.create(
         {
           model: settings.model,

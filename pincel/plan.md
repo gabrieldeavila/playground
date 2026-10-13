@@ -54,5 +54,10 @@ Vision models only — the AI must see `render_image` to check its own work.
 - [x] Tested with a real OpenAI key (gpt-6.1-sol, two turns: tools, render_image, reasoning replay)
 - [x] `api.openai.com` → Responses API (`openai-responses-client.ts`, stateless: `store: false` + encrypted reasoning replayed); other providers → chat completions
 - [ ] Live-test a chat-completions provider (Gemini/OpenRouter/Ollama)
-- [ ] UI: chat panel + settings (provider, model, key)
+- [x] UI: Agent panel (top bar button): streamed steps, stop, new chat, settings (presets, model, key, reasoning)
+- [x] Ctrl+C / closing the stream stops the agent on the server
+- [ ] Panel transcript is lost on page reload while the server keeps the conversation (add GET /api/agent/history)
+- [ ] Show token usage / cost per request
+- [ ] Test `runAgentTurn` with a fake ChatClient
+- [ ] One undo step per agent request
 - [x] CLI: `pnpm agent "<request>"` (`--key`, `--model`, `--base-url`, `--reset`)
