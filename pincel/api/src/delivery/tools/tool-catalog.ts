@@ -1,5 +1,6 @@
 import { createBatchTool } from './batch-tool.js';
 import { documentTools } from './document-tools.js';
+import { exportTool } from './export-tool.js';
 import { fillTools } from './fill-tools.js';
 import { fontTools } from './font-tools.js';
 import { historyTools } from './history-tools.js';
@@ -10,7 +11,9 @@ import { liquifyTool } from './liquify-tool.js';
 import { maskTools } from './mask-tools.js';
 import { openImageTool } from './open-image-tool.js';
 import { paintTools } from './paint-tools.js';
+import { presetTools } from './preset-tools.js';
 import { retouchTools } from './retouch-tools.js';
+import { savePresetTool } from './save-preset-tool.js';
 import { selectionTools } from './selection-tools.js';
 import { shapeTools } from './shape-tools.js';
 import { textTools } from './text-tools.js';
@@ -19,6 +22,9 @@ import type { ToolDefinition } from './tool-definition.js';
 const SINGLE_TOOLS: ToolDefinition[] = [
   ...documentTools,
   openImageTool,
+  exportTool,
+  ...presetTools,
+  savePresetTool,
   ...fontTools,
   ...layoutTools,
   ...layerTools,

@@ -54,6 +54,36 @@ OpenAI (`api.openai.com`) goes through the Responses API, so reasoning models ca
 other providers use chat completions. `--reasoning low|medium|high` sets the reasoning effort.
 The key never leaves your machine except to the provider you chose.
 
+### Presets
+
+A preset is a recipe for one kind of piece (a promo post, an event story...): canvas size,
+fonts, brand colors, files used every time (the logo) and layout instructions. They live in
+`api/.data/presets/<name>.json`, editable by hand:
+
+```json
+{
+  "description": "Square product promo post",
+  "canvas": { "width": 1080, "height": 1080, "background": "#ffe8d6" },
+  "fonts": ["Anton", "Inter"],
+  "colors": { "primary": "#e63946", "text": "#1d3557" },
+  "assets": { "logo": "~/brand/logo.png" },
+  "instructions": "Product photo centered with its white background removed, ~55% of the height. Logo top right, 40px margin. OFERTA in Anton at the top in primary..."
+}
+```
+
+Or make one from the chat: build a piece you like and ask *"save this as preset story-evento"*
+(`save_preset`, optionally keeping the current document as the template to start from).
+Pick a preset in the agent panel, pass `--preset <name>`, or just mention it in the request.
+
+### Batch
+
+Same request on every image of a folder, each in a fresh conversation, results saved to `--out`:
+
+```sh
+pnpm agent --each ~/fotos --out ~/saida "remove the white background"
+pnpm agent --preset promo-post --each "~/fotos/*.jpg" --out ~/posts --format jpg "Preço: R$ 49,90"
+```
+
 ## Edit your own photos
 
 - **In the editor:** click the open-image button in the top bar, or drop a photo on the
@@ -73,7 +103,7 @@ convert on macOS with `sips -s format jpeg IMG.heic --out IMG.jpg`.
 
 | Area      | Tools |
 |-----------|-------|
-| Document  | `open_image` (local path or URL), `get_document` (with each layer's content bounds), `render_image` (optional coordinate grid and zoomed region), `sample_color`, `create_document`, `resize_canvas` |
+| Document  | `open_image` (local path or URL), `export_image` (PNG/JPEG/WebP file at full size), `get_document` (with each layer's content bounds), `render_image` (optional coordinate grid and zoomed region), `sample_color`, `create_document`, `resize_canvas` |
 | Text      | `draw_text` (position or wrapping box with `fit: "shrink"`, letter spacing, line height, outline, rotation), `measure_text`, `load_font` (Google Fonts by name, or a font file), `list_fonts` |
 | Layers    | `add_layer`, `select_layer`, `update_layer` (name, visibility, opacity, blend mode), `reorder_layer`, `duplicate_layer`, `merge_down`, `stamp_visible` (flattened copy on top), `delete_layer` |
 | Selection | `select_rect`, `select_ellipse`, `select_lasso`, `select_color` (magic wand), `select_layer_pixels`, `modify_selection` (all / deselect / invert / feather), `copy_selection_to_layer` (layer via copy/cut) |
@@ -81,7 +111,8 @@ convert on macOS with `sips -s format jpeg IMG.heic --out IMG.jpg`.
 | Drawing   | `draw_rect`, `draw_ellipse`, `draw_path`, `brush_stroke` (also eraser), `draw_gradient` |
 | Filling   | `flood_fill` (paint bucket with tolerance), `fill_layer`, `clear_layer` |
 | Retouch   | `find_spots` (detects blemishes, previews them circled), `heal_spots` (spot healing brush), `liquify` (push warp, e.g. a subtle smile) |
-| Images    | `place_image` (URL or data URI), `apply_filter`, `transform_layer` |
+| Images    | `place_image` (local path, URL or data URI), `apply_filter`, `transform_layer` |
+| Presets   | `list_presets`, `apply_preset`, `save_preset`, `delete_preset` |
 | History   | `undo`, `redo` |
 | Batch     | `batch`: many tool calls in one request, all-or-nothing, one undo step |
 

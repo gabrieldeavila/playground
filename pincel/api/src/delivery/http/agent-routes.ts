@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { mergeSettings, toPublicSettings } from '../../domain/agent/agent-settings.js';
+import { presetNameSchema } from '../../domain/presets/preset.js';
+import { withPreset } from '../../domain/presets/preset-request.js';
 import type { AgentSettingsStore } from '../../data/agent-settings-store.js';
 import type { AgentSession } from '../agent/agent-session.js';
 import { describeError } from '../tools/run-tool.js';
@@ -12,7 +14,7 @@ const settingsUpdate = z.object({
   reasoningEffort: z.string().optional(),
 });
 
-const chatRequest = z.object({ message: z.string().min(1) });
+const chatRequest = z.object({ message: z.string().min(1), preset: presetNameSchema.optional() });
 
 /** The built-in agent: settings (the key never leaves this server) and a chat streamed as SSE. */
 export function agentRoutes(session: AgentSession, settings: AgentSettingsStore): Router {
@@ -52,7 +54,7 @@ export function agentRoutes(session: AgentSession, settings: AgentSettingsStore)
       if (!res.writableFinished) session.stop();
     });
     try {
-      await session.send(request.data.message, send);
+      await session.send(withPreset(request.data.message, request.data.preset), send);
     } catch (error) {
       send({ type: 'error', text: describeError(error) });
     }

@@ -1,7 +1,7 @@
 import { readFile, stat } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { extname, resolve } from 'node:path';
+import { extname } from 'node:path';
 import { loadImage } from '@napi-rs/canvas';
+import { localPath } from './local-path.js';
 
 const MAX_BYTES = 30 * 1024 * 1024;
 
@@ -30,7 +30,7 @@ export async function resolveImageSource(src: string): Promise<ImageSource> {
 
 /** Reads an image file from disk (e.g. a photo the user points the AI at). */
 export async function readImageFile(path: string): Promise<ImageSource> {
-  const fullPath = resolve(path.replace(/^~(?=$|\/)/, homedir()));
+  const fullPath = localPath(path);
   const extension = extname(fullPath).toLowerCase();
   if (extension === '.heic' || extension === '.heif') {
     throw new Error('HEIC photos are not supported. Export the photo as JPEG or PNG first.');

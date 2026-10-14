@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { fetchGoogleFont, readFontSource, type FontFile } from '../../data/font-source.js';
+import { installFont } from '../../data/install-font.js';
 import { groupFontFaces } from '../../domain/fonts/group-font-faces.js';
 import { defineTool } from './tool-definition.js';
 
@@ -21,9 +21,7 @@ export const fontTools = [
         .describe('Google Fonts: weights to download (only the ones the family has). Font file: the first is its weight'),
     },
     async run({ family, source, weights }, { fonts }) {
-      const files = source ? [await fileFace(family, source, weights[0])] : await fetchGoogleFont(family, weights);
-      const saved = await Promise.all(files.map(({ face, bytes }) => fonts.save(face, bytes)));
-      const [loaded] = groupFontFaces(saved);
+      const loaded = await installFont(fonts, { family, source, weights });
       const missing = weights.filter((weight) => !loaded.weights.includes(weight));
       const lines = [`Loaded ${loaded.family} (weights ${loaded.weights.join(', ')}). Use font: "${loaded.family}".`];
       if (!source && missing.length) lines.push(`It has no ${missing.join(', ')} weight; those draw with the nearest one.`);
@@ -47,6 +45,3 @@ export const fontTools = [
   }),
 ];
 
-async function fileFace(family: string, source: string, weight: string): Promise<FontFile> {
-  return { face: { family, weight, style: 'normal' }, bytes: await readFontSource(source) };
-}

@@ -32,7 +32,7 @@ Goal: an AI connected to Pincel can make a print-quality flyer/poster, not just
 - [ ] `align_layers` / `distribute_layers` (pure math over layer bounds)
 - [ ] Document presets (`a4-300dpi`, `letter`, `a5`, `ig-post`, `ig-story`) + bleed/safe-margin overlay in `render_image`
 - [ ] `check_design`: text contrast (WCAG), elements outside the safe margin, text too small for print
-- [ ] `export_image` to PNG/JPEG/PDF on disk at full resolution
+- [x] `export_image` to PNG/JPEG/WebP on disk at full resolution (PDF still to do)
 - [ ] Flyer guidance in the MCP server instructions (hierarchy, ≤3 fonts, palette from the photo, CTA placement)
 
 ## UI follow-ups
@@ -61,3 +61,18 @@ Vision models only — the AI must see `render_image` to check its own work.
 - [ ] Test `runAgentTurn` with a fake ChatClient
 - [ ] One undo step per agent request
 - [x] CLI: `pnpm agent "<request>"` (`--key`, `--model`, `--base-url`, `--reset`)
+
+## Presets and batch
+
+Reusable recipes per kind of piece, and the same request over many images.
+
+- [x] `place_image` takes a local `path`
+- [x] Presets in `.data/presets/<name>.json` (+ optional `<name>.template.json` document): canvas, fonts, colors, assets, instructions
+- [x] Tools: `list_presets`, `apply_preset` (fonts + template/canvas + brief), `save_preset` (`includeDocument`), `delete_preset`
+- [x] Chat takes `preset`; agent panel has a preset picker; CLI `--preset`
+- [x] CLI batch: `--each <folder|glob> --out <folder> [--format png|jpg|webp]`, fresh conversation per image, CLI exports each result
+- [x] Live-tested: preset + batch over 2 photos with gpt (white background removed, logo, title, price)
+- [ ] Batch from the UI (drop several photos, pick preset, download a zip)
+- [ ] Attach images in the agent panel instead of typing paths
+- [ ] Manage presets in the UI (view/edit/delete)
+- [ ] Batch runs share the one agent session: it resets the panel's conversation

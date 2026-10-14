@@ -3,13 +3,13 @@ import { DocumentEngine } from '../../data/document-engine.js';
 import { sampleColor } from '../../data/document-renderer.js';
 import { napiPaintEnv } from '../../data/napi-paint-env.js';
 import { runTool } from './run-tool.js';
-import { testFontStore } from './test-font-store.js';
+import { testServices } from './test-services.js';
 import { findTool } from './tool-catalog.js';
 
 async function setup() {
   const engine = new DocumentEngine(napiPaintEnv);
   await engine.reset({ width: 400, height: 300, background: '#ffffff' }, 'rest');
-  const call = (tool: string, input: unknown) => runTool(findTool(tool)!, input, { engine, fonts: testFontStore, source: 'mcp' });
+  const call = (tool: string, input: unknown) => runTool(findTool(tool)!, input, { engine, ...testServices, source: 'mcp' });
   return { engine, call };
 }
 

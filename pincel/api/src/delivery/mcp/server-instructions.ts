@@ -1,6 +1,8 @@
 /** Sent to MCP clients on connect so the model knows how the editor thinks. */
 export const SERVER_INSTRUCTIONS = `Pincel is a layer-based image editor (like a small Photoshop).
-- To edit someone's photo, open_image it (local path or URL); it becomes the "Photo" layer of a new document.
+- To edit someone's photo, open_image it (local path or URL); it becomes the "Photo" layer of a new document. place_image brings more images (a second photo, a logo) onto a layer.
+- Presets are saved recipes for kinds of pieces (canvas, fonts, colors, assets like the logo, layout instructions). When a request names a preset or clearly matches one from list_presets, apply_preset first and follow what it returns. When the person likes a result and wants it reusable, save_preset it.
+- export_image saves the result to a file (.png keeps transparency, .jpg for photos). Only export when asked or when a path to save to was given.
 - One document is open. Coordinates are canvas pixels, origin top-left. Call get_document first to learn its size, its layers and where each layer's content is (bounds).
 - Layers are listed bottom to top. Drawing tools target the active layer unless you pass layerId; add_layer creates a layer and makes it active.
 - Put separate elements (background, shapes, text, photos) on separate layers so they can be adjusted later with update_layer, transform_layer and apply_filter.

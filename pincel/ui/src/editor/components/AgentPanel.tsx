@@ -4,17 +4,20 @@ import { LuSettings, LuSquarePen } from 'react-icons/lu';
 import { needsApiKey } from '../domain/agent-providers';
 import { useAgentChat } from '../hooks/useAgentChat';
 import { useAgentSettings } from '../hooks/useAgentSettings';
+import { usePresets } from '../hooks/usePresets';
 import { useScrollToEnd } from '../hooks/useScrollToEnd';
 import { AgentEntry } from './AgentEntry';
 import { AgentInput } from './AgentInput';
 import { AgentSettingsForm } from './AgentSettingsForm';
 import { AgentWorking } from './AgentWorking';
 import { IconButton } from './IconButton';
+import { PresetPicker } from './PresetPicker';
 
 /** Chat with the built-in agent; its edits show up on the canvas as it works. */
 export function AgentPanel({ open }: { open: boolean }) {
   const chat = useAgentChat();
   const agentSettings = useAgentSettings();
+  const presets = usePresets(open && !chat.busy);
   const [editingSettings, setEditingSettings] = useState(false);
   const listRef = useScrollToEnd<HTMLDivElement>(chat.entries);
   const { settings } = agentSettings;
@@ -53,7 +56,13 @@ export function AgentPanel({ open }: { open: boolean }) {
           {chat.busy && <AgentWorking entries={chat.entries} />}
         </div>
       )}
-      <AgentInput busy={chat.busy} disabled={showSettings} onSend={(text) => void chat.send(text)} onStop={chat.stop} />
+      {!showSettings && <PresetPicker presets={presets.presets} chosen={presets.chosen} onChoose={presets.choose} />}
+      <AgentInput
+        busy={chat.busy}
+        disabled={showSettings}
+        onSend={(text) => void chat.send(text, presets.chosen || undefined)}
+        onStop={chat.stop}
+      />
     </aside>
   );
 }

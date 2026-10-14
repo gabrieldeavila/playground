@@ -1,4 +1,8 @@
 import { parseArgs } from 'node:util';
+import { BATCH_FORMATS, type BatchFormat } from './domain/batch/batch-jobs.js';
+import { pincel } from './delivery/cli/pincel-client.js';
+import { printAgentEvent } from './delivery/cli/print-agent-event.js';
+import { runBatch } from './delivery/cli/run-batch.js';
 
 /**
  * Talks to the built-in agent of a running Pincel API (`pnpm dev`):
@@ -6,9 +10,11 @@ import { parseArgs } from 'node:util';
  *   pnpm agent --reasoning none                    send reasoning_effort ("" to stop sending it)
  *   pnpm agent "make a retro sunset poster"        send a request
  *   pnpm agent --reset "start over with ..."       forget the conversation first
+ *   pnpm agent --preset promo-post "~/shoe.jpg, R$ 199"
+ *   pnpm agent --each ~/fotos --out ~/saida "remove the white background"
+ *     (--each takes a folder or a quoted glob like "~/fotos/*.jpg", and can repeat;
+ *      each image gets a fresh conversation and its result is saved as --format, png by default)
  */
-const API = process.env.PINCEL_API ?? 'http://localhost:4300';
-
 const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
@@ -17,6 +23,10 @@ const { values, positionals } = parseArgs({
     'base-url': { type: 'string' },
     reasoning: { type: 'string' },
     reset: { type: 'boolean', default: false },
+    preset: { type: 'string' },
+    each: { type: 'string', multiple: true },
+    out: { type: 'string' },
+    format: { type: 'string', default: 'png' },
   },
 });
 
@@ -29,52 +39,34 @@ try {
 
 async function run() {
   if (values.key || values.model || values['base-url'] || values.reasoning !== undefined) {
-    const settings = await call('PUT', '/api/agent/settings', {
+    const settings = await pincel.saveSettings({
       apiKey: values.key,
       model: values.model,
       baseURL: values['base-url'],
       reasoningEffort: values.reasoning,
     });
-    console.log('Settings saved:', await settings.json());
+    console.log('Settings saved:', settings);
   }
-  if (values.reset) await call('POST', '/api/agent/reset');
   const message = positionals.join(' ').trim();
-  if (message) await chat(message);
-}
-
-async function chat(text: string) {
-  const response = await call('POST', '/api/agent/chat', { message: text });
-  const decoder = new TextDecoder();
-  let buffer = '';
-  for await (const chunk of response.body!) {
-    buffer += decoder.decode(chunk, { stream: true });
-    const events = buffer.split('\n\n');
-    buffer = events.pop() ?? '';
-    for (const event of events) printEvent(JSON.parse(event.replace(/^data: /, '')));
+  if (values.each) {
+    const { each: patterns, preset } = values;
+    return runBatch({ patterns, outDir: requiredOut(), format: batchFormat(), preset, message: requiredMessage(message) });
   }
+  if (values.reset) await pincel.reset();
+  if (message) await pincel.chat(message, values.preset, printAgentEvent);
 }
 
-function printEvent(event: { type: string; [key: string]: unknown }) {
-  if (event.type === 'thinking') console.log(`💭 ${event.text}`);
-  if (event.type === 'tool-call') console.log(`🔧 ${event.name} ${truncate(String(event.arguments))}`);
-  if (event.type === 'tool-result') console.log(`   ${event.isError ? '❌' : '✓'} ${truncate(String(event.text))}`);
-  if (event.type === 'reply') console.log(`\n${event.text}${event.stoppedAtLimit ? '\n(stopped at the step limit)' : ''}`);
-  if (event.type === 'error') console.error(`\nError: ${event.text}`);
+function requiredOut(): string {
+  if (!values.out) throw new Error('--each needs --out <folder> for the results');
+  return values.out;
 }
 
-async function call(method: string, path: string, body?: unknown): Promise<Response> {
-  const response = await fetch(`${API}${path}`, {
-    method,
-    headers: { 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  }).catch(() => {
-    throw new Error(`Pincel API isn't running at ${API}. Start it with "pnpm dev".`);
-  });
-  if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error ?? response.statusText);
-  return response;
+function batchFormat(): BatchFormat {
+  if (!BATCH_FORMATS.includes(values.format as BatchFormat)) throw new Error(`--format must be one of ${BATCH_FORMATS.join(', ')}`);
+  return values.format as BatchFormat;
 }
 
-function truncate(text: string, max = 160): string {
-  const line = text.replace(/\s+/g, ' ');
-  return line.length > max ? `${line.slice(0, max)}…` : line;
+function requiredMessage(message: string): string {
+  if (!message && !values.preset) throw new Error('Say what to do with each image (or pass --preset)');
+  return message || 'Make the piece with this image.';
 }

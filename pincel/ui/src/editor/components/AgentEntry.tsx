@@ -6,7 +6,12 @@ import { describeToolCall } from '../domain/describe-tool-call';
 export function AgentEntry({ entry }: { entry: ChatEntry }) {
   switch (entry.kind) {
     case 'user':
-      return <p className="ml-6 rounded-lg bg-accent/20 px-2.5 py-1.5 whitespace-pre-wrap">{entry.text}</p>;
+      return (
+        <div className="ml-6 rounded-lg bg-accent/20 px-2.5 py-1.5 whitespace-pre-wrap">
+          {entry.preset && <p className="text-[11px] text-zinc-400">Preset: {entry.preset}</p>}
+          {entry.text}
+        </div>
+      );
     case 'reasoning':
       return <p className="border-l-2 border-edge pl-2 text-xs whitespace-pre-wrap text-zinc-500">{entry.text}</p>;
     case 'draft':

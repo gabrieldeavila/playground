@@ -17,11 +17,15 @@ export async function saveAgentSettings(update: AgentSettingsUpdate): Promise<Ag
 }
 
 /** Sends a request to the built-in agent and reports each step as it streams in. Aborting stops the agent. */
-export async function streamAgentChat(message: string, onEvent: (event: AgentEvent) => void, signal: AbortSignal) {
+export async function streamAgentChat(
+  request: { message: string; preset?: string },
+  onEvent: (event: AgentEvent) => void,
+  signal: AbortSignal,
+) {
   const response = await fetch('/api/agent/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify(request),
     signal,
   });
   if (!response.ok || !response.body) await json(response);

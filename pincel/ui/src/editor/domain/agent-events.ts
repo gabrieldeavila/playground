@@ -14,7 +14,7 @@ export type ToolStepStatus = 'writing' | 'running' | 'done' | 'error';
 
 /** One line in the chat panel. */
 export type ChatEntry =
-  | { kind: 'user'; text: string }
+  | { kind: 'user'; text: string; preset?: string }
   | { kind: 'reasoning'; text: string }
   /** Text still streaming in; becomes `thinking` or `reply` once the model finishes. */
   | { kind: 'draft'; text: string }

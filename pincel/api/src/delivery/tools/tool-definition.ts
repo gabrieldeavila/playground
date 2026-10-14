@@ -2,11 +2,13 @@ import { z } from 'zod';
 import type { DocumentEngine } from '../../data/document-engine.js';
 import type { FontStore } from '../../data/font-store.js';
 import type { CommandSource } from '../../data/logged-command.js';
+import type { PresetStore } from '../../data/preset-store.js';
 
-/** What tools work with: the open document and the saved fonts. */
+/** What tools work with: the open document, the saved fonts and the saved presets. */
 export interface ToolServices {
   engine: DocumentEngine;
   fonts: FontStore;
+  presets: PresetStore;
 }
 
 export interface ToolContext extends ToolServices {

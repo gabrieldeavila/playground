@@ -1,8 +1,8 @@
 import { readFile, stat } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { extname, resolve } from 'node:path';
+import { extname } from 'node:path';
 import { parseFontFaceCss } from '../domain/fonts/parse-font-face-css.js';
 import type { FontFaceInfo } from './font-store.js';
+import { localPath } from './local-path.js';
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const FONT_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2'];
@@ -23,7 +23,7 @@ export async function fetchGoogleFont(family: string, weights: string[]): Promis
 /** A font file from an http(s) URL or a local path. */
 export async function readFontSource(src: string): Promise<Buffer> {
   if (/^https?:\/\//.test(src)) return download(src);
-  const fullPath = resolve(src.replace(/^~(?=$|\/)/, homedir()));
+  const fullPath = localPath(src);
   if (!FONT_EXTENSIONS.includes(extname(fullPath).toLowerCase())) throw new Error('Font file must be .ttf, .otf, .woff or .woff2');
   if ((await stat(fullPath)).size > MAX_BYTES) throw new Error('Font file is larger than 10 MB');
   return readFile(fullPath);

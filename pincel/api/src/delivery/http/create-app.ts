@@ -8,6 +8,7 @@ import { agentRoutes } from './agent-routes.js';
 import { documentRoutes } from './document-routes.js';
 import { eventRoutes } from './event-routes.js';
 import { openImageRoutes } from './open-image-routes.js';
+import { presetRoutes } from './preset-routes.js';
 import { toolRoutes } from './tool-routes.js';
 
 export function createApp(services: ToolServices, agentSettings: AgentSettingsStore): Express {
@@ -23,6 +24,7 @@ export function createApp(services: ToolServices, agentSettings: AgentSettingsSt
   app.use(toolRoutes(services));
   app.use(documentRoutes(engine));
   app.use(eventRoutes(engine));
+  app.use(presetRoutes(services.presets));
   app.use(agentRoutes(new AgentSession(services, agentSettings), agentSettings));
   return app;
 }

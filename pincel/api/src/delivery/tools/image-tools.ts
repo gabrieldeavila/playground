@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { resolveImageSource } from '../../data/image-source.js';
+import { readImageFile, resolveImageSource } from '../../data/image-source.js';
 import { fitImage } from '../../domain/document/fit-image.js';
 import { FILTER_NAMES, FILTERS } from '../../domain/filters/filter-catalog.js';
 import { describeTarget, targetField } from './paint-target.js';
@@ -14,10 +14,11 @@ export const imageTools = [
     name: 'place_image',
     title: 'Place image',
     description:
-      'Draws an image from an http(s) URL or data:image URI onto a layer. Without width/height it uses the natural size; one side keeps the aspect ratio; fit="contain"/"cover" fits it to the canvas.',
+      'Draws an image (a local file, an http(s) URL or a data:image URI) onto a layer, e.g. a photo or a logo on top of a layout. Without width/height it uses the natural size; one side keeps the aspect ratio; fit="contain"/"cover" fits it to the canvas.',
     input: {
       layerId: layerIdField,
-      src: z.string().describe('https://... or data:image/png;base64,...'),
+      path: z.string().optional().describe('Local image file, e.g. "~/Pictures/logo.png"'),
+      src: z.string().optional().describe('https://... or data:image/png;base64,..., if not using path'),
       x: z.number().optional(),
       y: z.number().optional(),
       width: z.number().positive().optional(),
@@ -25,9 +26,10 @@ export const imageTools = [
       fit: z.enum(['none', 'contain', 'cover']).default('none'),
       target: targetField,
     },
-    async run({ layerId, src, target, ...placement }, { engine, source }) {
+    async run({ layerId, path, src, target, ...placement }, { engine, source }) {
+      if (!path === !src) throw new Error('Pass exactly one of path or src');
       const id = resolveLayer(engine, layerId);
-      const image = await resolveImageSource(src);
+      const image = path ? await readImageFile(path) : await resolveImageSource(src!);
       const rect = fitImage({ natural: image, canvas: engine.doc.meta, ...placement });
       await engine.execute({ type: 'place_image', layerId: id, src: image.dataUri, rect, target }, source);
       return { text: `Placed ${image.width}x${image.height} image on ${describeTarget(engine, id, target)} at ${JSON.stringify(rect)}` };

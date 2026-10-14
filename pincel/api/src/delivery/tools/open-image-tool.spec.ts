@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { DocumentEngine } from '../../data/document-engine.js';
 import { sampleColor } from '../../data/document-renderer.js';
 import { napiPaintEnv } from '../../data/napi-paint-env.js';
-import { testFontStore } from './test-font-store.js';
+import { testServices } from './test-services.js';
 import { runTool } from './run-tool.js';
 import { findTool } from './tool-catalog.js';
 
@@ -20,7 +20,7 @@ async function photoOnDisk(width: number, height: number, name = 'photo.png') {
   return path;
 }
 
-const openImage = (engine: DocumentEngine, input: unknown) => runTool(findTool('open_image')!, input, { engine, fonts: testFontStore, source: 'mcp' });
+const openImage = (engine: DocumentEngine, input: unknown) => runTool(findTool('open_image')!, input, { engine, ...testServices, source: 'mcp' });
 
 describe('open_image tool', () => {
   it('opens a local file as a new document sized to the photo', async () => {
@@ -44,5 +44,17 @@ describe('open_image tool', () => {
     await expect(openImage(engine, { path: '~/IMG_0001.HEIC' })).rejects.toThrow('Export the photo as JPEG');
     await expect(openImage(engine, { path: '/etc/hosts' })).rejects.toThrow('Not an image file');
     await expect(openImage(engine, {})).rejects.toThrow('exactly one of path or url');
+  });
+});
+
+describe('place_image tool', () => {
+  it('places a local file onto a layer', async () => {
+    const engine = new DocumentEngine(napiPaintEnv);
+    const call = (tool: string, input: unknown) => runTool(findTool(tool)!, input, { engine, ...testServices, source: 'mcp' });
+    await call('create_document', { width: 100, height: 100 });
+    await call('place_image', { path: await photoOnDisk(20, 10), x: 10, y: 10 });
+    expect(sampleColor(engine.doc, 15, 15)).toBe('#336699');
+    expect(sampleColor(engine.doc, 50, 50)).toBe('#ffffff');
+    await expect(call('place_image', {})).rejects.toThrow('exactly one of path or src');
   });
 });

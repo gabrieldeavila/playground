@@ -9,13 +9,13 @@ export function useAgentChat() {
   const [busy, setBusy] = useState(false);
   const running = useRef<AbortController | null>(null);
 
-  const send = async (text: string) => {
+  const send = async (text: string, preset?: string) => {
     const controller = new AbortController();
     running.current = controller;
     setBusy(true);
-    setEntries((current) => [...current, { kind: 'user', text }]);
+    setEntries((current) => [...current, { kind: 'user', text, preset }]);
     try {
-      await streamAgentChat(text, (event) => setEntries((current) => applyAgentEvent(current, event)), controller.signal);
+      await streamAgentChat({ message: text, preset }, (event) => setEntries((current) => applyAgentEvent(current, event)), controller.signal);
     } catch (error) {
       if (!controller.signal.aborted) setEntries((current) => [...current, { kind: 'error', text: messageOf(error) }]);
     } finally {

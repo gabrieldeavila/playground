@@ -59,6 +59,11 @@ export class DocumentEngine {
     return this.state;
   }
 
+  /** Size and background the current document started from. */
+  get documentSetup(): DocumentSetup {
+    return this.setup;
+  }
+
   get activeLayer(): string {
     return this.activeLayerId;
   }
