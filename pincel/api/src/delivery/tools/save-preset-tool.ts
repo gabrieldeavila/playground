@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { templateOf } from '../../data/document-template.js';
+import { savePresetPreview } from '../../data/preset-preview.js';
 import { presetNameSchema, presetSchema } from '../../domain/presets/preset.js';
 import { defineTool } from './tool-definition.js';
 
@@ -26,6 +27,7 @@ export const savePresetTool = defineTool({
     const preset = presetSchema.parse(fields);
     const template = includeDocument ? templateOf(engine) : null;
     await presets.save({ preset, template }, overwrite);
+    await savePresetPreview(presets, preset.name, engine.doc);
     const kept = template ? ` with the current ${template.setup.width}x${template.setup.height} document as its template` : '';
     return { text: `Saved preset "${preset.name}"${kept}. apply_preset uses it.`, data: preset };
   },

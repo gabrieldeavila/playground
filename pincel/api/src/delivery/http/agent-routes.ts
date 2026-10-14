@@ -4,8 +4,10 @@ import { mergeSettings, toPublicSettings } from '../../domain/agent/agent-settin
 import { presetNameSchema } from '../../domain/presets/preset.js';
 import { withPreset } from '../../domain/presets/preset-request.js';
 import type { AgentSettingsStore } from '../../data/agent-settings-store.js';
+import { savePresetPreview } from '../../data/preset-preview.js';
 import type { AgentSession } from '../agent/agent-session.js';
 import { describeError } from '../tools/run-tool.js';
+import type { ToolServices } from '../tools/tool-definition.js';
 
 const settingsUpdate = z.object({
   baseURL: z.url().optional(),
@@ -17,7 +19,7 @@ const settingsUpdate = z.object({
 const chatRequest = z.object({ message: z.string().min(1), preset: presetNameSchema.optional() });
 
 /** The built-in agent: settings (the key never leaves this server) and a chat streamed as SSE. */
-export function agentRoutes(session: AgentSession, settings: AgentSettingsStore): Router {
+export function agentRoutes(session: AgentSession, settings: AgentSettingsStore, services: ToolServices): Router {
   const router = Router();
 
   router.get('/api/agent/settings', async (_req, res) => {
@@ -54,7 +56,10 @@ export function agentRoutes(session: AgentSession, settings: AgentSettingsStore)
       if (!res.writableFinished) session.stop();
     });
     try {
-      await session.send(withPreset(request.data.message, request.data.preset), send);
+      const { message, preset } = request.data;
+      await session.send(withPreset(message, preset), send);
+      // The piece just made shows what the preset looks like.
+      if (preset) await savePresetPreview(services.presets, preset, services.engine.doc);
     } catch (error) {
       send({ type: 'error', text: describeError(error) });
     }

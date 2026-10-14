@@ -11,6 +11,7 @@ import { AgentInput } from './AgentInput';
 import { AgentSettingsForm } from './AgentSettingsForm';
 import { AgentWorking } from './AgentWorking';
 import { IconButton } from './IconButton';
+import { PresetPanel } from './PresetPanel';
 import { PresetPicker } from './PresetPicker';
 
 /** Chat with the built-in agent; its edits show up on the canvas as it works. */
@@ -19,9 +20,15 @@ export function AgentPanel({ open }: { open: boolean }) {
   const agentSettings = useAgentSettings();
   const presets = usePresets(open && !chat.busy);
   const [editingSettings, setEditingSettings] = useState(false);
+  const [viewingPreset, setViewingPreset] = useState(false);
   const listRef = useScrollToEnd<HTMLDivElement>(chat.entries);
   const { settings } = agentSettings;
   const showSettings = editingSettings || (settings !== null && needsApiKey(settings));
+  const showPreset = viewingPreset && presets.chosen !== '';
+  const send = (text: string) => {
+    setViewingPreset(false);
+    void chat.send(text, presets.chosen || undefined);
+  };
 
   return (
     // Hidden rather than unmounted, so the conversation survives closing the panel.
@@ -45,6 +52,8 @@ export function AgentPanel({ open }: { open: boolean }) {
           onSave={agentSettings.save}
           onDone={() => setEditingSettings(false)}
         />
+      ) : showPreset ? (
+        <PresetPanel name={presets.chosen} refresh={open && !chat.busy} />
       ) : (
         <div ref={listRef} className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3">
           {chat.entries.length === 0 && (
@@ -56,13 +65,16 @@ export function AgentPanel({ open }: { open: boolean }) {
           {chat.busy && <AgentWorking entries={chat.entries} />}
         </div>
       )}
-      {!showSettings && <PresetPicker presets={presets.presets} chosen={presets.chosen} onChoose={presets.choose} />}
-      <AgentInput
-        busy={chat.busy}
-        disabled={showSettings}
-        onSend={(text) => void chat.send(text, presets.chosen || undefined)}
-        onStop={chat.stop}
-      />
+      {!showSettings && (
+        <PresetPicker
+          presets={presets.presets}
+          chosen={presets.chosen}
+          onChoose={presets.choose}
+          showingDetails={showPreset}
+          onToggleDetails={() => setViewingPreset((viewing) => !viewing)}
+        />
+      )}
+      <AgentInput busy={chat.busy} disabled={showSettings} onSend={send} onStop={chat.stop} />
     </aside>
   );
 }

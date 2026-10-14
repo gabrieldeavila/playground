@@ -74,5 +74,7 @@ Reusable recipes per kind of piece, and the same request over many images.
 - [x] Live-tested: preset + batch over 2 photos with gpt (white background removed, logo, title, price)
 - [ ] Batch from the UI (drop several photos, pick preset, download a zip)
 - [ ] Attach images in the agent panel instead of typing paths
-- [ ] Manage presets in the UI (view/edit/delete)
+- [x] View presets in the UI: ⓘ next to the picker shows preview, size, fonts (in their face), colors, assets, instructions
+- [x] Preview `<name>.preview.png`: saved after each chat turn that used the preset, and by save_preset
+- [ ] Edit/delete presets in the UI
 - [ ] Batch runs share the one agent session: it resets the panel's conversation

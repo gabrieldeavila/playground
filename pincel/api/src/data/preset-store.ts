@@ -1,10 +1,11 @@
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { presetNameSchema, presetSchema, type Preset, type PresetSummary } from '../domain/presets/preset.js';
 import type { DocumentTemplate } from './document-template.js';
 
 const TEMPLATE_SUFFIX = '.template.json';
+const PREVIEW_SUFFIX = '.preview.png';
 
 export interface StoredPreset {
   preset: Preset;
@@ -13,11 +14,13 @@ export interface StoredPreset {
 
 /**
  * Presets live as `<name>.json` (editable by hand) plus an optional
- * `<name>.template.json` with the document to start from.
+ * `<name>.template.json` with the document to start from and a
+ * `<name>.preview.png` of the latest piece made with it.
  */
 export function createPresetStore(dir: string) {
   const presetPath = (name: string) => join(dir, `${presetNameSchema.parse(name)}.json`);
   const templatePath = (name: string) => join(dir, `${presetNameSchema.parse(name)}${TEMPLATE_SUFFIX}`);
+  const previewPath = (name: string) => join(dir, `${presetNameSchema.parse(name)}${PREVIEW_SUFFIX}`);
 
   async function names(): Promise<string[]> {
     const files = await readdir(dir).catch(() => [] as string[]);
@@ -45,7 +48,8 @@ export function createPresetStore(dir: string) {
         (await names()).map(async (name) => {
           const preset = await readPreset(name).catch(() => null);
           const template = await readTemplate(name).catch(() => null);
-          return preset && { name, description: preset.description, hasTemplate: template !== null };
+          const hasPreview = await stat(previewPath(name)).then(() => true, () => false);
+          return preset && { name, description: preset.description, hasTemplate: template !== null, hasPreview };
         }),
       );
       return all.filter((summary) => summary !== null);
@@ -69,6 +73,16 @@ export function createPresetStore(dir: string) {
       if (!(await names()).includes(name)) throw new Error(`No preset "${name}"`);
       await rm(presetPath(name));
       await rm(templatePath(name), { force: true });
+      await rm(previewPath(name), { force: true });
+    },
+
+    /** Keeps a picture of a piece made with the preset, so people can recognize it. Ignored for unknown presets. */
+    async savePreview(name: string, png: Buffer): Promise<void> {
+      if ((await names()).includes(name)) await writeFile(previewPath(name), png);
+    },
+
+    readPreview(name: string): Promise<Buffer | null> {
+      return readFile(previewPath(name)).catch(() => null);
     },
   };
 }

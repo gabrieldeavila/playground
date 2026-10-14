@@ -25,6 +25,6 @@ export function createApp(services: ToolServices, agentSettings: AgentSettingsSt
   app.use(documentRoutes(engine));
   app.use(eventRoutes(engine));
   app.use(presetRoutes(services.presets));
-  app.use(agentRoutes(new AgentSession(services, agentSettings), agentSettings));
+  app.use(agentRoutes(new AgentSession(services, agentSettings), agentSettings, services));
   return app;
 }

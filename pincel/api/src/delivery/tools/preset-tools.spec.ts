@@ -16,7 +16,7 @@ async function setup() {
   const engine = new DocumentEngine(napiPaintEnv);
   const services = { engine, fonts: createFontStore(join(dir, 'fonts')), presets: createPresetStore(join(dir, 'presets')) };
   const call = (tool: string, input: unknown) => runTool(findTool(tool)!, input, { ...services, source: 'agent' });
-  return { engine, call, dir };
+  return { engine, call, dir, presets: services.presets };
 }
 
 const promo = {
@@ -31,9 +31,10 @@ const promo = {
 
 describe('preset tools', () => {
   it('saves, lists and applies a preset as a blank canvas with its brief', async () => {
-    const { engine, call } = await setup();
+    const { engine, call, presets } = await setup();
     expect((await call('list_presets', {})).text).toContain('No presets yet');
     await call('save_preset', promo);
+    expect(await presets.list()).toEqual([{ name: 'promo-post', description: 'Square promo post', hasTemplate: false, hasPreview: true }]);
     expect((await call('list_presets', {})).text).toBe('promo-post: Square promo post');
 
     const applied = await call('apply_preset', { name: 'promo-post' });
@@ -64,7 +65,7 @@ describe('preset tools', () => {
   });
 
   it('protects existing presets and explains unknown or broken ones', async () => {
-    const { call, dir } = await setup();
+    const { call, dir, presets } = await setup();
     await call('save_preset', promo);
     await expect(call('save_preset', promo)).rejects.toThrow('already exists');
     await call('save_preset', { ...promo, description: 'Updated', overwrite: true });
@@ -77,6 +78,8 @@ describe('preset tools', () => {
 
     await call('delete_preset', { name: 'promo-post' });
     expect((await call('list_presets', {})).text).toContain('No presets yet');
+    await presets.savePreview('promo-post', Buffer.from('png'));
+    expect(await presets.readPreview('promo-post')).toBeNull();
   });
 
   it('warns about a font it cannot load instead of failing', async () => {

@@ -39,6 +39,7 @@ export interface PresetSummary {
   name: string;
   description: string;
   hasTemplate: boolean;
+  hasPreview: boolean;
 }
 
 export const DEFAULT_FONT_WEIGHTS = ['400', '700'];
